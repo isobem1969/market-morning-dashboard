@@ -42,6 +42,7 @@ try {
   await page.locator('#manual-date').fill(today);
   await page.getByRole('button',{name:'保存',exact:true}).click();
   assert.equal((await page.locator('article[aria-label="Fear & Greed"]').getAttribute('class')).includes('alert'),true);
+  await page.unrouteAll();
   await context.setOffline(true);
   await page.getByRole('button',{name:'更新を確認'}).click();
   await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('通信できません'));

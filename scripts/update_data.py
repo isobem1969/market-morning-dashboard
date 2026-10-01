@@ -142,7 +142,7 @@ def nasdaq_page():
     text = fetch(SOURCES['nasdaq'][3])
     value = re.search(r'<span class="fprice">([\d,]+)</span>', text)
     date = re.search(r'<span class="ptdate">(\d{4}年\d{2}月\d{2}日)</span>', text)
-    change = re.search(r'class="fprice (plus|minus)"[^>]*>(.*?)</div>', text, re.S)
+    change = re.search(r'<div class="fprice(?: (plus|minus))?"[^>]*>(.*?)</div>', text, re.S)
     if not value or not date or not change:
         raise ValueError('NASDAQ page structure changed')
     body = re.sub(r'<[^>]+>', '', change[2])

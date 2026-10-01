@@ -2,6 +2,7 @@ export function quality(m, now=Date.now(), pipeline=null, offline=false) {
   if (!Number.isFinite(m.value) || !m.asOf) return {usable:false,label:'未取得'};
   if (offline) return {usable:false,label:'オフライン・保存データ'};
   if (m.status==='error') return {usable:false,label:'取得失敗・前回値'};
+  if (!['ok','manual'].includes(m.status)) return {usable:false,label:'取得状況を確認してください'};
   const date=Date.parse(m.asOf.length===10 ? `${m.asOf}T23:59:59+09:00` : m.asOf);
   if (!Number.isFinite(date) || date>now+86400000) return {usable:false,label:'日時を確認してください'};
   if (now-date>4*86400000) return {usable:false,label:'公表から4日超・参考値'};

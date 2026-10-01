@@ -21,6 +21,13 @@ class CollectorTest(unittest.TestCase):
         self.assertEqual(result['change'],1000)
         self.assertEqual(result['peak'],12000)
 
+    def test_nasdaq_zero_change_is_valid(self):
+        html='<span class="fprice">10,000</span><span class="ptdate">2026年10月01日</span><div class="fprice">0円（0.00%）</div>'
+        with patch.object(c,'fetch',return_value=html):
+            result=c.nasdaq_page()
+        self.assertEqual(result['value'],10000)
+        self.assertEqual(result['change'],0)
+
     def test_future_and_regressed_observations_rejected(self):
         now=dt.datetime(2026,10,1,tzinfo=c.UTC)
         for new,old in [('2026-10-10',{}),('2026-09-20',{'asOf':'2026-09-30'})]:
