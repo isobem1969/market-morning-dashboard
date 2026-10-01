@@ -28,6 +28,19 @@ jobs:
       - run: python -m unittest discover -s tests -p 'test_*.py'
       - name: Collect public source data
         run: python scripts/update_data.py
+      - name: Install browser test dependencies
+        if: github.event_name != 'schedule'
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.62.1
+          npx playwright install --with-deps chromium
+      - name: Verify mobile display and interactions
+        if: github.event_name != 'schedule'
+        run: node tests/browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always() && github.event_name != 'schedule'
+        with:
+          name: mobile-screenshots
+          path: screenshots
       - name: Save observations
         run: |
           git config user.name 'github-actions[bot]'
