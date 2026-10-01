@@ -5,3 +5,5 @@
 .peak{border:1px solid #dce8e4;background:#f4f8f6;border-radius:10px;padding:10px;margin-top:12px}.peak-ratio{display:flex;flex-direction:column;align-items:flex-start;gap:2px;color:var(--ink);font-size:12px;font-weight:700}.peak-ratio strong{font-size:36px;font-weight:900;letter-spacing:-1px;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--teal);line-height:1.4}.peak-ratio small{font-size:20px;margin-left:2px}.peak-track{height:5px;background:#dce8e4;border-radius:4px;margin:6px 0 8px;overflow:hidden}.peak-track span{display:block;height:100%;background:#6b9d90;border-radius:4px}@media(max-width:500px){.peak-ratio{font-size:10px}.peak-ratio strong{font-size:32px}.peak{padding:8px}}
 
 .peak-discount{border-color:#e3aaaa;background:#fff2f2;color:var(--red)}.peak-discount .peak-ratio,.peak-discount .peak-ratio strong{color:var(--red)}.peak-discount .peak-track span{background:var(--red)}
+
+.card-head{align-items:flex-start}.card-title{font-size:20px;font-weight:900;color:#1753a6;line-height:1.5;overflow-wrap:anywhere;min-width:0}@media(max-width:500px){.card-title{font-size:18px}}
