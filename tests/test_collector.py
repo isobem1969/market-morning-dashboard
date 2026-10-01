@@ -34,4 +34,40 @@ class CollectorTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 c.merge_observation('vix',{'asOf':new,'history':[]},old,now)
 
+class FearFeedTest(unittest.TestCase):
+    def test_direct_failure_uses_dated_external_feed(self):
+        feed={'dates':['2026-09-30','2026-10-01'],'values':[29,28]}
+        with patch.object(c, 'cnn_direct', side_effect=ValueError('418')), patch.object(c, 'fetch', return_value=c.json.dumps(feed)):
+            result=c.collect_one('fear',{},dt.datetime(2026,10,2,tzinfo=c.UTC))
+        self.assertEqual(result['status'],'ok')
+        self.assertEqual(result['value'],28)
+        self.assertEqual(result['asOf'],'2026-10-01')
+        self.assertEqual(result['change'],-1)
+        self.assertIn('外部配信',result['source'])
+        self.assertEqual(result['sourceUrl'],'https://fearandgreedgraph.com/data')
+
+    def test_direct_source_is_preferred(self):
+        with patch.object(c,'cnn_direct',return_value={'value':31}), patch.object(c,'fetch') as fetch:
+            self.assertEqual(c.cnn()['value'],31)
+            fetch.assert_not_called()
+
+    def test_invalid_external_feed_is_rejected(self):
+        for feed in [
+            {'dates':[],'values':[]},
+            {'dates':['2026-10-01'],'values':[28,29]},
+            {'dates':['2026-10-01'],'values':[101]},
+            {'dates':['2026-10-01'],'values':[float('nan')]},
+            {'dates':['2026-10-01'],'values':[True]},
+            {'dates':['2026-02-30'],'values':[28]},
+        ]:
+            with self.subTest(feed=feed), self.assertRaises(ValueError):
+                c.parse_fear_feed(feed)
+
+    def test_both_sources_fail_without_inventing_values(self):
+        with patch.object(c,'cnn_direct',side_effect=ValueError('blocked')), patch.object(c,'fetch',side_effect=ValueError('unavailable')):
+            result=c.collect_one('fear',{},dt.datetime(2026,10,2,tzinfo=c.UTC))
+        self.assertEqual(result['status'],'error')
+        self.assertNotIn('value',result)
+
 if __name__=='__main__': unittest.main()
+

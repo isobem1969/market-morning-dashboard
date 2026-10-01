@@ -30,13 +30,13 @@
     <div id="cards" class="grid"></div>
     <section class="guide">
       <details><summary>更新とアラートについて</summary><div class="details-body">
-        <p>起動時・画面に戻ったときに、サーバーの保存データを読み込みます。取得は毎時実行予定です。<strong>リアルタイム配信ではなく、GitHub Actionsの実行遅延もあります。</strong>「更新を確認」は新しい保存データを読み直すボタンです。</p>
+        <p>起動時・画面に戻ったときに、サーバーの保存データを読み込みます。取得は毎時実行予定です。<strong>リアルタイム配信ではなく、GitHub Actionsの実行遅延もあります。</strong>「更新を確認」は新しい保存データを読み直すボタンです。自動取得した値は共通のサーバーに保存され、Mac・iPhone・iPadで共有されます。</p>
         <p>VIX・日経VIは日次終値。投資信託の基準価額は1万口あたりの公表価格です。米国市場の値と日本の投信は同じ時点ではありません。ブレントは期近先物で、限月切り替えの影響があります。</p>
         <p>条件に達した指標は赤く表示。VIX 20以上30未満は黄色です。条件はご指定の目安で、収益や買い時を保証する指標ではありません。データ不足時は総合判定を保留します。</p>
         <p>取得失敗・データの古さを別々に表示します。4日を超えた値や、サーバー取得処理が30時間を超えて止まっている値は、判定に使いません。休日は公表日が変わらないことがあります。チャートは直近7回／30回の公表値で、暦日ではありません。</p>
       </div></details>
       <details><summary>CNNの値を補完する</summary><div class="details-body">
-        <p>自動取得できない場合は、<a href="https://edition.cnn.com/markets/fear-and-greed" target="_blank" rel="noopener noreferrer">CNNのページ</a>で確認した値を入力できます。この端末だけに保存し「手入力」と表示します。値の公表日を指定してください。</p>
+        <p>Fear &amp; GreedはCNNを優先して取得し、失敗した場合はFear &amp; Greed Graphの外部配信値を取得します。利用した取得元と公表日をカードに表示します。外部配信はCNNとの提携を意味せず、値や更新時刻に差が出る場合があります。</p><p>両方から自動取得できない場合は、<a href="https://edition.cnn.com/markets/fear-and-greed" target="_blank" rel="noopener noreferrer">CNNのページ</a>で確認した値を入力できます。この端末だけに保存し「手入力」と表示します。値の公表日を指定してください。</p>
         <form id="manual-form"><label>Fear & Greed（0〜100）<input id="manual-value" type="number" min="0" max="100" step="0.01" required inputmode="decimal"></label><label>値の公表日<input id="manual-date" type="date" required></label><div class="form-actions"><button type="submit">保存</button><button type="button" id="clear-manual">手入力を削除</button></div><p id="manual-status" role="status"></p></form>
       </div></details>
       <details><summary>iPhone・iPadのホーム画面に追加</summary><div class="details-body"><p>Safariで開き、共有ボタン →「ホーム画面に追加」。次からアイコンをタップして起動できます。オフラインでは保存済みデータを参考表示し、判定を保留します。</p></div></details>

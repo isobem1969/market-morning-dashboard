@@ -88,7 +88,7 @@ def nikkei():
     rows = list(csv.reader(io.StringIO(text)))[1:]
     return series_result([(iso_date(r[0]), r[1]) for r in rows if len(r) >= 2 and re.match(r'^\d{4}/', r[0])], '日本市場・日次終値')
 
-def cnn():
+def cnn_direct():
     data = json.loads(fetch('https://production.dataviz.cnn.io/index/fearandgreed/graphdata'))
     current = data['fear_and_greed']
     score = float(current['score'])
@@ -103,7 +103,36 @@ def cnn():
     previous = current.get('previous_close')
     result['change'] = score - float(previous) if previous is not None else None
     result['changePct'] = None
+    result['source'] = 'CNN'
+    result['sourceUrl'] = SOURCES['fear'][3]
     return result
+
+def parse_fear_feed(data):
+    dates, values = data.get('dates'), data.get('values')
+    if not isinstance(dates, list) or not dates or not isinstance(values, list) or len(dates) != len(values):
+        raise ValueError('Fear & Greed feed has invalid series')
+    points = []
+    for date, value in zip(dates, values):
+        if not isinstance(date, str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}', date):
+            raise ValueError('Fear & Greed feed has invalid date')
+        dt.date.fromisoformat(date)
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 <= value <= 100:
+            raise ValueError('Fear & Greed feed score out of range')
+        points.append((date, value))
+    result = series_result(points, '外部配信値（CNN直接取得不可）')
+    result['changePct'] = None
+    result['source'] = 'Fear & Greed Graph（外部配信）'
+    result['sourceUrl'] = 'https://fearandgreedgraph.com/data'
+    return result
+
+def cnn():
+    try:
+        return cnn_direct()
+    except Exception as direct_error:
+        try:
+            return parse_fear_feed(json.loads(fetch('https://fearandgreedgraph.com/api/fear-greed')))
+        except Exception as feed_error:
+            raise ValueError(f'CNN: {direct_error}; external feed: {feed_error}') from feed_error
 
 def nasdaq():
     latest = nasdaq_page()
@@ -185,7 +214,7 @@ def collect_one(key, previous, now):
         # Keep the previous observation AND its original dates. Never mark it current.
         result = {**previous, 'status': 'error', 'attemptedAt': now.isoformat(),
                   'error': f'{type(exc).__name__}: {exc}'[:200]}
-    return {**result, **base}
+    return {**result, **base, 'source': result.get('source', source), 'sourceUrl': result.get('sourceUrl', url)}
 
 def main():
     path = ROOT / 'public/data/market.json'
