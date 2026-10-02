@@ -7,3 +7,5 @@
 .peak-discount{border-color:#e3aaaa;background:#fff2f2;color:var(--red)}.peak-discount .peak-ratio,.peak-discount .peak-ratio strong{color:var(--red)}.peak-discount .peak-track span{background:var(--red)}
 
 .card-head{align-items:flex-start}.card-title{font-size:20px;font-weight:900;color:#1753a6;line-height:1.5;overflow-wrap:anywhere;min-width:0}@media(max-width:500px){.card-title{font-size:18px}}
+
+.fund-change{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;font-size:22px;font-weight:900;line-height:1.5;margin-top:10px}.fund-change .change-amount,.fund-change .change-pct{white-space:nowrap}@media(max-width:500px){.fund-change{font-size:20px}}
