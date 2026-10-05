@@ -32,7 +32,7 @@ def iso_date(value):
     digits = re.sub(r'\D', '', value)
     return dt.datetime.strptime(digits[:8], '%Y%m%d').date().isoformat()
 
-def series_result(points, kind, peak=False):
+def series_result(points, kind, peak=False, history_limit=90):
     clean = {}
     for date, value in points:
         value = float(value)
@@ -47,7 +47,7 @@ def series_result(points, kind, peak=False):
     result = {'value': value, 'asOf': date, 'kind': kind,
               'change': value - previous if previous is not None else None,
               'changePct': (value / previous - 1) * 100 if previous else None,
-              'history': [{'date': d, 'value': v} for d, v in ordered[-90:]]}
+              'history': [{'date': d, 'value': v} for d, v in ordered[-history_limit:]]}
     if peak:
         result['peak'] = max(v for _, v in ordered)
         result['peakLabel'] = '取得した設定来データの最高値'
@@ -81,7 +81,7 @@ def yahoo(symbol):
 def cboe():
     rows = csv.DictReader(io.StringIO(fetch('https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX_History.csv')))
     points = [(dt.datetime.strptime(r['DATE'], '%m/%d/%Y').date().isoformat(), r['CLOSE']) for r in rows]
-    return series_result(points, '米国市場・日次終値')
+    return series_result(points, '米国市場・日次終値', history_limit=400)
 
 def nikkei():
     text = fetch('https://indexes.nikkei.co.jp/nkave/historical/nikkei_stock_average_vi_daily_jp.csv', 'cp932')
@@ -202,7 +202,8 @@ def merge_observation(key, observation, previous, now):
         raise ValueError('Source returned an older observation')
     points = {p['date']: p['value'] for p in previous.get('history', [])}
     points.update({p['date']: p['value'] for p in observation['history']})
-    observation['history'] = [{'date': d, 'value': v} for d, v in sorted(points.items())[-90:]]
+    history_limit = 400 if key == 'vix' else 90
+    observation['history'] = [{'date': d, 'value': v} for d, v in sorted(points.items())[-history_limit:]]
     return {**observation, 'status': 'ok', 'lastSuccess': now.isoformat(), 'attemptedAt': now.isoformat(), 'error': None}
 
 def collect_one(key, previous, now):

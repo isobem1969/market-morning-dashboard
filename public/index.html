@@ -11,8 +11,8 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icon-192.png">
-  <link rel="stylesheet" href="./style.css?v=fund-change-20261002">
-  <script type="module" src="./app.js?v=fund-change-20261002"></script>
+  <link rel="stylesheet" href="./style.css?v=vix-20261006">
+  <script type="module" src="./app.js?v=vix-20261006"></script>
 </head>
 <body>
   <main>
@@ -32,8 +32,8 @@
       <details><summary>更新とアラートについて</summary><div class="details-body">
         <p>起動時・画面に戻ったときに、サーバーの保存データを読み込みます。取得は毎時実行予定です。<strong>リアルタイム配信ではなく、GitHub Actionsの実行遅延もあります。</strong>「更新を確認」は新しい保存データを読み直すボタンです。自動取得した値は共通のサーバーに保存され、Mac・iPhone・iPadで共有されます。</p>
         <p>VIX・日経VIは日次終値。投資信託の基準価額は1万口あたりの公表価格です。米国市場の値と日本の投信は同じ時点ではありません。ブレントは期近先物で、限月切り替えの影響があります。</p>
-        <p>条件に達した指標は赤く表示。VIX 20以上30未満は黄色です。条件はご指定の目安で、収益や買い時を保証する指標ではありません。データ不足時は総合判定を保留します。</p>
-        <p>取得失敗・データの古さを別々に表示します。4日を超えた値や、サーバー取得処理が30時間を超えて止まっている値は、判定に使いません。休日は公表日が変わらないことがあります。チャートは直近7回／30回の公表値で、暦日ではありません。</p>
+        <p>VIXの数値は15未満が緑、15以上20未満が青、20以上30未満が黄、30以上40未満が橙、40以上が赤です。添付画像に沿った表示の目安で、総合条件チェックは従来どおりVIX 30以上で条件到達とします。データ不足時は総合判定を保留します。</p>
+        <p>取得失敗・データの古さを別々に表示します。4日を超えた値や、サーバー取得処理が30時間を超えて止まっている値は、判定に使いません。休日は公表日が変わらないことがあります。VIXのグラフは最新の取得終値を終点に3か月／6か月／1年で切り替えます。他のチャートは直近7回／30回の公表値で、暦日ではありません。</p>
       </div></details>
       <details><summary>CNNの値を補完する</summary><div class="details-body">
         <p>Fear &amp; GreedはCNNを優先して取得し、失敗した場合はFear &amp; Greed Graphの外部配信値を取得します。利用した取得元と公表日をカードに表示します。外部配信はCNNとの提携を意味せず、値や更新時刻に差が出る場合があります。</p><p>両方から自動取得できない場合は、<a href="https://edition.cnn.com/markets/fear-and-greed" target="_blank" rel="noopener noreferrer">CNNのページ</a>で確認した値を入力できます。この端末だけに保存し「手入力」と表示します。値の公表日を指定してください。</p>

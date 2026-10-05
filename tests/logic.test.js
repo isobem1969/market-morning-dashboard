@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {signal,quality,overall} from '../public/logic.js';
+import {signal,quality,overall,vixBand,selectVixHistory} from '../public/logic.js';
 const now=Date.parse('2026-10-02T00:00:00Z'),pipeline='2026-10-01T23:00:00Z';
 const m=(id,value)=>({id,name:id,value,status:'ok',asOf:'2026-10-01'});
 test('alerts honor exact user boundaries',()=>{
@@ -19,4 +19,13 @@ test('partial data is held; a verified triggered condition remains visible',()=>
  assert.equal(overall([m('vix',16),m('vi',22)],now,pipeline).count,2);
  assert.equal(overall([m('vix',31),m('vi',22)],now,pipeline).tone,'alert');
  assert.equal(overall([m('vix',16),m('vi',22),m('fear',31)],now,pipeline).title,'指定条件への到達なし');
+});
+test('VIX reference bands have unambiguous exact boundaries',()=>{
+ for(const [value,key] of [[0,'calm'],[9,'calm'],[14.99,'calm'],[15,'normal'],[19.99,'normal'],[20,'watch'],[29.99,'watch'],[30,'fear'],[39.99,'fear'],[40,'panic'],[80,'panic']])assert.equal(vixBand(value).key,key);
+ for(const value of [null,NaN,Infinity,-1])assert.equal(vixBand(value),null);
+});
+test('VIX calendar ranges sort, deduplicate and handle month-end cutoffs',()=>{
+ const points=[{date:'2026-05-31',value:16},{date:'2026-02-28',value:20},{date:'2026-02-27',value:21},{date:'2026-05-31',value:17},{date:'2026-02-30',value:18},{date:'2026-04-01',value:NaN}];
+ assert.deepEqual(selectVixHistory(points,3),[{date:'2026-02-28',value:20},{date:'2026-05-31',value:17}]);
+ assert.deepEqual(selectVixHistory([],12),[]);
 });

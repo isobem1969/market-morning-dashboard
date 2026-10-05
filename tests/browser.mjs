@@ -15,7 +15,7 @@ try {
   const page=await context.newPage();
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await fs.mkdir('screenshots',{recursive:true});
-  for(const [name,width,height] of [['iphone',390,844],['ipad-mini',744,1133],['small-iphone',320,700]]){
+  for(const [name,width,height] of [['mac',1440,1000],['iphone',390,844],['ipad-mini',744,1133],['small-iphone',320,700]]){
     await page.setViewportSize({width,height});
     await page.goto('http://127.0.0.1:8765');
     await page.waitForSelector('.card');
@@ -31,7 +31,18 @@ try {
   await page.route('**/data/market.json?*',route=>route.fulfill({json:fixture}));
   await page.getByRole('button',{name:'更新を確認'}).click();
   await page.waitForFunction(()=>document.querySelector('#summary').textContent.includes('指定条件に到達'));
-  assert.equal(await page.locator('article[aria-label="VIX 恐怖指数"]').getAttribute('class'),'card alert');
+  assert.equal(await page.locator('.vix-card').getAttribute('data-band'),'fear');
+  assert.equal((await page.locator('.vix-card').getAttribute('class')).includes('alert'),true);
+  for(const [value,band]of [[14.99,'calm'],[15,'normal'],[20,'watch'],[30,'fear'],[40,'panic']]){
+    fixture.metrics=fixture.metrics.map(m=>m.id==='vix'?{...m,value}:m);
+    await page.getByRole('button',{name:'更新を確認'}).click();
+    await page.waitForFunction(b=>document.querySelector('.vix-card').dataset.band===b,band);
+    assert.equal(await page.locator('.vix-legend .active').count(),1);
+  }
+  await page.locator('[data-vix-months="3"]').click();
+  assert.equal(await page.locator('[data-vix-months="3"]').getAttribute('aria-pressed'),'true');
+  await page.locator('[data-vix-months="12"]').click();
+  assert.equal(await page.locator('[data-vix-months="12"]').getAttribute('aria-pressed'),'true');
   assert.equal((await page.locator('article[aria-label="Fear & Greed"]').getAttribute('class')).includes('alert'),false);
   fixture.metrics=fixture.metrics.map(m=>({...m,status:'error'}));
   await page.getByRole('button',{name:'更新を確認'}).click();

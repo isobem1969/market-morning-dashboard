@@ -7,6 +7,14 @@ spec=importlib.util.spec_from_file_location('collector',pathlib.Path(__file__).r
 c=importlib.util.module_from_spec(spec);spec.loader.exec_module(c)
 
 class CollectorTest(unittest.TestCase):
+    def test_vix_retains_a_year_of_history_when_merged(self):
+        points=[((dt.date(2025,1,1)+dt.timedelta(days=i)).isoformat(),15+i%5) for i in range(500)]
+        result=c.series_result(points,'VIX',history_limit=400)
+        self.assertEqual(len(result['history']),400)
+        merged=c.merge_observation('vix',result,{},dt.datetime(2026,10,5,tzinfo=c.UTC))
+        self.assertEqual(len(merged['history']),400)
+        self.assertEqual(len(c.merge_observation('vi',result,{},dt.datetime(2026,10,5,tzinfo=c.UTC))['history']),90)
+
     def test_failure_preserves_original_observation_date(self):
         previous={'value':31,'asOf':'2026-09-30','lastSuccess':'2026-09-30T10:00:00Z','history':[]}
         with patch.dict(c.ADAPTERS,{'fear':lambda: (_ for _ in ()).throw(ValueError('blocked'))}):
@@ -70,4 +78,3 @@ class FearFeedTest(unittest.TestCase):
         self.assertNotIn('value',result)
 
 if __name__=='__main__': unittest.main()
-

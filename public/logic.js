@@ -26,3 +26,31 @@ export function overall(metrics, now, pipeline, offline=false) {
   if(usable.some(m=>signal(m.id,m.value).tone==='watch'))return {tone:'watch',title:'🟡 VIXが警戒域',detail:'VIXは20以上30未満。赤色の指定条件には達していません。',count:usable.length};
   return {tone:'',title:'指定条件への到達なし',detail:'確認できた3指標は、赤色の指定条件には達していません。',count:usable.length};
 }
+
+export const VIX_BANDS=[
+  {key:'calm',min:0,max:15,range:'10〜15',label:'平穏',color:'#16886f'},
+  {key:'normal',min:15,max:20,range:'15〜20',label:'スタンダード',color:'#2563b8'},
+  {key:'watch',min:20,max:30,range:'20〜30',label:'警戒ゾーン',color:'#a46b08'},
+  {key:'fear',min:30,max:40,range:'30〜40',label:'恐怖ゾーン',color:'#c35d12'},
+  {key:'panic',min:40,max:Infinity,range:'40以上',label:'パニック状態',color:'#bc303c'},
+];
+export function vixBand(value){
+  return Number.isFinite(value)&&value>=0?VIX_BANDS.find(b=>value>=b.min&&value<b.max):null;
+}
+export function selectVixHistory(points,months=12){
+  const clean=new Map();
+  for(const p of points||[]){
+    if(!Number.isFinite(p.value)||p.value<0||!/^\d{4}-\d{2}-\d{2}$/.test(p.date))continue;
+    const t=Date.parse(p.date+'T00:00:00Z');
+    if(!Number.isFinite(t)||new Date(t).toISOString().slice(0,10)!==p.date)continue;
+    clean.set(p.date,{date:p.date,value:p.value});
+  }
+  const sorted=[...clean.values()].sort((a,b)=>a.date.localeCompare(b.date));
+  if(!sorted.length)return [];
+  const cutoff=new Date(sorted.at(-1).date+'T00:00:00Z'),day=cutoff.getUTCDate();
+  cutoff.setUTCDate(1);cutoff.setUTCMonth(cutoff.getUTCMonth()-months);
+  const lastDay=new Date(Date.UTC(cutoff.getUTCFullYear(),cutoff.getUTCMonth()+1,0)).getUTCDate();
+  cutoff.setUTCDate(Math.min(day,lastDay));
+  const start=cutoff.toISOString().slice(0,10);
+  return sorted.filter(p=>p.date>=start);
+}
