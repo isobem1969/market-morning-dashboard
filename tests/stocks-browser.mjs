@@ -14,6 +14,14 @@ try{
   await page.setViewportSize({width,height});await page.goto('http://127.0.0.1:8766/stocks.html');await page.waitForSelector('.stock-tile');
   assert.equal(await page.locator('.stock-tile').count(),12);
   assert.equal(await page.locator('.research-panel').count(),12);
+  assert.equal(await page.locator('.research-missing').count(),33);
+  const missing=page.locator('.stock-tile[data-symbol="AAPL"] .research-missing');
+  for(const link of await missing.all()){
+   assert.equal(await link.getAttribute('href'),'https://us.minkabu.jp/stocks/AAPL/researches');
+   assert.equal(await link.getAttribute('target'),'_blank');
+  }
+  assert.ok((await page.locator('.stock-tile[data-symbol="AAPL"] [data-ma="25"]').getAttribute('d')).includes('L'));
+  assert.ok((await page.locator('.stock-tile[data-symbol="AAPL"] [data-ma="75"]').getAttribute('d')).includes('L'));
   const nvda=page.locator('.stock-tile[data-symbol="NVDA"] .research-panel');
   assert.equal(await nvda.locator('.research-badge.green').innerText(),'割高');
   assert.equal(await nvda.locator('.research-badge.orange').innerText(),'割安');
@@ -26,6 +34,8 @@ try{
   await aapl.getByRole('button',{name:label,exact:true}).click();
   assert.equal(await aapl.getByRole('button',{name:label,exact:true}).getAttribute('aria-pressed'),'true');
   assert.equal(await aapl.locator('.periods [aria-pressed="true"]').count(),1);
+  assert.ok((await aapl.locator('[data-ma="25"]').getAttribute('d')).includes('L'));
+  assert.ok((await aapl.locator('[data-ma="75"]').getAttribute('d')).includes('L'));
  }
  assert.equal(await page.locator('[data-symbol="MSFT"].stock-tile').getByRole('button',{name:'6カ月',exact:true}).getAttribute('aria-pressed'),'true');
  const saved=JSON.parse(await fs.readFile('public/data/stocks.json','utf8'));

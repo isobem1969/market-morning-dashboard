@@ -19,3 +19,24 @@ test('saved/error/offline-age values must not appear current',()=>{
  assert.equal(sectionOld({status:'ok',lastSuccess:'2026-10-06T20:00:00Z'},iso,now),true);
  assert.equal(sectionOld({status:'ok',lastSuccess:iso,marketOpen:true,asOf:'2026-10-06T20:00:00Z'},iso,now),true);
 });
+
+test('25 and 75 session averages warm up before the selected range',async()=>{
+ const {dailyAverages,chartPoints}=await import('../public/stocks-logic.js');
+ const daily=Array.from({length:100},(_,i)=>({time:Date.UTC(2026,0,i+1,20)/1000,value:i+1}));
+ const a=dailyAverages(daily);
+ assert.equal(a[23].ma25,null);assert.equal(a[24].ma25,13);
+ assert.equal(a[73].ma75,null);assert.equal(a[74].ma75,38);
+ assert.equal(a[99].ma25,88);assert.equal(a[99].ma75,63);
+ const visible=chartPoints({daily},'1m');
+ assert.ok(visible.length<100);assert.equal(visible.at(-1).ma75,63);
+ assert.equal(visible[0].ma25,a.find(p=>p.time===visible[0].time).ma25);
+});
+test('intraday daily averages never use the current session final close',async()=>{
+ const {chartPoints}=await import('../public/stocks-logic.js');
+ const daily=Array.from({length:80},(_,i)=>({time:Date.UTC(2026,0,i+1,14)/1000,value:i+1}));
+ daily[79].value=10000;
+ const intraday=[{time:daily[79].time+3600,value:100,volume:50}];
+ const p=chartPoints({daily,intraday},'1d')[0];
+ assert.equal(p.ma25,67);assert.equal(p.ma75,42);assert.equal(p.volume,50);
+ assert.equal(chartPoints({daily:daily.slice(0,10),intraday},'1d')[0].ma25,null);
+});

@@ -63,13 +63,17 @@ def chart(symbol, interval, span):
     return results[0]
 
 def points(result):
-    closes = result['indicators']['quote'][0]['close']
+    quote = result['indicators']['quote'][0]
+    closes = quote['close']
+    volumes = quote.get('volume', [])
     clean = {}
-    for stamp, value in zip(result.get('timestamp', []), closes):
+    for i, (stamp, value) in enumerate(zip(result.get('timestamp', []), closes)):
         n = number(value)
         if n is not None and n > 0:
-            clean[int(stamp)] = n
-    return [{'time': t, 'value': v} for t, v in sorted(clean.items())]
+            volume = number(volumes[i]) if i < len(volumes) else None
+            clean[int(stamp)] = {'time': int(stamp), 'value': n,
+                                 'volume': volume if volume is not None and volume >= 0 else None}
+    return [clean[t] for t in sorted(clean)]
 
 def price_observation(daily, intraday, now):
     meta = intraday['meta']
@@ -114,7 +118,7 @@ def collect(symbol, name, old, now):
             'quoteUrl': f'https://finance.yahoo.co.jp/quote/{symbol}',
             'forumUrl': f'https://finance.yahoo.co.jp/quote/{symbol}/forum'}
     def prices():
-        daily = chart(symbol, '1d', '2y')
+        daily = chart(symbol, '1d', '5y')  # Warm-up history for the 2-year 75-session average.
         intraday = chart(symbol, '5m', '5d')
         # SPCX was reused after the former ETF; never chart that predecessor.
         if symbol == 'SPCX':
