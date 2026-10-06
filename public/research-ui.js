@@ -1,0 +1,24 @@
+import {SYMBOLS,VERDICTS,OPINIONS,STORAGE_KEY,parseResearchText,validateRecord,decodeResearchFile,mergeResearch} from './research-import.js?v=import-20261007';
+const $=id=>document.getElementById(id);
+export function loadImportedResearch(){try{const raw=localStorage.getItem(STORAGE_KEY);if(!raw)return {};return Object.fromEntries(decodeResearchFile(raw).map(r=>[r.symbol,r]));}catch{return {};}}
+export function wireResearchImport(onSave){
+ const dialog=$('research-import-dialog'),form=$('research-import-form');let pending=[];
+ const message=t=>$('import-message').textContent=t;
+ const clearPreview=()=>{pending=[];$('import-confirm').checked=false;$('import-save').disabled=true;$('import-preview').replaceChildren();};
+ function preview(records){clearPreview();pending=records;for(const r of records){const p=document.createElement('p');p.textContent=`${r.symbol}：${r.opinion} ／ 目標株価 ${r.target===null?'未公表':'$'+r.target.toLocaleString('ja-JP')} ／ 株価診断 ${r.diagnosis} ／ アナリスト ${r.analyst}（保存 ${new Date(r.capturedAt).toLocaleString('ja-JP')}）`;$('import-preview').append(p);}message('銘柄・数値を元ページと照合してから保存してください。');}
+ const select=(id,values)=>{$(id).replaceChildren(...(id==='import-symbol'?values:['',...values]).map(v=>{const o=document.createElement('option');o.value=v;o.textContent=v||'選択してください';return o;}));};
+ select('import-symbol',SYMBOLS);select('import-opinion',OPINIONS);select('import-diagnosis',VERDICTS);select('import-analyst',VERDICTS);
+ function show(symbol){clearPreview();message('');$('import-text').value='';form.reset();if(symbol)$('import-symbol').value=symbol;updateLink();dialog.showModal();}
+ function updateLink(){const symbol=$('import-symbol').value;$('import-source').href=`https://us.minkabu.jp/stocks/${symbol}/researches`;clearPreview();}
+ document.addEventListener('click',e=>{const b=e.target.closest('[data-import-research]');if(b)show(b.dataset.importResearch);});
+ $('import-close').addEventListener('click',()=>dialog.close());
+ $('import-symbol').addEventListener('change',updateLink);
+ $('import-parse').addEventListener('click',()=>{clearPreview();try{const r=parseResearchText($('import-text').value,$('import-symbol').value);$('import-opinion').value=r.opinion;$('import-diagnosis').value=r.diagnosis;$('import-analyst').value=r.analyst;$('import-target').value=r.target??'';$('import-target-missing').checked=r.target===null;preview([validateRecord({...r,capturedAt:new Date().toISOString()})]);}catch(e){message(e.message);}});
+ $('import-review').addEventListener('click',()=>{clearPreview();try{const target=$('import-target-missing').checked?null:Number($('import-target').value);preview([validateRecord({symbol:$('import-symbol').value,opinion:$('import-opinion').value,diagnosis:$('import-diagnosis').value,analyst:$('import-analyst').value,target,capturedAt:new Date().toISOString()})]);}catch(e){message(e.message);}});
+ for(const id of ['import-text','import-opinion','import-diagnosis','import-analyst','import-target','import-target-missing'])$(id).addEventListener('input',clearPreview);
+ $('import-file').addEventListener('change',async e=>{clearPreview();try{const file=e.target.files?.[0];if(!file)return;if(file.size>50000)throw Error('ファイルが大きすぎます。');preview(decodeResearchFile(await file.text()));}catch(e){message(e.message);}finally{e.target.value='';}});
+ $('import-confirm').addEventListener('change',()=>{$('import-save').disabled=!(pending.length&&$('import-confirm').checked);});
+ form.addEventListener('submit',e=>{e.preventDefault();if(!pending.length||!$('import-confirm').checked)return;try{const merged=mergeResearch(loadImportedResearch(),pending);const bundle={format:'market-morning-minkabu',version:1,records:Object.values(merged.next)};localStorage.setItem(STORAGE_KEY,JSON.stringify(bundle));onSave(merged.next);dialog.close();$('research-transfer-status').textContent=`${merged.added}銘柄をこの端末に保存しました。${merged.skipped?'古い'+merged.skipped+'銘柄は上書きしませんでした。':''}`;}catch(e){message('保存できませんでした。'+e.message);}});
+ $('research-export').addEventListener('click',async()=>{const records=Object.values(loadImportedResearch());const status=$('research-transfer-status');if(!records.length){status.textContent='取り込み済みのデータがありません。';return;}const file=new File([JSON.stringify({format:'market-morning-minkabu',version:1,records},null,2)],'minkabu-panel-data.json',{type:'application/json'});try{if(navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:'米国株パネルのみんかぶデータ'});status.textContent='共有先の端末で「ファイルから取り込む」を開いてください。';}else{const url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);status.textContent='書き出したファイルを別端末で取り込めます。';}}catch(e){if(e.name!=='AbortError')status.textContent='共有できませんでした。別のブラウザーで書き出してください。';}});
+ window.addEventListener('storage',e=>{if(e.key===STORAGE_KEY)onSave(loadImportedResearch());});
+}

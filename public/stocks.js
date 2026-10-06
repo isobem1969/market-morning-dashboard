@@ -1,6 +1,8 @@
+import {loadImportedResearch,wireResearchImport} from './research-ui.js?v=import-20261007';
 import {PERIODS,chartPoints,nyDate,sectionOld} from './stocks-logic.js?v=averages-20261007';
 import {ATTACHMENT_RESEARCH,researchColor} from './stocks-research.js?v=minkabu-20261007';
 const container=document.querySelector('#stocks'),status=document.querySelector('#status'),refresh=document.querySelector('#refresh');
+let importedResearch=loadImportedResearch();
 const ranges=new Map();let data=null,offline=false,loading=false;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=(v,d=2)=>Number.isFinite(v)?v.toLocaleString('ja-JP',{minimumFractionDigits:d,maximumFractionDigits:d}):'—';
@@ -8,10 +10,10 @@ const signed=v=>Number.isFinite(v)?`${v>0?'+':v<0?'−':''}${num(Math.abs(v))}`:
 const stamp=t=>Number.isFinite(Date.parse(t))?new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(t))+' JST':'日時不明';
 function stale(p){return offline||sectionOld(p,data.generatedAt);}
 function researchPanel(s){
-  const r=ATTACHMENT_RESEARCH[s.symbol],link=`https://us.minkabu.jp/stocks/${s.symbol}/researches`;
+  const imported=importedResearch[s.symbol],r=imported||ATTACHMENT_RESEARCH[s.symbol],link=`https://us.minkabu.jp/stocks/${s.symbol}/researches`;
   const missing=cls=>`<a class="${cls} research-missing" href="${link}" target="_blank" rel="noopener noreferrer" aria-label="${esc(s.name)}のみんかぶ評価を確認（未取得）">未取得 <span aria-hidden="true">↗</span></a>`;
   const badge=value=>value?`<strong class="research-badge ${researchColor(value)}">${esc(value)}</strong>`:missing('research-badge');
-  return `<section class="research-panel" aria-label="${s.symbol}のみんかぶ評価"><div class="research-top ${researchColor(r?.opinion)}">${r?.opinion?`<span class="research-opinion">${esc(r.opinion)}</span>`:missing('research-opinion')}<div><span class="target-caption">目標株価</span><strong class="research-target">${r?'$'+num(r.target):'—'}</strong></div></div><div class="research-verdicts"><div><span>株価診断</span>${badge(r?.diagnosis)}</div><div><span>アナリスト</span>${badge(r?.analyst)}</div></div><p class="research-source">${r?'添付画像の参考値 · 受領 '+esc(r.receivedDate)+' · 公表日時不明／自動更新なし':'みんかぶの値は未取得です。最新情報は元ページで確認してください。'}<br><a href="${link}" target="_blank" rel="noopener noreferrer">みんかぶの評価を見る ↗</a></p></section>`;
+  return `<section class="research-panel" aria-label="${s.symbol}のみんかぶ評価"><div class="research-top ${researchColor(r?.opinion)}">${r?.opinion?`<span class="research-opinion">${esc(r.opinion)}</span>`:missing('research-opinion')}<div><span class="target-caption">目標株価</span><strong class="research-target">${Number.isFinite(r?.target)?'$'+num(r.target):'—'}</strong></div></div><div class="research-verdicts"><div><span>株価診断</span>${badge(r?.diagnosis)}</div><div><span>アナリスト</span>${badge(r?.analyst)}</div></div><p class="research-source">${imported?'みんかぶ画面から手動取り込み · 保存 '+stamp(imported.capturedAt)+' · 自動更新なし':r?'添付画像の参考値 · 受領 '+esc(r.receivedDate)+' · 公表日時不明／自動更新なし':'みんかぶの値は未取得です。最新情報は元ページで確認してください。'}<br><a href="${link}" target="_blank" rel="noopener noreferrer">みんかぶの評価を見る ↗</a> <button class="import-tile-button" type="button" data-import-research="${s.symbol}">${imported?'値を更新':'表示内容を取り込む'}</button></p></section>`;
 }
 function graph(stock,period){
   const pts=chartPoints(stock.price||{},period);
@@ -49,3 +51,5 @@ async function load(){
 container.addEventListener('click',e=>{const button=e.target.closest('[data-period]');if(!button)return;ranges.set(button.dataset.symbol,button.dataset.period);const stock=data.stocks.find(s=>s.symbol===button.dataset.symbol);button.closest('.stock-tile').outerHTML=tile(stock);container.querySelector(`[data-symbol="${stock.symbol}"][data-period="${button.dataset.period}"]`)?.focus({preventScroll:true});});
 container.addEventListener('pointermove',e=>{const svg=e.target.closest('svg[data-chart]');if(!svg||!data)return;const stock=data.stocks.find(s=>s.symbol===svg.dataset.chart);const pts=chartPoints(stock.price,ranges.get(stock.symbol)||'6m');const rect=svg.getBoundingClientRect();const pos=(e.clientX-rect.left)/rect.width*720;const index=Math.max(0,Math.min(pts.length-1,Math.round((pos-84)/(704-84)*(pts.length-1))));const point=pts[index];if(!point)return;const time=new Intl.DateTimeFormat('ja-JP',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(point.time*1000));svg.closest('.chart-section').querySelector('.chart-hover').textContent=`${time} 米国東部時間 · ${num(point.value)} USD · 25日線 ${num(point.ma25)} · 75日線 ${num(point.ma75)} · 出来高 ${Number.isFinite(point.volume)?num(point.volume,0)+'株':'未取得'}`;});
 refresh.addEventListener('click',load);document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});setInterval(()=>{if(!document.hidden)load();},5*60e3);load();
+
+wireResearchImport(next=>{importedResearch=next;render();});
