@@ -1,0 +1,13 @@
+name: Diagnose Minkabu response
+on:
+  push:
+    branches: [diagnose-minkabu-20261007]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect public research page once
+        run: python scripts/diagnose_minkabu.py
