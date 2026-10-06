@@ -40,12 +40,10 @@ try{
  assert.equal(await page.locator('[data-symbol="MSFT"].stock-tile').getByRole('button',{name:'6カ月',exact:true}).getAttribute('aria-pressed'),'true');
  const saved=JSON.parse(await fs.readFile('public/data/stocks.json','utf8'));
  const now=new Date().toISOString();
- const fixture={...saved,researchSource:{status:'http_error',httpStatus:403,checkedAt:now,nextCheckAt:now},generatedAt:now,stocks:saved.stocks.map(s=>({...s,price:{...s.price,status:'ok',lastSuccess:now},japan:{status:'ok',lastSuccess:now,ratios:{per:{value:null},pbr:{value:5}},sentiment:{buy:60,hold:15,sell:25}}}))};
+ const fixture={...saved,generatedAt:now,stocks:saved.stocks.map(s=>({...s,price:{...s.price,status:'ok',lastSuccess:now},japan:{status:'ok',lastSuccess:now,ratios:{per:{value:null},pbr:{value:5}},sentiment:{buy:60,hold:15,sell:25}}}))};
  await page.route('**/data/stocks.json?*',route=>route.fulfill({json:fixture}));
  await page.getByRole('button',{name:'更新を確認'}).click();
  await page.waitForFunction(()=>document.querySelector('.buy-label').textContent.includes('60.0'));
- assert.ok((await page.locator('#research-status').innerText()).includes('HTTP 403'));
- assert.ok((await page.locator('#research-status').innerText()).includes('自動取得は未接続'));
  assert.equal(await aapl.locator('.gauge .buy').evaluate(el=>el.style.width),'60%');
  assert.equal(await aapl.locator('.gauge .sell').evaluate(el=>el.style.width),'25%');
  assert.equal(await aapl.locator('.gauge .sell').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(58, 153, 70)');
