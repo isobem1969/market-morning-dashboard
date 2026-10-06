@@ -13,6 +13,11 @@ try{
  for(const [name,width,height] of [['mac',1440,1000],['iphone',390,844],['ipad-mini',744,1133],['small-iphone',320,700]]){
   await page.setViewportSize({width,height});await page.goto('http://127.0.0.1:8766/stocks.html');await page.waitForSelector('.stock-tile');
   assert.equal(await page.locator('.stock-tile').count(),12);
+  assert.equal(await page.locator('.research-panel').count(),12);
+  const nvda=page.locator('.stock-tile[data-symbol="NVDA"] .research-panel');
+  assert.equal(await nvda.locator('.research-badge.green').innerText(),'割高');
+  assert.equal(await nvda.locator('.research-badge.orange').innerText(),'割安');
+  assert.equal(await nvda.locator('.research-target').innerText(),'$266.36');
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`${name} stocks overflow`);
   await page.screenshot({path:`screenshots/stocks-${name}.png`,fullPage:true});
  }
@@ -31,6 +36,7 @@ try{
  await page.waitForFunction(()=>document.querySelector('.buy-label').textContent.includes('60.0'));
  assert.equal(await aapl.locator('.gauge .buy').evaluate(el=>el.style.width),'60%');
  assert.equal(await aapl.locator('.gauge .sell').evaluate(el=>el.style.width),'25%');
+ assert.equal(await aapl.locator('.gauge .sell').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(58, 153, 70)');
  assert.equal(await aapl.getByText('公表値なし',{exact:true}).count(),1);
  fixture.stocks=fixture.stocks.map(s=>({...s,price:{...s.price,status:'error'},japan:{...s.japan,status:'error',sentiment:null}}));
  await page.getByRole('button',{name:'更新を確認'}).click();
