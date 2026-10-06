@@ -7,6 +7,7 @@ import pathlib
 import re
 from zoneinfo import ZoneInfo
 from update_data import fetch
+from minkabu_status import check_access
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 UTC = dt.timezone.utc
@@ -145,7 +146,9 @@ def main():
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
         jobs = [pool.submit(collect, symbol, name, previous.get(symbol, {}), now) for symbol, name in STOCKS]
         stocks = [job.result() for job in jobs]
-    output = {'schemaVersion': 1, 'generatedAt': now.isoformat(), 'stocks': stocks}
+    research_source = check_access(old.get('researchSource'), now)
+    print('Minkabu source check:', research_source['status'], research_source.get('httpStatus'), research_source['checkedAt'])
+    output = {'schemaVersion': 1, 'generatedAt': now.isoformat(), 'stocks': stocks, 'researchSource': research_source}
     path.parent.mkdir(parents=True, exist_ok=True)
     temp = path.with_suffix('.tmp')
     temp.write_text(json.dumps(output, ensure_ascii=False, separators=(',', ':')) + '\n')
