@@ -13,7 +13,7 @@ function popupFeatures(screenInfo){
  const top=(Number(screenInfo.availTop)||0)+Math.max(0,ah-height-100);
  return `popup=yes,width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,noopener`;
 }
-function researchPanel(s){return `<div class="reference-action"><a class="minkabu-small" data-minkabu="${s.symbol}" href="https://us.minkabu.jp/stocks/${s.symbol}/researches" target="_blank" rel="noopener noreferrer" aria-label="${esc(s.name)}のみんかぶを小窓で開く" title="${esc(s.name)}のみんかぶを小窓で開く">みんかぶ</a><span class="popup-note" role="status"></span></div>`;}
+function researchPanel(s){return `<div class="reference-action"><a class="minkabu-small" data-minkabu="${s.symbol}" href="https://us.minkabu.jp/stocks/${s.symbol}/researches#:~:text=${encodeURIComponent('目標株価')}" target="_blank" rel="noopener noreferrer" aria-label="${esc(s.name)}のみんかぶを小窓で開く" title="${esc(s.name)}のみんかぶを小窓で開く">みんかぶ</a><span class="popup-note" role="status"></span></div>`;}
 function graph(stock,period){
   const pts=chartPoints(stock.price||{},period);
   if(!pts.length)return '<div class="empty">この期間のチャートを取得できていません。</div>';
