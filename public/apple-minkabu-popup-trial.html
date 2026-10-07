@@ -11,6 +11,22 @@
   <script type="module" src="./stocks-reference.js?v=target-20261007"></script>
 <style>
 .chart-section{display:flex;flex-direction:column;min-width:0}.reference-action{display:flex;flex-direction:column;align-items:flex-end;margin-top:auto;padding-top:8px}.minkabu-small{display:inline-flex;align-items:center;justify-content:center;min-width:78px;min-height:30px;padding:5px 10px;background:#1764a5;color:#fff;border-radius:6px;font-size:12px;font-weight:800;text-decoration:none;line-height:1.4}.minkabu-small:hover{background:#0c4c86;text-decoration:none}.popup-note{font-size:10px;line-height:1.7;color:#667a83;margin-top:4px;max-width:250px;text-align:right}.popup-note:empty{display:none}@media(pointer:coarse){.minkabu-small{min-width:88px;min-height:44px;font-size:13px}}@media(max-width:600px){.minkabu-small{min-width:88px;min-height:44px;font-size:13px}}
+
+/* Larger quote typography and a prominent reference button. */
+.tile-heading>div:first-child{min-width:0}
+.tile-heading h2,.price{font-size:46px;font-weight:850;letter-spacing:-1px;line-height:1.25}
+.tile-heading h2{color:#000}
+.price-box.up{border-color:#f20d2f}.price-box.up .price,.change.up{color:#f20d2f}
+.price-box.down{border-color:#005bff}.price-box.down .price,.change.down{color:#005bff}
+.change{font-size:32px;font-weight:850;line-height:1.35;overflow-wrap:anywhere}
+.minkabu-small{width:156px;height:60px;min-width:156px;min-height:60px;padding:10px 20px;font-size:24px;background:#ff7900;box-shadow:0 4px 12px #ff790033}
+.minkabu-small:hover{background:#e86600}
+@media(max-width:800px){.tile-heading h2,.price{font-size:38px}.change{font-size:30px}}
+@media(pointer:coarse){.minkabu-small{width:176px;height:88px;min-width:176px;min-height:88px;font-size:26px}}
+@media(max-width:650px){.tile-heading h2,.price{font-size:42px}.change{font-size:30px}}
+@media(max-width:600px){.minkabu-small{width:176px;height:88px;min-width:176px;min-height:88px;font-size:26px}}
+@media(max-width:360px){.tile-heading h2,.price{font-size:36px}.change{font-size:28px}}
+
 </style></head>
 <body>
   <main>
