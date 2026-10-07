@@ -36,3 +36,9 @@ test('Fear & Greed exact and fractional boundaries, invalid scores and histories
  for(const v of [null,NaN,Infinity,-1,101])assert.equal(fearBand(v),null);
  assert.deepEqual(fearHistory([{date:'2026-10-01',value:28},{date:'2026-10-02',value:101},{date:'2026-10-03',value:-1}],3),[{date:'2026-10-01',value:28}]);
 });
+
+import {viBand} from '../public/vi-panel.js';
+test('Nikkei VI reference bands include their lower boundary and accept scores over 100',()=>{
+ for(const [v,key] of [[0,'low'],[19.99,'low'],[20,'normal'],[29.99,'normal'],[30,'watch'],[39.99,'watch'],[40,'high'],[49.99,'high'],[50,'very-high'],[120,'very-high']])assert.equal(viBand(v)?.key,key);
+ for(const v of [null,NaN,Infinity,-1])assert.equal(viBand(v),null);
+});

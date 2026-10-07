@@ -21,6 +21,13 @@ try {
     await page.waitForSelector('.card');
     assert.equal(await page.locator('.card').count(),8);
     assert.equal(await page.locator('.fear-card .fear-legend li').count(),5);
+    assert.equal(await page.locator('.vi-card .vi-legend li').count(),5);
+    const positions=await page.evaluate(()=>['.vix-card:not(.fear-card):not(.vi-card)','.fear-card','.vi-card'].map(s=>{const r=document.querySelector(s).getBoundingClientRect();return {top:r.top,bottom:r.bottom}}));
+    assert.ok(positions[0].bottom<positions[1].top);assert.ok(positions[1].bottom<positions[2].top);
+    await page.locator('[data-vi-months="3"]').click();
+    assert.equal(await page.locator('[data-vi-months="3"]').getAttribute('aria-pressed'),'true');
+    assert.equal(await page.locator('[data-fear-months="12"]').getAttribute('aria-pressed'),'true');
+    await page.locator('[data-vi-months="12"]').click();
     await page.locator('[data-fear-months="6"]').click();
     assert.equal(await page.locator('[data-fear-months="6"]').getAttribute('aria-pressed'),'true');
     assert.equal(await page.locator('[data-vix-months="12"]').getAttribute('aria-pressed'),'true');
@@ -36,14 +43,15 @@ try {
   await page.route('**/data/market.json?*',route=>route.fulfill({json:fixture}));
   await page.getByRole('button',{name:'更新を確認'}).click();
   await page.waitForFunction(()=>document.querySelector('#summary').textContent.includes('指定条件に到達'));
-  assert.equal(await page.locator('.vix-card:not(.fear-card)').getAttribute('data-band'),'fear');
+  assert.equal(await page.locator('.vix-card:not(.fear-card):not(.vi-card)').getAttribute('data-band'),'fear');
   assert.equal(await page.locator('.fear-card').getAttribute('data-band'),'extreme-fear');
-  assert.equal((await page.locator('.vix-card:not(.fear-card)').getAttribute('class')).includes('alert'),true);
+  assert.equal(await page.locator('.vi-card').getAttribute('data-band'),'high');
+  assert.equal((await page.locator('.vix-card:not(.fear-card):not(.vi-card)').getAttribute('class')).includes('alert'),true);
   for(const [value,band]of [[14.99,'calm'],[15,'normal'],[20,'watch'],[30,'fear'],[40,'panic']]){
     fixture.metrics=fixture.metrics.map(m=>m.id==='vix'?{...m,value}:m);
     await page.getByRole('button',{name:'更新を確認'}).click();
-    await page.waitForFunction(b=>document.querySelector('.vix-card:not(.fear-card)').dataset.band===b,band);
-    assert.equal(await page.locator('.vix-card:not(.fear-card) .vix-legend .active').count(),1);
+    await page.waitForFunction(b=>document.querySelector('.vix-card:not(.fear-card):not(.vi-card)').dataset.band===b,band);
+    assert.equal(await page.locator('.vix-card:not(.fear-card):not(.vi-card) .vix-legend .active').count(),1);
   }
   await page.locator('[data-vix-months="3"]').click();
   assert.equal(await page.locator('[data-vix-months="3"]').getAttribute('aria-pressed'),'true');
@@ -55,6 +63,7 @@ try {
   await page.waitForFunction(()=>document.querySelector('#summary').textContent.includes('判定保留'));
   assert.equal(await page.locator('.card.alert').count(),0);
   assert.equal(await page.locator('.fear-card').getAttribute('data-band'),'unknown');
+  assert.equal(await page.locator('.vi-card').getAttribute('data-band'),'unknown');
   await page.getByText('CNNの値を補完する',{exact:true}).click();
   await page.locator('#manual-value').fill('19');
   await page.locator('#manual-date').fill(today);
