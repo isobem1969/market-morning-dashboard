@@ -1,8 +1,8 @@
 import {changePercent,percentLine} from './change-format.js?v=twoline-20261007';
 import {marketChart,marketHover,selectMarketHistory} from './market-panel.js?v=ranges-20261007';
 import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=twoline-20261007';
-import {viCard} from './vi-panel.js?v=twoline-20261007';
-import {fearCard} from './fear-panel.js?v=twoline-20261007';
+import {viCard} from './vi-panel.js?v=prominent-20261007';
+import {fearCard} from './fear-panel.js?v=prominent-20261007';
 import {quality,signal,overall,VIX_BANDS,vixBand,selectVixHistory} from './logic.js?v=vix-20261006';
 const $=s=>document.querySelector(s);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
