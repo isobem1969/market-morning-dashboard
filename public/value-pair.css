@@ -1,0 +1,13 @@
+/* Previous-session quote stays on one line with the latest value. */
+.value-pair{display:flex;align-items:baseline;flex-wrap:nowrap;white-space:nowrap;gap:.18em;min-width:0;max-width:100%;width:100%;font-size:inherit;font-weight:inherit;letter-spacing:0;font-variant-numeric:tabular-nums;line-height:1.25}
+.value-pair>span{display:inline-block;flex:none;white-space:nowrap}
+.value-pair .previous-value{font-size:.62em;font-weight:400!important;color:#4b4b4b!important;letter-spacing:0}
+.value-pair .value-arrow{font-size:.52em;font-weight:400!important;color:#4b4b4b!important}
+.value-pair .current-value{font-size:1em;font-weight:inherit;color:inherit}
+.price-box,.fund-price-box{display:flex;width:100%;flex-wrap:nowrap;gap:6px}
+.price-box .price,.fund-price-box .fund-price{display:flex;flex:1;min-width:0;max-width:100%}
+.currency,.fund-price-box>span:last-child{flex:none;white-space:nowrap}
+.vix-card .vix-value{display:block;width:100%;max-width:100%;padding-left:10px;padding-right:10px}
+.vix-card .vix-layout{grid-template-columns:300px minmax(0,1fr)}
+@media(max-width:800px){.vix-card .vix-layout{grid-template-columns:270px minmax(0,1fr)}}
+@media(max-width:650px){.vix-card .vix-layout{grid-template-columns:1fr}}
