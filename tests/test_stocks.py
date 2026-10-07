@@ -4,9 +4,29 @@ import pathlib
 import sys
 import unittest
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / 'scripts'))
-from update_stocks import parse_japan, price_observation, section
+from update_stocks import parse_japan, price_observation, section, high_observation
 
 class StockTests(unittest.TestCase):
+    def test_highs_separate_52_weeks_and_full_history(self):
+        dates=['2020-01-02T14:30:00+00:00','2025-10-07T13:30:00+00:00','2026-10-07T13:30:00+00:00','2026-10-08T13:30:00+00:00']
+        stamps=[int(dt.datetime.fromisoformat(d).timestamp()) for d in dates]
+        data={'meta':{'dataGranularity':'1d','firstTradeDate':stamps[0]},'timestamp':stamps,'indicators':{'quote':[{'high':[200,180,150,999]}],'adjclose':[{'adjclose':[999,999,999,999]}]}}
+        result=high_observation(data,'AAPL',dt.datetime.fromisoformat('2026-10-07T15:00:00+00:00'))
+        self.assertEqual(result['week52']['value'],150)
+        self.assertEqual(result['allTime']['value'],200)
+        self.assertTrue(result['allTime']['complete'])
+        data['meta']['firstTradeDate']=stamps[0]-86400*100
+        self.assertFalse(high_observation(data,'AAPL',dt.datetime.fromisoformat('2026-10-07T15:00:00+00:00'))['allTime']['complete'])
+
+    def test_highs_exclude_reused_ticker_history(self):
+        stamps=[int(dt.datetime(2020,1,2,tzinfo=dt.timezone.utc).timestamp()),int(dt.datetime(2026,6,12,14,tzinfo=dt.timezone.utc).timestamp())]
+        data={'meta':{'dataGranularity':'1d','longName':'SpaceX'},'timestamp':stamps,'indicators':{'quote':[{'high':[9999,100]}]}}
+        result=high_observation(data,'SPCX',dt.datetime(2026,10,7,tzinfo=dt.timezone.utc))
+        self.assertEqual(result['allTime']['value'],100)
+        self.assertTrue(result['allTime']['complete'])
+        data['meta']['longName']='Old ETF'
+        with self.assertRaises(ValueError):high_observation(data,'SPCX',dt.datetime.now(dt.timezone.utc))
+
     def test_sentiment_keeps_neutral_and_missing_ratios(self):
         state = {'mainUsStocksPriceBoard': {'code': 'AAPL'}, 'mainUsStocksReferenceIndex': {'per': {'value': '44.72', 'updateDate': '10/06'}, 'pbr': {'value': '---'}}, 'feelingGraph': {'feels': [{'type': k, 'percentage': v} for k, v in zip(['strongest','strong','both','weak','weakest'],[40,20,15,10,15])]}}
         result = parse_japan('window.__PRELOADED_STATE__ = '+json.dumps(state)+';', 'AAPL')

@@ -33,19 +33,19 @@ jobs:
           python scripts/update_data.py
           python scripts/update_stocks.py
       - name: Install browser test dependencies
-        if: github.event_name != 'schedule'
+        if: github.event_name == 'workflow_dispatch'
         run: |
           npm install --no-save --ignore-scripts playwright@1.62.1
           npx playwright install --with-deps chromium webkit
       - name: Verify mobile display and interactions
-        if: github.event_name != 'schedule'
+        if: github.event_name == 'workflow_dispatch'
         run: |
           node tests/browser.mjs
           node tests/stocks-browser.mjs
           node tests/research-browser.mjs
           node tests/reference-browser.mjs
       - uses: actions/upload-artifact@v4
-        if: always() && github.event_name != 'schedule'
+        if: always() && github.event_name == 'workflow_dispatch'
         with:
           name: mobile-screenshots
           path: screenshots

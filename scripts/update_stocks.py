@@ -113,6 +113,47 @@ def section(operation, previous, now):
     except Exception as exc:
         return {**previous, 'status': 'error', 'error': f'{type(exc).__name__}: {exc}'[:160]}
 
+def high_observation(result, symbol, now):
+    """Regular-session highs from Yahoo's daily price series, not adjclose."""
+    meta = result['meta']
+    if meta.get('dataGranularity') != '1d':
+        raise ValueError('Daily history required for highs')
+    first_trade = number(meta.get('firstTradeDate'))
+    if symbol == 'SPCX':
+        if 'space' not in str(meta.get('longName', '')).lower():
+            raise ValueError('SPCX issuer is not SpaceX')
+        first_trade = dt.datetime(2026, 6, 12, tzinfo=NY).timestamp()
+    today = now.astimezone(NY).date()
+    rows = []
+    for stamp, value in zip(result.get('timestamp', []), result['indicators']['quote'][0].get('high', [])):
+        value = number(value)
+        date = dt.datetime.fromtimestamp(stamp, NY).date()
+        if value is not None and value > 0 and stamp <= now.timestamp() and date <= today:
+            if symbol != 'SPCX' or stamp >= first_trade:
+                rows.append((date, value))
+    if not rows:
+        raise ValueError('No daily highs')
+    rows.sort()
+    end = rows[-1][0]
+    start = end - dt.timedelta(weeks=52) + dt.timedelta(days=1)
+    def peak(values):
+        date, value = max(values, key=lambda r: (r[1], r[0]))
+        return {'value': value, 'date': date.isoformat()}
+    expected = dt.datetime.fromtimestamp(first_trade, NY).date() if first_trade is not None else None
+    complete = expected is not None and abs((rows[0][0] - expected).days) <= 7
+    return {'week52': peak([r for r in rows if r[0] >= start]),
+            'allTime': {**peak(rows), 'complete': complete},
+            'historyStart': rows[0][0].isoformat(), 'asOfDate': end.isoformat(),
+            'basis': 'Yahoo Financeの日足高値（通常取引・配当調整なし）'}
+
+def collect_highs(symbol, now):
+    url = (f'https://query1.finance.yahoo.com/v8/finance/chart/{symbol}'
+           f'?period1=0&period2={int(now.timestamp())}&interval=1d&includePrePost=false')
+    results = json.loads(fetch(url)).get('chart', {}).get('result')
+    if not results or results[0]['meta'].get('symbol') != symbol or results[0]['meta'].get('instrumentType') != 'EQUITY':
+        raise ValueError('No matching equity history')
+    return high_observation(results[0], symbol, now)
+
 def collect(symbol, name, old, now):
     base = {'symbol': symbol, 'name': name,
             'quoteUrl': f'https://finance.yahoo.co.jp/quote/{symbol}',
@@ -135,6 +176,7 @@ def collect(symbol, name, old, now):
         return {**price_observation(daily, intraday, now),
                 'daily': points(daily), 'intraday': points(intraday)}
     return {**base, 'price': section(prices, old.get('price', {}), now),
+            'highs': section(lambda: collect_highs(symbol, now), old.get('highs', {}), now),
             'japan': section(lambda: parse_japan(fetch(base['quoteUrl']), symbol), old.get('japan', {}), now)}
 
 def main():
