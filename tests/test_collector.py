@@ -7,6 +7,15 @@ spec=importlib.util.spec_from_file_location('collector',pathlib.Path(__file__).r
 c=importlib.util.module_from_spec(spec);spec.loader.exec_module(c)
 
 class CollectorTest(unittest.TestCase):
+    def test_fund_history_retains_two_years_plus_average_context(self):
+        points=[((dt.date(2023,1,1)+dt.timedelta(days=i)).isoformat(),10000+i) for i in range(900)]
+        text='基準日,基準価額\n'+''.join(d.replace('-','')+','+str(v)+'\n' for d,v in points)
+        result=c.parse_fund_csv(text,'fang')
+        self.assertEqual(len(result['history']),800)
+        for key in ('sox','fang','nasdaq'):
+            merged=c.merge_observation(key,result,{},dt.datetime(2026,10,7,tzinfo=c.UTC))
+            self.assertEqual(len(merged['history']),800)
+
     def test_vix_retains_a_year_of_history_when_merged(self):
         points=[((dt.date(2025,1,1)+dt.timedelta(days=i)).isoformat(),15+i%5) for i in range(500)]
         result=c.series_result(points,'VIX',history_limit=400)

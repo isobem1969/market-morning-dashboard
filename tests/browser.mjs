@@ -12,6 +12,7 @@ try {
   }
   browser=await chromium.launch({headless:true});
   const context=await browser.newContext({serviceWorkers:'block'});
+  await context.route('https://itf.minkabu.jp/**',r=>r.fulfill({contentType:'text/html; charset=utf-8',body:'<meta charset="utf-8"><title>Fund reference navigation test fixture</title><p>Navigation test only</p><p>基準価額</p>'}));
   const page=await context.newPage();
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await fs.mkdir('screenshots',{recursive:true});
@@ -20,6 +21,14 @@ try {
     await page.goto('http://127.0.0.1:8765');
     await page.waitForSelector('.card');
     assert.equal(await page.locator('.card').count(),8);
+    assert.equal(await page.locator('.fund-card').count(),3);
+    for(const [id,code] of [['sox','29314233'],['fang','04311181'],['nasdaq','89311265']]){
+      const tile=page.locator(`[data-fund="${id}"]`);
+      for(const period of ['1d','1w','1m','6m','1y','2y']){await tile.locator(`[data-fund-period="${period}"]`).click();assert.equal(await tile.locator(`[data-fund-period="${period}"]`).getAttribute('aria-pressed'),'true');assert.equal(await tile.locator('.fund-chart').count(),1);}
+      await tile.locator('[data-fund-period="6m"]').click();
+      const button=tile.locator('.fund-minkabu');assert.equal(await button.getAttribute('href'),`https://itf.minkabu.jp/fund/${code}#:~:text=${encodeURIComponent('基準価額')}`);
+      const popupPromise=page.waitForEvent('popup');await button.click();const popup=await popupPromise;await popup.waitForURL(new RegExp(`/fund/${code}`));await popup.close();
+    }
     assert.equal(await page.locator('.fear-card .fear-legend li').count(),5);
     assert.equal(await page.locator('.vi-card .vi-legend li').count(),5);
     const positions=await page.evaluate(()=>['.vix-card:not(.fear-card):not(.vi-card)','.fear-card','.vi-card'].map(s=>{const r=document.querySelector(s).getBoundingClientRect();return {top:r.top,bottom:r.bottom}}));

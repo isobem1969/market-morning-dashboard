@@ -1,3 +1,4 @@
+import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=funds-20261007';
 import {viCard} from './vi-panel.js?v=vi-20261007';
 import {fearCard} from './fear-panel.js?v=fear-20261007';
 import {quality,signal,overall,VIX_BANDS,vixBand,selectVixHistory} from './logic.js?v=vix-20261006';
@@ -6,6 +7,7 @@ const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>'
 const icons={usd:'¥',vix:'V',fear:'FG',vi:'VI',brent:'B',sox:'S',fang:'F+',nasdaq:'N'};
 const descriptions={usd:'為替 · 1ドルあたりの円',vix:'米国株の予想変動幅',fear:'米国市場の恐怖・欲望',vi:'日経平均の予想変動幅',brent:'ブレント期近先物',sox:'29314233 · 米国半導体',fang:'04311181 · 米国大型成長株',nasdaq:'89311265 · NASDAQ100'};
 const store={get(k){try{return JSON.parse(localStorage.getItem(k));}catch{return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}},remove(k){try{localStorage.removeItem(k);}catch{}}};
+const fundRanges=new Map();
 let data=null,range=7,vixMonths=12,fearMonths=12,viMonths=12,offline=false,loading=false;
 function format(value,id){return Number.isFinite(value)?value.toLocaleString('ja-JP',{minimumFractionDigits:['usd','vix','vi','brent'].includes(id)?2:0,maximumFractionDigits:['sox','fang','nasdaq'].includes(id)?0:2}):'—';}
 function datetime(value){if(!value)return'未取得';const d=new Date(value.length===10?value+'T00:00:00+09:00':value);return Number.isFinite(d.getTime())?new Intl.DateTimeFormat('ja-JP',{month:'2-digit',day:'2-digit',...(value.length>10?{hour:'2-digit',minute:'2-digit'}:{}),timeZone:'Asia/Tokyo'}).format(d)+(value.length>10?' JST':''): '日時不明';}
@@ -59,6 +61,7 @@ function render(){
   $('#cards').innerHTML=ms.map(m=>{
     const q=quality(m,now,data.generatedAt,offline),sig=q.usable?signal(m.id,m.value):{tone:'',text:'判定対象外'};
     const isFund=['sox','fang','nasdaq'].includes(m.id);
+    if(isFund)return fundCard(m,q,fundRanges.get(m.id)||'6m',{datetime});
     const amount=Number.isFinite(m.change)?`${m.change>0?'↑ +':m.change<0?'↓ −':'→ '}${format(Math.abs(m.change),m.id)}`:'前日比 —';
     const percent=Number.isFinite(m.changePct)?`(${m.changePct>0?'+':''}${m.changePct.toFixed(2)}%)`:'';
     const change=isFund?`<span class="change-amount">${amount}</span>${Number.isFinite(m.change)&&percent?`<span class="change-pct">${percent}</span>`:''}`:amount+(Number.isFinite(m.change)&&percent?' '+percent:'');
@@ -91,7 +94,10 @@ async function refresh(){
 }
 $('#today').textContent=new Intl.DateTimeFormat('ja-JP',{month:'long',day:'numeric',weekday:'short',timeZone:'Asia/Tokyo'}).format(new Date());
 $('#refresh').addEventListener('click',refresh);
+$('#cards').addEventListener('pointermove',e=>fundHover(e,metrics(),fundRanges));
 $('#cards').addEventListener('click',e=>{
+  const reference=e.target.closest('[data-fund-minkabu]');if(reference){e.preventDefault();openFundReference(reference);return;}
+  const period=e.target.closest('[data-fund-period]');if(period){fundRanges.set(period.dataset.fundId,period.dataset.fundPeriod);render();$(`[data-fund-id="${period.dataset.fundId}"][data-fund-period="${period.dataset.fundPeriod}"]`)?.focus({preventScroll:true});return;}
   const v=e.target.closest('[data-vi-months]');
   if(v){viMonths=Number(v.dataset.viMonths);render();$(`[data-vi-months="${viMonths}"]`)?.focus({preventScroll:true});return;}
   const f=e.target.closest('[data-fear-months]');

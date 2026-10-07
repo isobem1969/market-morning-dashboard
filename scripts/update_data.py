@@ -56,8 +56,8 @@ def series_result(points, kind, peak=False, history_limit=90):
 def parse_fund_csv(text, fund):
     rows = csv.DictReader(io.StringIO(text))
     if fund == 'fang':
-        return series_result([(iso_date(r['基準日']), r['基準価額']) for r in rows], '基準価額', True)
-    return series_result([(iso_date(r['日付']), r['基準価額']) for r in rows], '基準価額', True)
+        return series_result([(iso_date(r['基準日']), r['基準価額']) for r in rows], '基準価額', True, history_limit=800)
+    return series_result([(iso_date(r['日付']), r['基準価額']) for r in rows], '基準価額', True, history_limit=800)
 
 def yahoo(symbol):
     from urllib.parse import quote
@@ -142,7 +142,7 @@ def nasdaq():
             return archive
         points = [(p['date'], p['value']) for p in archive['history']]
         points.append((latest['asOf'], latest['value']))
-        combined = series_result(points, '基準価額')
+        combined = series_result(points, '基準価額', history_limit=800)
         latest['history'] = combined['history']
         latest['peak'] = max(archive['peak'], latest['value'])
         latest['peakLabel'] = '取得した設定来データの最高値'
@@ -164,7 +164,7 @@ def nasdaq_xml():
                     date = year.get('value') + month.get('value') + day.get('value')
                     points.append((iso_date(date), day.get('price')))
     if points:
-        return series_result(points, '基準価額', True)
+        return series_result(points, '基準価額', True, history_limit=800)
     raise ValueError('NASDAQ chart has no observations')
 
 def nasdaq_page():
@@ -202,7 +202,7 @@ def merge_observation(key, observation, previous, now):
         raise ValueError('Source returned an older observation')
     points = {p['date']: p['value'] for p in previous.get('history', [])}
     points.update({p['date']: p['value'] for p in observation['history']})
-    history_limit = 400 if key == 'vix' else 90
+    history_limit = 800 if key in ('sox', 'fang', 'nasdaq') else 400 if key == 'vix' else 90
     observation['history'] = [{'date': d, 'value': v} for d, v in sorted(points.items())[-history_limit:]]
     return {**observation, 'status': 'ok', 'lastSuccess': now.isoformat(), 'attemptedAt': now.isoformat(), 'error': None}
 

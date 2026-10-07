@@ -42,3 +42,13 @@ test('Nikkei VI reference bands include their lower boundary and accept scores o
  for(const [v,key] of [[0,'low'],[19.99,'low'],[20,'normal'],[29.99,'normal'],[30,'watch'],[39.99,'watch'],[40,'high'],[49.99,'high'],[50,'very-high'],[120,'very-high']])assert.equal(viBand(v)?.key,key);
  for(const v of [null,NaN,Infinity,-1])assert.equal(viBand(v),null);
 });
+
+import {fundPoints} from '../public/fund-panel.js';
+test('Fund calendar ranges and averages use actual dated NAV values before clipping',()=>{
+ const history=Array.from({length:100},(_,i)=>({date:new Date(Date.UTC(2026,0,1+i)).toISOString().slice(0,10),value:i+1}));
+ const day=fundPoints(history,'1d');assert.equal(day.length,1);assert.equal(day[0].ma25,88);assert.equal(day[0].ma75,63);
+ assert.equal(fundPoints(history,'1w').length,7);
+ assert.equal(fundPoints(history,'1m')[0].date,'2026-03-10');
+ assert.equal(fundPoints(history.slice(0,24),'1d')[0].ma25,null);
+ assert.deepEqual(fundPoints([{date:'2026-02-30',value:100},{date:'2026-03-01',value:0}], '2y'),[]);
+});
