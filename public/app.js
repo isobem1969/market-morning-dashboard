@@ -87,7 +87,8 @@ async function refresh(){
     if(!data){$('#summary').textContent='データを読み込めません';$('#summary-detail').textContent='「更新を確認」で再試行できます。';$('#coverage').textContent='判定用 0/3 指標';}
   }finally{loading=false;$('#refresh').disabled=false;render();}
 }
-$('#today').textContent=new Intl.DateTimeFormat('ja-JP',{month:'long',day:'numeric',weekday:'short',timeZone:'Asia/Tokyo'}).format(new Date());
+function updateToday(){ $('#today').textContent=new Intl.DateTimeFormat('ja-JP',{month:'long',day:'numeric',weekday:'short',timeZone:'Asia/Tokyo'}).format(new Date()); }
+updateToday();
 $('#refresh').addEventListener('click',refresh);
 $('#cards').addEventListener('pointermove',e=>{fundHover(e,metrics(),fundRanges);marketHover(e,metrics(),marketRanges);});
 $('#cards').addEventListener('click',e=>{
@@ -110,7 +111,7 @@ $('#manual-form').addEventListener('submit',e=>{
   store.set('market-morning-manual',{value,asOf});$('#manual-status').textContent='手入力を保存しました。自動取得値が同じ日以降なら自動取得値を優先します。';render();
 });
 $('#clear-manual').addEventListener('click',()=>{store.remove('market-morning-manual');$('#manual-status').textContent='手入力を削除しました。';render();});
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){updateToday();refresh();}});
 window.addEventListener('online',refresh);
 setInterval(()=>{if(!document.hidden)refresh();},5*60000);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
