@@ -43,6 +43,7 @@ jobs:
           node tests/browser.mjs
           node tests/stocks-browser.mjs
           node tests/research-browser.mjs
+          node tests/reference-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always() && github.event_name != 'schedule'
         with:
