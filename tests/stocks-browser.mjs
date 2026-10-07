@@ -2,6 +2,16 @@ import {chromium} from 'playwright';
 import {spawn} from 'node:child_process';
 import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
+import {chartPoints} from '../public/stocks-logic.js';
+const saved=JSON.parse(await fs.readFile('public/data/stocks.json','utf8'));
+async function assertAveragePaths(tile,period){
+ const points=chartPoints(saved.stocks.find(s=>s.symbol==='AAPL').price,period);
+ for(const days of [25,75]){
+  const count=points.filter(p=>Number.isFinite(p[`ma${days}`])).length;
+  const path=await tile.locator(`[data-ma="${days}"]`).getAttribute('d');
+  assert.equal((path.match(/M/g)||[]).length+(path.match(/L/g)||[]).length,count,`${period} MA${days}: one coordinate per available observation`);
+ }
+}
 const server=spawn('python',['-m','http.server','8766','--directory','public'],{stdio:'ignore'});
 let browser;
 try{
@@ -20,8 +30,7 @@ try{
    assert.equal(await link.getAttribute('href'),'https://us.minkabu.jp/stocks/AAPL/researches');
    assert.equal(await link.getAttribute('target'),'_blank');
   }
-  assert.ok((await page.locator('.stock-tile[data-symbol="AAPL"] [data-ma="25"]').getAttribute('d')).includes('L'));
-  assert.ok((await page.locator('.stock-tile[data-symbol="AAPL"] [data-ma="75"]').getAttribute('d')).includes('L'));
+  await assertAveragePaths(page.locator('.stock-tile[data-symbol="AAPL"]'),'6m');
   const nvda=page.locator('.stock-tile[data-symbol="NVDA"] .research-panel');
   assert.equal(await nvda.locator('.research-badge.green').innerText(),'割高');
   assert.equal(await nvda.locator('.research-badge.orange').innerText(),'割安');
@@ -34,11 +43,9 @@ try{
   await aapl.getByRole('button',{name:label,exact:true}).click();
   assert.equal(await aapl.getByRole('button',{name:label,exact:true}).getAttribute('aria-pressed'),'true');
   assert.equal(await aapl.locator('.periods [aria-pressed="true"]').count(),1);
-  assert.ok((await aapl.locator('[data-ma="25"]').getAttribute('d')).includes('L'));
-  assert.ok((await aapl.locator('[data-ma="75"]').getAttribute('d')).includes('L'));
+  await assertAveragePaths(aapl,({'1日':'1d','1週':'1w','1カ月':'1m','6カ月':'6m','1年':'1y','2年':'2y'})[label]);
  }
  assert.equal(await page.locator('[data-symbol="MSFT"].stock-tile').getByRole('button',{name:'6カ月',exact:true}).getAttribute('aria-pressed'),'true');
- const saved=JSON.parse(await fs.readFile('public/data/stocks.json','utf8'));
  const now=new Date().toISOString();
  const fixture={...saved,generatedAt:now,stocks:saved.stocks.map(s=>({...s,price:{...s.price,status:'ok',lastSuccess:now},japan:{status:'ok',lastSuccess:now,ratios:{per:{value:null},pbr:{value:5}},sentiment:{buy:60,hold:15,sell:25}}}))};
  await page.route('**/data/stocks.json?*',route=>route.fulfill({json:fixture}));
