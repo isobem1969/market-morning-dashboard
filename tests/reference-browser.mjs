@@ -19,12 +19,12 @@ try{
    for(const symbol of symbols){
     const tile=page.locator(`.stock-tile[data-symbol="${symbol}"]`),button=tile.locator('.minkabu-small');
     assert.equal(await button.innerText(),'みんかぶ');assert.equal(await button.getAttribute('href'),`https://us.minkabu.jp/stocks/${symbol}/researches#:~:text=${encodeURIComponent('目標株価')}`);
-    const box=await button.boundingBox(),panel=await tile.boundingBox();assert.ok(box.width<=110);assert.ok(box.height<=50);assert.ok(Math.abs(panel.x+panel.width-(box.x+box.width))<=32);
+    const box=await button.boundingBox(),panel=await tile.boundingBox();const largeTouch=width<=600||await page.evaluate(()=>matchMedia("(pointer:coarse)").matches);assert.ok(Math.abs(box.width-(largeTouch?176:156))<=1);assert.ok(Math.abs(box.height-(largeTouch?88:60))<=1);assert.ok(Math.abs(panel.x+panel.width-(box.x+box.width))<=32);
     const popupPromise=page.waitForEvent('popup');await button.click();const popup=await popupPromise;await popup.waitForURL(new RegExp(`/stocks/${symbol}/researches`));if(symbol==='AAPL'&&engine==='chromium'){assert.equal(await popup.getByText('目標株価',{exact:true}).innerText(),'目標株価');console.log('Text-fragment fixture:',popup.url(),await popup.evaluate(()=>({text:document.body.innerText,scrollY:window.scrollY})));await popup.waitForFunction(()=>window.scrollY>0,{},{timeout:5000});assert.ok(await popup.evaluate(()=>window.scrollY>0));}await popup.close();
    }
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1));assert.deepEqual(errors,[]);
    await page.locator('.stock-tile').first().scrollIntoViewIfNeeded();await page.screenshot({path:`screenshots/reference-${engine}-${device}.png`});
-   console.log(`PASS ${engine} ${device}: 12 compact right-aligned buttons and 12 matching reference popup URLs; Chromium target scroll (fixture)`);await context.close();
+   console.log(`PASS ${engine} ${device}: 12 double-size orange right-aligned buttons and 12 matching reference popup URLs; Chromium target scroll (fixture)`);await context.close();
   }}finally{await browser.close();}
  }
 }finally{server.kill();}
