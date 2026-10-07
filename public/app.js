@@ -1,5 +1,5 @@
 import {marketChart,marketHover,selectMarketHistory} from './market-panel.js?v=ranges-20261007';
-import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=funds-20261007';
+import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=peak-20261007';
 import {viCard} from './vi-panel.js?v=vi-20261007';
 import {fearCard} from './fear-panel.js?v=fear-20261007';
 import {quality,signal,overall,VIX_BANDS,vixBand,selectVixHistory} from './logic.js?v=vix-20261006';

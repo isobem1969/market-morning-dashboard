@@ -9,3 +9,10 @@
 @media(pointer:coarse){.fund-minkabu{width:176px;height:88px;min-width:176px;min-height:88px;font-size:26px}}
 @media(max-width:600px){.fund-minkabu{width:176px;height:88px;min-width:176px;min-height:88px;font-size:26px}}
 @media(max-width:360px){.fund-heading h3,.fund-price{font-size:36px}.fund-price-box{padding:8px 10px}.fund-change{font-size:28px}.fund-periods{display:grid;grid-template-columns:repeat(3,1fr)}}
+
+/* Emphasize the peak ratio and its reference NAV. */
+.fund-card .peak-ratio strong{font-size:56px;font-weight:900;color:#f20d2f;line-height:1.3}
+.fund-card .peak-ratio small{font-size:32px}
+.fund-peak-price{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+.fund-peak-price strong{font-size:24px;font-weight:900;color:#f20d2f;line-height:1.4;font-variant-numeric:tabular-nums}
+@media(max-width:360px){.fund-card .peak-ratio strong{font-size:48px}.fund-card .peak-ratio small{font-size:28px}}

@@ -47,7 +47,7 @@ export function fundCard(m,q,period,{datetime}){
  const amount=Number.isFinite(m.change)?(m.change>0?'+':m.change<0?'−':'')+num(Math.abs(m.change))+'円':'—';
  const pct=Number.isFinite(m.changePct)?' ('+(m.changePct>0?'+':'')+num(m.changePct,2)+'%)':'';
  const ratio=Number.isFinite(m.peak)&&m.peak>0&&Number.isFinite(m.value)?m.value/m.peak*100:null;
- const peak=ratio!==null?'<div class="peak'+(ratio<=80?' peak-discount':'')+'"><div class="peak-ratio">最高値の <strong>'+num(ratio,1)+'<small>%</small></strong></div><div class="peak-track" role="meter" aria-label="最高値に対する現在値の割合" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.min(100,ratio).toFixed(1)+'"><span style="width:'+Math.min(100,Math.max(0,ratio)).toFixed(1)+'%"></span></div><div>最高値から '+num(ratio-100,1)+'%</div><div>取得データの最高値 '+num(m.peak)+'円</div></div>':'';
+ const peak=ratio!==null?'<div class="peak'+(ratio<=80?' peak-discount':'')+'"><div class="peak-ratio">最高値の <strong>'+num(ratio,1)+'<small>%</small></strong></div><div class="peak-track" role="meter" aria-label="最高値に対する現在値の割合" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.min(100,ratio).toFixed(1)+'"><span style="width:'+Math.min(100,Math.max(0,ratio)).toFixed(1)+'%"></span></div><div>最高値から '+num(ratio-100,1)+'%</div><div class="fund-peak-price"><span>取得データの最高値</span><strong>'+num(m.peak)+'円</strong></div></div>':'';
  const base='https://itf.minkabu.jp/fund/'+meta.code;
  const href=base+'#:~:text='+encodeURIComponent('基準価額');
  const source=/^https:\/\//.test(m.sourceUrl)?m.sourceUrl:'#';
