@@ -8,7 +8,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./stocks.css?v=twoline-20261007">
-  <script type="module" src="./stocks-reference.js?v=highs-20261008"></script>
+  <script type="module" src="./stocks-reference.js?v=compact-20261008"></script>
 <style>
 .chart-section{display:flex;flex-direction:column;min-width:0}.reference-action{display:flex;flex-direction:column;align-items:flex-end;margin-top:auto;padding-top:8px}.minkabu-small{display:inline-flex;align-items:center;justify-content:center;min-width:78px;min-height:30px;padding:5px 10px;background:#1764a5;color:#fff;border-radius:6px;font-size:12px;font-weight:800;text-decoration:none;line-height:1.4}.minkabu-small:hover{background:#0c4c86;text-decoration:none}.popup-note{font-size:10px;line-height:1.7;color:#667a83;margin-top:4px;max-width:250px;text-align:right}.popup-note:empty{display:none}@media(pointer:coarse){.minkabu-small{min-width:88px;min-height:44px;font-size:13px}}@media(max-width:600px){.minkabu-small{min-width:88px;min-height:44px;font-size:13px}}
 
@@ -40,6 +40,15 @@
 .high-drop{font-size:20px;font-weight:850;margin:6px 0;color:#18354a}
 .high-basis{margin:0}.stock-high .source-note{margin:6px 0 0}
 
+
+.chart-details{display:grid;grid-template-columns:minmax(220px,.85fr) minmax(0,1.4fr);gap:20px;align-items:start;margin-top:16px;border-top:1px solid #dde4e6;padding-top:14px}
+.chart-details .ratios{margin:0;min-width:0}
+.chart-details .sentiment{min-width:0}
+.chart-details .sentiment-title{margin:0 0 10px}
+.chart-details .sentiment-labels{flex-wrap:wrap}
+.reference-action{padding-top:14px}
+@media(max-width:1000px){.chart-details{grid-template-columns:1fr;gap:14px}}
+@media(max-width:650px){.reading{display:block}.stock-highs{width:100%}.chart-details .ratios{grid-column:auto}.chart-details .sentiment{grid-column:auto}}
 </style></head>
 <body>
   <main>
