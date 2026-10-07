@@ -62,3 +62,8 @@ refresh.addEventListener('click',load);document.addEventListener('visibilitychan
 
 
 watchValuePairs(container);
+
+function updateToday(){ document.querySelector('#today').textContent=new Intl.DateTimeFormat('ja-JP',{month:'long',day:'numeric',weekday:'short',timeZone:'Asia/Tokyo'}).format(new Date()); }
+updateToday();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateToday();});
+setInterval(()=>{if(!document.hidden)updateToday();},60000);

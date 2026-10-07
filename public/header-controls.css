@@ -1,0 +1,8 @@
+/* Shared navigation, date and refresh controls for both dashboards. */
+.top .header-controls{display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex-shrink:0}
+.top .header-date{font-size:16px;font-weight:400;color:#132d3c;white-space:nowrap}
+.top .header-actions{display:flex;align-items:center;gap:20px;white-space:nowrap;font-size:16px}
+.top .header-actions>a{font-size:16px;font-weight:400;color:#2563a6;text-decoration:none;line-height:1.5}
+.top .header-actions>a:hover{text-decoration:underline}
+.top .header-actions #refresh{font-size:16px;font-weight:650;min-height:44px;padding:12px 16px;border:1px solid #dde4e6;border-radius:12px;background:#fff;color:#19313f;white-space:nowrap}
+@media(max-width:650px){.top{flex-wrap:wrap;align-items:flex-start}.top .header-controls{width:100%;margin-left:auto}.top .header-actions{width:100%;justify-content:space-between;gap:10px}}

@@ -8,7 +8,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./stocks.css?v=twoline-20261007">
-  <script type="module" src="./stocks-reference.js?v=previous-20261008"></script>
+  <script type="module" src="./stocks-reference.js?v=links-date-20261008"></script>
 <style>
 .chart-section{display:flex;flex-direction:column;min-width:0}.reference-action{display:flex;flex-direction:column;align-items:flex-end;margin-top:auto;padding-top:8px}.minkabu-small{display:inline-flex;align-items:center;justify-content:center;min-width:78px;min-height:30px;padding:5px 10px;background:#1764a5;color:#fff;border-radius:6px;font-size:12px;font-weight:800;text-decoration:none;line-height:1.4}.minkabu-small:hover{background:#0c4c86;text-decoration:none}.popup-note{font-size:10px;line-height:1.7;color:#667a83;margin-top:4px;max-width:250px;text-align:right}.popup-note:empty{display:none}@media(pointer:coarse){.minkabu-small{min-width:88px;min-height:44px;font-size:13px}}@media(max-width:600px){.minkabu-small{min-width:88px;min-height:44px;font-size:13px}}
 
@@ -50,10 +50,11 @@
 @media(max-width:1000px){.chart-details{grid-template-columns:1fr;gap:14px}}
 @media(max-width:650px){.reading{display:block}.stock-highs{width:100%}.chart-details .ratios{grid-column:auto}.chart-details .sentiment{grid-column:auto}}
 </style><link rel="stylesheet" href="./value-pair.css?v=previous-20261008">
+<link rel="stylesheet" href="./header-controls.css?v=links-date-20261008">
 </head>
 <body>
   <main>
-    <header class="top"><div><p class="eyebrow">MARKET MORNING / US STOCKS</p><h1>朝の米国株<span aria-hidden="true">◒</span></h1><p class="subtitle">12銘柄の株価とチャート。みんかぶは各パネル右下から。</p></div><div class="header-actions"><a href="./">朝の指標 ↗</a><button id="refresh">↻ 更新を確認</button></div></header>
+    <header class="top"><div><p class="eyebrow">MARKET MORNING / US STOCKS</p><h1>朝の米国株<span aria-hidden="true">◒</span></h1><p class="subtitle">12銘柄の株価とチャート。みんかぶは各パネル右下から。</p></div><div class="header-controls"><span id="today" class="header-date"></span><div class="header-actions"><a href="./">朝の指標 ↗</a><button id="refresh">↻ 更新を確認</button></div></div></header>
     <p id="status" class="status" role="status" aria-live="polite">12銘柄を読み込んでいます…</p>
     <section class="intro"><div><span class="eyebrow">YOUR WATCHLIST</span><h2>いつもの12銘柄</h2><p>大きな価格と、銘柄ごとに切り替えられるチャート。</p></div><p>株価は米ドル。時間外は直近の通常取引の終値を表示します。<br>オレンジ＝買いたい・割安 ／ グリーン＝売りたい・割高</p></section>
     <div id="stocks" aria-label="米国株12銘柄"></div>

@@ -15,12 +15,13 @@
   <script type="module" src="./app.js?v=header-date-20261008"></script>
   <link rel="stylesheet" href="./fund-panel.css?v=twoline-20261007">
 <link rel="stylesheet" href="./value-pair.css?v=previous-20261008">
+<link rel="stylesheet" href="./header-controls.css?v=links-date-20261008">
 </head>
 <body>
   <main>
     <header class="top">
       <div><p class="eyebrow">MARKET MORNING</p><h1>朝の指標<span class="sun" aria-hidden="true">◒</span></h1><p class="subtitle">世界の市場を、ひと目で。</p></div>
-      <div class="date-block"><span id="today"></span><button id="refresh" type="button">↻ 更新を確認</button></div>
+      <div class="date-block header-controls"><span id="today" class="header-date"></span><div class="header-actions"><a href="./stocks-reference.html">朝の米国株 ↗</a><button id="refresh" type="button">↻ 更新を確認</button></div></div>
     </header>
     <a class="stocks-entry" href="./stocks-reference.html"><div class="stocks-entry-copy"><span class="stocks-entry-label">米国株ウォッチ</span><span class="stocks-entry-title">米国株12銘柄の<br>ダッシュボードへ</span><span class="stocks-entry-detail">株価・チャート・掲示板評価・PER / PBR をまとめて確認</span></div><span class="stocks-entry-action">開く <span aria-hidden="true">→</span></span></a>
     <div class="status-line" role="status" aria-live="polite" id="status">データを読み込んでいます…</div>
