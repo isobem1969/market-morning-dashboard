@@ -59,7 +59,7 @@
 
 /* Larger yellow alert thresholds and prominent directional changes. */
 .conditions{gap:10px}
-.conditions span{color:#ffe14a;font-size:24px;font-weight:850;line-height:1.4;padding:10px 16px;border-color:#ffe14a70}
+.conditions span{color:#ffe14a;font-size:24px;font-weight:600;line-height:1.4;padding:10px 16px;border-color:#ffe14a70}
 .vix-card .vix-change{font-size:32px;font-weight:850;line-height:1.35;overflow-wrap:anywhere;margin-top:12px}
 .vix-card .vix-change.up{color:#f20d2f}
 .vix-card .vix-change.down{color:#005bff}
