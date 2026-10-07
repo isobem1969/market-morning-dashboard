@@ -16,3 +16,6 @@
 .fund-peak-price{display:flex;flex-direction:column;gap:2px;margin-top:8px}
 .fund-peak-price strong{font-size:24px;font-weight:900;color:#f20d2f;line-height:1.4;font-variant-numeric:tabular-nums}
 @media(max-width:360px){.fund-card .peak-ratio strong{font-size:48px}.fund-card .peak-ratio small{font-size:28px}}
+
+.fund-change{display:flex;flex-direction:column;align-items:flex-start;gap:0}
+.fund-change .change-amount,.fund-change .change-pct{display:block}

@@ -51,3 +51,8 @@
 .market-chart-empty{min-height:180px;display:grid;place-items:center;font-size:13px;color:#61757d}
 @media(max-width:950px){.market-chart text{font-size:16px}}
 @media(max-width:360px){.market-periods{gap:4px}.market-periods button{font-size:12px;min-width:44px}}
+
+/* Keep daily change and percent on separate lines. */
+.change .change-amount,.change .change-pct{display:block}
+.large-market-card .value.up,.large-market-card .change.up{color:#f20d2f}
+.large-market-card .value.down,.large-market-card .change.down{color:#005bff}
