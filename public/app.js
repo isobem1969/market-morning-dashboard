@@ -1,10 +1,11 @@
+import {fearCard} from './fear-panel.js?v=fear-20261007';
 import {quality,signal,overall,VIX_BANDS,vixBand,selectVixHistory} from './logic.js?v=vix-20261006';
 const $=s=>document.querySelector(s);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const icons={usd:'¥',vix:'V',fear:'FG',vi:'VI',brent:'B',sox:'S',fang:'F+',nasdaq:'N'};
 const descriptions={usd:'為替 · 1ドルあたりの円',vix:'米国株の予想変動幅',fear:'米国市場の恐怖・欲望',vi:'日経平均の予想変動幅',brent:'ブレント期近先物',sox:'29314233 · 米国半導体',fang:'04311181 · 米国大型成長株',nasdaq:'89311265 · NASDAQ100'};
 const store={get(k){try{return JSON.parse(localStorage.getItem(k));}catch{return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}},remove(k){try{localStorage.removeItem(k);}catch{}}};
-let data=null,range=7,vixMonths=12,offline=false,loading=false;
+let data=null,range=7,vixMonths=12,fearMonths=12,offline=false,loading=false;
 function format(value,id){return Number.isFinite(value)?value.toLocaleString('ja-JP',{minimumFractionDigits:['usd','vix','vi','brent'].includes(id)?2:0,maximumFractionDigits:['sox','fang','nasdaq'].includes(id)?0:2}):'—';}
 function datetime(value){if(!value)return'未取得';const d=new Date(value.length===10?value+'T00:00:00+09:00':value);return Number.isFinite(d.getTime())?new Intl.DateTimeFormat('ja-JP',{month:'2-digit',day:'2-digit',...(value.length>10?{hour:'2-digit',minute:'2-digit'}:{}),timeZone:'Asia/Tokyo'}).format(d)+(value.length>10?' JST':''): '日時不明';}
 function metrics(){
@@ -61,6 +62,7 @@ function render(){
     const percent=Number.isFinite(m.changePct)?`(${m.changePct>0?'+':''}${m.changePct.toFixed(2)}%)`:'';
     const change=isFund?`<span class="change-amount">${amount}</span>${Number.isFinite(m.change)&&percent?`<span class="change-pct">${percent}</span>`:''}`:amount+(Number.isFinite(m.change)&&percent?' '+percent:'');
     if(m.id==='vix')return vixCard(m,q,sig,change);
+    if(m.id==='fear')return fearCard(m,q,sig,fearMonths,{escape,datetime});
     const history=(m.history||[]).slice(-range);
     const peak=Number.isFinite(m.peak)&&m.peak>0&&Number.isFinite(m.value)?`<div class="peak${m.value<=m.peak*0.8?' peak-discount':''}"><div class="peak-ratio">最高値の <strong>${(m.value/m.peak*100).toFixed(1)}<small>%</small></strong></div><div class="peak-track" role="meter" aria-label="最高値に対する現在値の割合" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100,m.value/m.peak*100).toFixed(1)}"><span style="width:${Math.min(100,Math.max(0,m.value/m.peak*100)).toFixed(1)}%"></span></div><div>最高値から ${((m.value/m.peak-1)*100).toFixed(1)}%</div><div>取得データの最高値 ${format(m.peak,m.id)}円</div></div>`:'';
     const url=/^https:\/\//.test(m.sourceUrl)?m.sourceUrl:'#';
@@ -88,6 +90,8 @@ async function refresh(){
 $('#today').textContent=new Intl.DateTimeFormat('ja-JP',{month:'long',day:'numeric',weekday:'short',timeZone:'Asia/Tokyo'}).format(new Date());
 $('#refresh').addEventListener('click',refresh);
 $('#cards').addEventListener('click',e=>{
+  const f=e.target.closest('[data-fear-months]');
+  if(f){fearMonths=Number(f.dataset.fearMonths);render();$(`[data-fear-months="${fearMonths}"]`)?.focus({preventScroll:true});return;}
   const b=e.target.closest('[data-vix-months]');
   if(!b)return;
   vixMonths=Number(b.dataset.vixMonths);render();

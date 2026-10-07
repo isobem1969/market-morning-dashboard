@@ -29,3 +29,10 @@ test('VIX calendar ranges sort, deduplicate and handle month-end cutoffs',()=>{
  assert.deepEqual(selectVixHistory(points,3),[{date:'2026-02-28',value:20},{date:'2026-05-31',value:17}]);
  assert.deepEqual(selectVixHistory([],12),[]);
 });
+
+import {fearBand,fearHistory} from '../public/fear-panel.js';
+test('Fear & Greed exact and fractional boundaries, invalid scores and histories',()=>{
+ for(const [v,key] of [[0,'extreme-fear'],[24.99,'extreme-fear'],[25,'fear'],[44.99,'fear'],[45,'neutral'],[55,'neutral'],[55.01,'greed'],[75,'greed'],[75.01,'extreme-greed'],[100,'extreme-greed']])assert.equal(fearBand(v)?.key,key);
+ for(const v of [null,NaN,Infinity,-1,101])assert.equal(fearBand(v),null);
+ assert.deepEqual(fearHistory([{date:'2026-10-01',value:28},{date:'2026-10-02',value:101},{date:'2026-10-03',value:-1}],3),[{date:'2026-10-01',value:28}]);
+});
