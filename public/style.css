@@ -36,3 +36,18 @@
 @media(max-width:800px){.large-market-card{padding:22px}.large-market-card .card-title,.large-market-card .value{font-size:38px}.large-market-card .change{font-size:30px}}
 @media(max-width:650px){.large-market-card{grid-column:1/-1;padding:20px 16px}.large-market-card .card-title,.large-market-card .value{font-size:42px}}
 @media(max-width:360px){.large-market-card .card-title,.large-market-card .value{font-size:36px}.large-market-card .change{font-size:28px}}
+
+.market-plot{margin:18px 0 16px;min-width:0}
+.market-periods{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 12px}
+.market-periods button{flex:1;min-width:50px;min-height:44px;padding:8px 6px;font-size:13px;font-weight:800;border:1px solid #dce5ec;border-radius:8px;background:#f3f6f9;color:#34546e}
+.market-periods button[aria-pressed="true"]{background:#1753a6;border-color:#1753a6;color:#fff;box-shadow:0 2px 6px #1753a630}
+.market-periods button:focus-visible{outline:3px solid #f28a22;outline-offset:2px}
+.market-chart{display:block;width:100%;height:auto;overflow:visible}
+.market-chart text{font-size:13px;fill:#61757d;font-variant-numeric:tabular-nums}
+.market-caption{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 12px;font-size:11px;line-height:1.8;color:#61757d;margin-top:6px}
+.market-caption b{color:#132d3c}
+.market-hover{font-size:12px;font-weight:700;color:#1753a6;min-height:36px;line-height:1.5;margin:8px 0}
+.market-note{font-size:11px;line-height:1.7;color:#61757d;margin:0}
+.market-chart-empty{min-height:180px;display:grid;place-items:center;font-size:13px;color:#61757d}
+@media(max-width:950px){.market-chart text{font-size:16px}}
+@media(max-width:360px){.market-periods{gap:4px}.market-periods button{font-size:12px;min-width:44px}}

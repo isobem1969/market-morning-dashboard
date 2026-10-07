@@ -11,8 +11,8 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icon-192.png">
-  <link rel="stylesheet" href="./style.css?v=half-20261007">
-  <script type="module" src="./app.js?v=half-20261007"></script>
+  <link rel="stylesheet" href="./style.css?v=ranges-20261007">
+  <script type="module" src="./app.js?v=ranges-20261007"></script>
   <link rel="stylesheet" href="./fund-panel.css?v=funds-20261007">
 </head>
 <body>
@@ -28,7 +28,7 @@
       <h2 id="summary">確認中</h2><p id="summary-detail">公表日時と取得状況を確認しています。</p>
       <div class="conditions"><span>VIX ≥ 30</span><span>Fear & Greed &lt; 20</span><span>日経VI ≥ 50</span></div>
     </section>
-    <div class="section-heading"><h2>8つの指標</h2><div class="range" aria-label="グラフの期間"><button class="selected" aria-pressed="true" data-range="7">7回</button><button aria-pressed="false" data-range="30">30回</button></div></div>
+    <div class="section-heading"><h2>8つの指標</h2></div>
     <div id="cards" class="grid"></div>
     <section class="guide">
       <details><summary>3本の投資信託のチャートとみんかぶ表示</summary><div class="details-body"><p>基準価額は1万口あたりの公表価格です。1日は最新公表日の1点、1週は最新公表日を含む7暦日、1カ月以上は日次の基準価額を表示します。日中の株価チャートではありません。履歴が選択期間より短い場合は、取得できた範囲だけを表示します。25・75日線は基準価額の単純平均で、日数が不足する部分は表示しません。グラフは分配金を再投資した総リターンではありません。</p><p>右下のオレンジ色の「みんかぶ」で、その投資信託のページを小窓で開きます。Macでは右下に約520×560ピクセルを指定します。iPhone・iPadでは別タブ等で開く場合があります。対応するブラウザーでは「基準価額」の文字位置へ移動します。みんかぶのデータをアプリへ取り込む方式ではありません。</p></div></details>
@@ -36,7 +36,7 @@
         <p>起動時・画面に戻ったときに、サーバーの保存データを読み込みます。取得は毎時実行予定です。<strong>リアルタイム配信ではなく、GitHub Actionsの実行遅延もあります。</strong>「更新を確認」は新しい保存データを読み直すボタンです。自動取得した値は共通のサーバーに保存され、Mac・iPhone・iPadで共有されます。</p>
         <p>VIX・日経VIは日次終値。投資信託の基準価額は1万口あたりの公表価格です。米国市場の値と日本の投信は同じ時点ではありません。ブレントは期近先物で、限月切り替えの影響があります。</p>
         <p>VIXの数値は15未満が緑、15以上20未満が青、20以上30未満が黄、30以上40未満が橙、40以上が赤です。添付画像に沿った表示の目安で、総合条件チェックは従来どおりVIX 30以上で条件到達とします。データ不足時は総合判定を保留します。</p>
-        <p>取得失敗・データの古さを別々に表示します。4日を超えた値や、サーバー取得処理が30時間を超えて止まっている値は、判定に使いません。休日は公表日が変わらないことがあります。VIXのグラフは最新の取得終値を終点に3か月／6か月／1年で切り替えます。他のチャートは直近7回／30回の公表値で、暦日ではありません。</p>
+        <p>取得失敗・データの古さを別々に表示します。4日を超えた値や、サーバー取得処理が30時間を超えて止まっている値は、判定に使いません。休日は公表日が変わらないことがあります。VIXのグラフは最新の取得終値を終点に3か月／6か月／1年で切り替えます。ドル円・ブレント原油は各パネルで1週／1カ月／6カ月／1年／2年を切り替えます。1週は最新データの日付を含む7暦日。日次の市場値で、最新日は更新時点の値を含みます。取得履歴が短い場合は取得できた範囲を表示します。</p>
       </div></details>
       <details><summary>CNNの値を補完する</summary><div class="details-body">
         <p>Fear &amp; GreedはCNNを優先して取得し、失敗した場合はFear &amp; Greed Graphの外部配信値を取得します。利用した取得元と公表日をカードに表示します。外部配信はCNNとの提携を意味せず、値や更新時刻に差が出る場合があります。</p><p>両方から自動取得できない場合は、<a href="https://edition.cnn.com/markets/fear-and-greed" target="_blank" rel="noopener noreferrer">CNNのページ</a>で確認した値を入力できます。この端末だけに保存し「手入力」と表示します。値の公表日を指定してください。</p>

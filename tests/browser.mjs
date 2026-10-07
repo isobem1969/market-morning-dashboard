@@ -23,6 +23,20 @@ try {
     assert.equal(await page.locator('.card').count(),8);
     const halfCards=await page.locator('.large-market-card').evaluateAll(cards=>cards.map(c=>{const r=c.getBoundingClientRect();return {width:r.width,top:r.top,left:r.left,titleSize:getComputedStyle(c.querySelector('.card-title')).fontSize,valueSize:getComputedStyle(c.querySelector('.value')).fontSize}}));
     assert.equal(halfCards.length,2);assert.equal(halfCards[0].titleSize,halfCards[0].valueSize);
+    for(const id of ['usd','brent']){
+      const tile=page.locator(`[data-metric="${id}"]`);
+      for(const period of ['1w','1m','6m','1y','2y']){
+        await tile.locator(`[data-market-period="${period}"]`).click();
+        assert.equal(await tile.locator(`[data-market-period="${period}"]`).getAttribute('aria-pressed'),'true');
+        assert.equal(await tile.locator('[aria-pressed="true"]').count(),1);
+        assert.equal(await tile.locator('.market-chart').count(),1);
+      }
+      await tile.locator('[data-market-period="6m"]').click();
+    }
+    await page.locator('[data-market-id="usd"][data-market-period="1w"]').click();
+    assert.equal(await page.locator('[data-market-id="brent"][data-market-period="6m"]').getAttribute('aria-pressed'),'true');
+    await page.locator('[data-market-id="usd"][data-market-period="6m"]').click();
+
     const gridWidth=await page.locator('#cards').evaluate(e=>e.getBoundingClientRect().width);
     if(width>650){assert.ok(Math.abs(halfCards[0].top-halfCards[1].top)<1);assert.ok(Math.abs(halfCards[0].width*2+14-gridWidth)<2);}else{assert.ok(Math.abs(halfCards[0].width-gridWidth)<2);}
 
@@ -49,8 +63,6 @@ try {
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`${name} overflows`);
     await page.screenshot({path:`screenshots/${name}.png`,fullPage:true});
   }
-  await page.getByRole('button',{name:'30回',exact:true}).click();
-  assert.equal(await page.getByRole('button',{name:'30回',exact:true}).getAttribute('aria-pressed'),'true');
   const data=JSON.parse(await fs.readFile('public/data/market.json','utf8'));
   const now=new Date().toISOString(),today=now.slice(0,10);
   const fixture={...data,generatedAt:now,metrics:data.metrics.map(m=>({...m,asOf:today,status:'ok',lastSuccess:now,value:({vix:30,fear:20,vi:49.99}[m.id]??m.value??50)}))};

@@ -52,3 +52,22 @@ test('Fund calendar ranges and averages use actual dated NAV values before clipp
  assert.equal(fundPoints(history.slice(0,24),'1d')[0].ma25,null);
  assert.deepEqual(fundPoints([{date:'2026-02-30',value:100},{date:'2026-03-01',value:0}], '2y'),[]);
 });
+
+import {marketCutoff,selectMarketHistory,marketChart} from '../public/market-panel.js';
+
+test('market periods use calendar cutoffs, including leap years and month ends',()=>{
+  assert.equal(marketCutoff('2026-03-31','1w'),'2026-03-25');
+  assert.equal(marketCutoff('2026-03-31','1m'),'2026-02-28');
+  assert.equal(marketCutoff('2024-03-31','1m'),'2024-02-29');
+  assert.equal(marketCutoff('2024-02-29','1y'),'2023-02-28');
+  assert.equal(marketCutoff('2026-10-07','6m'),'2026-04-07');
+  assert.equal(marketCutoff('2026-10-07','2y'),'2024-10-07');
+  const history=[{date:'2026-10-07',value:160},{date:'2024-10-06',value:140},{date:'2024-10-07',value:141},{date:'2026-10-01',value:150},{date:'2026-09-30',value:149},{date:'2026-99-99',value:1},{date:'2026-02-30',value:1},{date:'2026-10-06',value:NaN}];
+  assert.deepEqual(selectMarketHistory(history,'1w').map(p=>p.date),['2026-10-01','2026-10-07']);
+  assert.deepEqual(selectMarketHistory(history,'2y').map(p=>p.date),['2024-10-07','2026-09-30','2026-10-01','2026-10-07']);
+  assert.deepEqual(selectMarketHistory([],'1y'),[]);
+  const html=marketChart({id:'usd',name:'ドル円',history:[{date:'2026-10-07',value:160}]},'2y');
+  assert.ok(html.includes('選択期間より履歴が短い'));
+  assert.ok(html.includes('<circle'));
+  assert.ok(!html.includes('NaN'));
+});

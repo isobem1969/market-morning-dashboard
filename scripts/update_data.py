@@ -61,7 +61,7 @@ def parse_fund_csv(text, fund):
 
 def yahoo(symbol):
     from urllib.parse import quote
-    obj = json.loads(fetch('https://query1.finance.yahoo.com/v8/finance/chart/' + quote(symbol, safe='') + '?range=3mo&interval=1d'))['chart']['result'][0]
+    obj = json.loads(fetch('https://query1.finance.yahoo.com/v8/finance/chart/' + quote(symbol, safe='') + '?range=2y&interval=1d'))['chart']['result'][0]
     meta = obj['meta']
     from zoneinfo import ZoneInfo
     tz = ZoneInfo(meta['exchangeTimezoneName'])
@@ -70,7 +70,7 @@ def yahoo(symbol):
     t = meta['regularMarketTime']
     date = dt.datetime.fromtimestamp(t, tz).date().isoformat()
     points.append((date, meta['regularMarketPrice']))
-    result = series_result(points, '市場値（遅延の可能性）')
+    result = series_result(points, '市場値（遅延の可能性）', history_limit=800)
     result['asOf'] = dt.datetime.fromtimestamp(t, UTC).isoformat()
     # A daily series can include today's partial bar. Compare with the last prior day.
     prev = next((v for d, v in reversed(sorted(dict(points).items())) if d < date), None)
@@ -202,7 +202,7 @@ def merge_observation(key, observation, previous, now):
         raise ValueError('Source returned an older observation')
     points = {p['date']: p['value'] for p in previous.get('history', [])}
     points.update({p['date']: p['value'] for p in observation['history']})
-    history_limit = 800 if key in ('sox', 'fang', 'nasdaq') else 400 if key == 'vix' else 90
+    history_limit = 800 if key in ('sox', 'fang', 'nasdaq', 'usd', 'brent') else 400 if key == 'vix' else 90
     observation['history'] = [{'date': d, 'value': v} for d, v in sorted(points.items())[-history_limit:]]
     return {**observation, 'status': 'ok', 'lastSuccess': now.isoformat(), 'attemptedAt': now.isoformat(), 'error': None}
 

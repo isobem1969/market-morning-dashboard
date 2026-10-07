@@ -7,6 +7,20 @@ spec=importlib.util.spec_from_file_location('collector',pathlib.Path(__file__).r
 c=importlib.util.module_from_spec(spec);spec.loader.exec_module(c)
 
 class CollectorTest(unittest.TestCase):
+    def test_yahoo_requests_two_years_and_retains_daily_history(self):
+        first=dt.datetime(2024,10,7,tzinfo=c.UTC)
+        times=[int((first+dt.timedelta(days=i)).timestamp()) for i in range(730)]
+        obj={'chart':{'result':[{'meta':{'exchangeTimezoneName':'UTC','regularMarketTime':times[-1],'regularMarketPrice':160},'timestamp':times,'indicators':{'quote':[{'close':[100+i*.01 for i in range(730)]}]}}]}}
+        for key,symbol in [('usd','JPY=X'),('brent','BZ=F')]:
+            with patch.object(c,'fetch',return_value=c.json.dumps(obj)) as fetch:
+                result=c.yahoo(symbol)
+            self.assertIn('?range=2y&interval=1d',fetch.call_args[0][0])
+            self.assertEqual(len(result['history']),730)
+            self.assertEqual(result['value'],160)
+            self.assertAlmostEqual(result['change'],160-(100+728*.01))
+            merged=c.merge_observation(key,result,{},dt.datetime(2026,10,7,tzinfo=c.UTC))
+            self.assertEqual(len(merged['history']),730)
+
     def test_fund_history_retains_two_years_plus_average_context(self):
         points=[((dt.date(2023,1,1)+dt.timedelta(days=i)).isoformat(),10000+i) for i in range(900)]
         text='基準日,基準価額\n'+''.join(d.replace('-','')+','+str(v)+'\n' for d,v in points)
