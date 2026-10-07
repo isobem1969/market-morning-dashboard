@@ -21,6 +21,11 @@ try {
     await page.goto('http://127.0.0.1:8765');
     await page.waitForSelector('.card');
     assert.equal(await page.locator('.card').count(),8);
+    const halfCards=await page.locator('.large-market-card').evaluateAll(cards=>cards.map(c=>{const r=c.getBoundingClientRect();return {width:r.width,top:r.top,left:r.left,titleSize:getComputedStyle(c.querySelector('.card-title')).fontSize,valueSize:getComputedStyle(c.querySelector('.value')).fontSize}}));
+    assert.equal(halfCards.length,2);assert.equal(halfCards[0].titleSize,halfCards[0].valueSize);
+    const gridWidth=await page.locator('#cards').evaluate(e=>e.getBoundingClientRect().width);
+    if(width>650){assert.ok(Math.abs(halfCards[0].top-halfCards[1].top)<1);assert.ok(Math.abs(halfCards[0].width*2+14-gridWidth)<2);}else{assert.ok(Math.abs(halfCards[0].width-gridWidth)<2);}
+
     assert.equal(await page.locator('.fund-card').count(),3);
     for(const [id,code] of [['sox','29314233'],['fang','04311181'],['nasdaq','89311265']]){
       const tile=page.locator(`[data-fund="${id}"]`);

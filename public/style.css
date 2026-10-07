@@ -21,3 +21,18 @@
 
 /* Full-width panels in the requested visual order. */
 .vix-card{order:-3}.fear-card{order:-2}.vi-card{order:-1}
+
+/* Dollar-yen and Brent share one row on desktop and tablet. */
+.large-market-card{grid-column:span 2;padding:26px 28px;border-radius:20px}
+.large-market-card .card-title,.large-market-card .value{font-size:46px;font-weight:850;letter-spacing:-1px;line-height:1.25}
+.large-market-card .value{margin-top:18px}
+.large-market-card .change{font-size:32px;font-weight:850;line-height:1.35;overflow-wrap:anywhere;margin-top:12px}
+.large-market-card .unit{font-size:13px}
+.large-market-card .card-title{overflow-wrap:anywhere}
+.large-market-card .spark{height:65px}
+.large-market-card .icon{width:34px;height:34px;font-size:16px}
+.large-market-card .meta,.large-market-card .history-details{font-size:12px}
+@media(max-width:950px){.large-market-card{grid-column:span 1}}
+@media(max-width:800px){.large-market-card{padding:22px}.large-market-card .card-title,.large-market-card .value{font-size:38px}.large-market-card .change{font-size:30px}}
+@media(max-width:650px){.large-market-card{grid-column:1/-1;padding:20px 16px}.large-market-card .card-title,.large-market-card .value{font-size:42px}}
+@media(max-width:360px){.large-market-card .card-title,.large-market-card .value{font-size:36px}.large-market-card .change{font-size:28px}}
