@@ -141,6 +141,10 @@ def high_observation(result, symbol, now):
         return {'value': value, 'date': date.isoformat()}
     expected = dt.datetime.fromtimestamp(first_trade, NY).date() if first_trade is not None else None
     complete = expected is not None and abs((rows[0][0] - expected).days) <= 7
+    # For these older issuers, Yahoo's firstTradeDate can be the archive's
+    # starting date rather than the original public listing date.
+    if symbol in ('KO', 'JNJ', 'LLY'):
+        complete = False
     return {'week52': peak([r for r in rows if r[0] >= start]),
             'allTime': {**peak(rows), 'complete': complete},
             'historyStart': rows[0][0].isoformat(), 'asOfDate': end.isoformat(),

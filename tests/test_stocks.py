@@ -15,6 +15,7 @@ class StockTests(unittest.TestCase):
         self.assertEqual(result['week52']['value'],150)
         self.assertEqual(result['allTime']['value'],200)
         self.assertTrue(result['allTime']['complete'])
+        self.assertFalse(high_observation(data,'LLY',dt.datetime.fromisoformat('2026-10-07T15:00:00+00:00'))['allTime']['complete'])
         data['meta']['firstTradeDate']=stamps[0]-86400*100
         self.assertFalse(high_observation(data,'AAPL',dt.datetime.fromisoformat('2026-10-07T15:00:00+00:00'))['allTime']['complete'])
 
