@@ -8,7 +8,7 @@ export function previousValue(m){
 }
 export function valuePair(m,format){
  const prev=previousValue(m),before=Number.isFinite(prev)?format(prev):'—',current=Number.isFinite(m.value)?format(m.value):'—';
- return '<span class="value-pair" aria-label="前取引日 '+escape(before)+'、最新値 '+escape(current)+'"><span class="previous-value" title="前取引日・前公表日の値">'+escape(before)+'</span><span class="value-arrow" aria-hidden="true">→</span><span class="current-value">'+escape(current)+'</span></span>';
+ return '<span class="value-pair" aria-label="前取引日 '+escape(before)+'、最新値 '+escape(current)+'"><span class="previous-value" title="前取引日・前公表日の値">'+escape(before)+'</span><span class="value-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="12" fill="#80bf1b"/><path d="M6 12h11M12 7l5 5-5 5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="current-value">'+escape(current)+'</span></span>';
 }
 export function watchValuePairs(root){
  let pending=false;

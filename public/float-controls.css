@@ -1,0 +1,5 @@
+#back-to-top{position:fixed;right:calc(10px + env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);z-index:1000;display:grid;place-items:center;width:48px;height:48px;min-height:48px;padding:10px;border:1px solid #ffffff70;border-radius:50%;background:rgba(19,45,60,.52);color:#fff;box-shadow:0 3px 12px #132d3c25;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);cursor:pointer}
+#back-to-top[hidden]{display:none}
+#back-to-top svg{display:block;width:100%;height:100%}
+#back-to-top:hover{background:rgba(19,45,60,.76)}
+#back-to-top:focus-visible{outline:3px solid #80bf1b;outline-offset:3px}

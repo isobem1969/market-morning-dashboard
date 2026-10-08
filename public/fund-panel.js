@@ -1,4 +1,4 @@
-import {valuePair,watchValuePairs} from './value-pair.js?v=previous-20261008';
+import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 export const FUND_META={
  sox:{name:'ニッセイSOX',code:'29314233'},
  fang:{name:'iFreeNEXT FANG＋',code:'04311181'},

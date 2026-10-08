@@ -2,7 +2,7 @@
 .value-pair{display:flex;align-items:baseline;flex-wrap:nowrap;white-space:nowrap;gap:.18em;min-width:0;max-width:100%;width:100%;font-size:inherit;font-weight:inherit;letter-spacing:0;font-variant-numeric:tabular-nums;line-height:1.25}
 .value-pair>span{display:inline-block;flex:none;white-space:nowrap}
 .value-pair .previous-value{font-size:.62em;font-weight:400!important;color:#4b4b4b!important;letter-spacing:0}
-.value-pair .value-arrow{font-size:.52em;font-weight:400!important;color:#4b4b4b!important}
+.value-pair .value-arrow{font-size:1em;width:.7em;height:.7em;align-self:center;line-height:0;color:#80bf1b!important}.value-arrow svg{display:block;width:100%;height:100%}
 .value-pair .current-value{font-size:1em;font-weight:inherit;color:inherit}
 .price-box,.fund-price-box{display:flex;width:100%;flex-wrap:nowrap;gap:6px}
 .price-box .price,.fund-price-box .fund-price{display:flex;flex:1;min-width:0;max-width:100%}

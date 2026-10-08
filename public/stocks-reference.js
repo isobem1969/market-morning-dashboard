@@ -1,4 +1,4 @@
-import {valuePair,watchValuePairs} from './value-pair.js?v=previous-20261008';
+import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {PERIODS,chartPoints,nyDate,sectionOld} from './stocks-logic.js?v=averages-20261007';
 const container=document.querySelector('#stocks'),status=document.querySelector('#status'),refresh=document.querySelector('#refresh');
 const ranges=new Map();let data=null,offline=false,loading=false;
