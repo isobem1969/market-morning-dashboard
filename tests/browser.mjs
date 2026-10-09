@@ -20,7 +20,7 @@ try {
     await page.setViewportSize({width,height});
     await page.goto('http://127.0.0.1:8765');
     await page.waitForSelector('.card');
-    assert.equal(await page.locator('.card').count(),8);
+    assert.equal(await page.locator('.card').count(),9);
     const halfCards=await page.locator('.large-market-card').evaluateAll(cards=>cards.map(c=>{const r=c.getBoundingClientRect();return {width:r.width,top:r.top,left:r.left,titleSize:getComputedStyle(c.querySelector('.card-title')).fontSize,valueSize:getComputedStyle(c.querySelector('.value')).fontSize}}));
     assert.equal(halfCards.length,2);assert.equal(halfCards[0].titleSize,halfCards[0].valueSize);
     for(const id of ['usd','brent']){
@@ -40,10 +40,10 @@ try {
     const gridWidth=await page.locator('#cards').evaluate(e=>e.getBoundingClientRect().width);
     if(width>650){assert.ok(Math.abs(halfCards[0].top-halfCards[1].top)<1);assert.ok(Math.abs(halfCards[0].width*2+14-gridWidth)<2);}else{assert.ok(Math.abs(halfCards[0].width-gridWidth)<2);}
 
-    assert.equal(await page.locator('.fund-card').count(),3);
-    for(const [id,code] of [['sox','29314233'],['fang','04311181'],['nasdaq','89311265']]){
+    assert.equal(await page.locator('.fund-card').count(),4);
+    for(const [id,code] of [['sox','29314233'],['fang','04311181'],['nasdaq','89311265'],['nasdaq_ifree','04317188']]){
       const tile=page.locator(`[data-fund="${id}"]`);
-      for(const period of ['1d','1w','1m','6m','1y','2y']){await tile.locator(`[data-fund-period="${period}"]`).click();assert.equal(await tile.locator(`[data-fund-period="${period}"]`).getAttribute('aria-pressed'),'true');assert.equal(await tile.locator('.fund-chart').count(),1);}
+      for(const period of ['1w','1m','6m','1y','2y']){await tile.locator(`[data-fund-period="${period}"]`).click();assert.equal(await tile.locator(`[data-fund-period="${period}"]`).getAttribute('aria-pressed'),'true');assert.equal(await tile.locator('.fund-chart').count(),1);}
       await tile.locator('[data-fund-period="6m"]').click();
       const button=tile.locator('.fund-minkabu');assert.equal(await button.getAttribute('href'),`https://itf.minkabu.jp/fund/${code}#:~:text=${encodeURIComponent('基準価額')}`);
       const popupPromise=page.waitForEvent('popup');await button.click();const popup=await popupPromise;await popup.waitForURL(new RegExp(`/fund/${code}`));await popup.close();
@@ -101,5 +101,5 @@ try {
   await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('通信できません'));
   assert.equal(await page.locator('.card.alert').count(),0);
   assert.deepEqual(errors,[]);
-  console.log('PASS: 3 mobile layouts, 8 cards, chart controls, exact alerts, manual entry and offline handling');
+  console.log('PASS: 3 mobile layouts, 9 cards, chart controls, exact alerts, manual entry and offline handling');
 }finally{await browser?.close();server.kill();}

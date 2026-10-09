@@ -1,7 +1,7 @@
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {changePercent,percentLine} from './change-format.js?v=twoline-20261007';
 import {marketChart,marketHover,selectMarketHistory} from './market-panel.js?v=ranges-20261007';
-import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=period-high-20261009';
+import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=ifree-20261009';
 import {viCard} from './vi-panel.js?v=green-arrow-20261008';
 import {fearCard} from './fear-panel.js?v=green-arrow-20261008';
 import {quality,signal,overall,VIX_BANDS,vixBand,selectVixHistory} from './logic.js?v=vix-20261006';
@@ -12,13 +12,13 @@ const descriptions={usd:'為替 · 1ドルあたりの円',vix:'米国株の予�
 const store={get(k){try{return JSON.parse(localStorage.getItem(k));}catch{return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}},remove(k){try{localStorage.removeItem(k);}catch{}}};
 const fundRanges=new Map(),marketRanges=new Map();
 let drawdowns=store.get('market-morning-drawdowns')||{},data=null,vixMonths=12,fearMonths=12,viMonths=12,offline=false,loading=false;
-function format(value,id){return Number.isFinite(value)?value.toLocaleString('ja-JP',{minimumFractionDigits:['usd','vix','vi','brent'].includes(id)?2:0,maximumFractionDigits:['sox','fang','nasdaq'].includes(id)?0:2}):'—';}
+function format(value,id){return Number.isFinite(value)?value.toLocaleString('ja-JP',{minimumFractionDigits:['usd','vix','vi','brent'].includes(id)?2:0,maximumFractionDigits:['sox','fang','nasdaq','nasdaq_ifree'].includes(id)?0:2}):'—';}
 function datetime(value){if(!value)return'未取得';const d=new Date(value.length===10?value+'T00:00:00+09:00':value);return Number.isFinite(d.getTime())?new Intl.DateTimeFormat('ja-JP',{month:'2-digit',day:'2-digit',...(value.length>10?{hour:'2-digit',minute:'2-digit'}:{}),timeZone:'Asia/Tokyo'}).format(d)+(value.length>10?' JST':''): '日時不明';}
 function metrics(){
   if(!data)return [];
   const manual=store.get('market-morning-manual');
   return data.metrics.map(original=>{
-    const m={...original,drawdown:drawdowns[original.id]};
+    const m={...original,drawdown:drawdowns[original.id==='nasdaq_ifree'?'nasdaq':original.id]};
     if(m.id!=='fear'||!manual||!Number.isFinite(manual.value)||manual.value<0||manual.value>100)return m;
     if(m.status==='ok'&&m.asOf&&m.asOf.slice(0,10)>=manual.asOf)return m;
     return {...m,value:manual.value,asOf:manual.asOf,status:'manual',kind:'CNN確認・手入力',history:[{date:manual.asOf,value:manual.value}],change:null,changePct:null};
@@ -56,7 +56,7 @@ function render(){
   $('#coverage').textContent=`判定用 ${ov.count}/3 指標`;
   $('#cards').innerHTML=ms.map(m=>{
     const q=quality(m,now,data.generatedAt,offline),sig=q.usable?signal(m.id,m.value):{tone:'',text:'判定対象外'};
-    const isFund=['sox','fang','nasdaq'].includes(m.id);
+    const isFund=['sox','fang','nasdaq','nasdaq_ifree'].includes(m.id);
     if(isFund)return fundCard(m,q,fundRanges.get(m.id)||'6m',{datetime});
     const amount=Number.isFinite(m.change)?`${m.change>0?'↑ +':m.change<0?'↓ −':'→ '}${format(Math.abs(m.change),m.id)}`:'前日比 —';
     const percent=percentLine(changePercent(m));
@@ -79,10 +79,10 @@ async function refresh(){
     let response;try{response=await fetch('./data/market.json?t='+Date.now(),{cache:'no-store',signal:controller.signal});await ddRequest;}finally{clearTimeout(timer);}
     if(!response.ok)throw new Error(`HTTP ${response.status}`);
     const next=await response.json();
-    if(next.schemaVersion!==1||!Array.isArray(next.metrics)||next.metrics.length!==8||!next.generatedAt)throw new Error('データ形式を確認してください');
+    if(next.schemaVersion!==1||!Array.isArray(next.metrics)||next.metrics.length<8||!next.generatedAt)throw new Error('データ形式を確認してください');
     data=next;offline=false;store.set('market-morning-cache',data);
     const ok=data.metrics.filter(m=>m.status==='ok').length;
-    $('#status').textContent=`取得処理 ${datetime(data.generatedAt)} · 成功 ${ok}/8 · 画面確認 ${datetime(new Date().toISOString())}`;
+    $('#status').textContent=`取得処理 ${datetime(data.generatedAt)} · 成功 ${ok}/${data.metrics.length} · 画面確認 ${datetime(new Date().toISOString())}`;
   }catch(e){
     offline=true;data=data||store.get('market-morning-cache');
     $('#status').textContent=data?'通信できません。保存データを参考表示しています。判定は保留します。':'データを読み込めませんでした。接続と自動更新の実行状況を確認してください。';

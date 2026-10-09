@@ -1,7 +1,7 @@
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pct=v=>Number(v).toFixed(2)+'%';
 export function drawdownPanel(m){
- if(!['fang','nasdaq'].includes(m.id))return '';
+ if(!['fang','nasdaq','nasdaq_ifree'].includes(m.id))return '';
  const d=m.drawdown;
  if(!d)return '<section class="drawdown-panel"><h4>最高値からの下落と回復</h4><p>比較データを読み込めませんでした。「更新を確認」で再取得できます。</p></section>';
  const years=[d.currentYear-1,d.currentYear],colors=['#21617c','#ed7a19'],series=years.map(y=>d.years[y]||[]);

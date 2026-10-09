@@ -20,6 +20,7 @@ SOURCES = {
     'sox': ('ニッセイ SOX', '円 / 1万口', 'ニッセイアセット公式CSV', 'https://www.nam.co.jp/fundinfo/nssifb/data.html'),
     'fang': ('iFreeNEXT FANG+', '円 / 1万口', '大和アセット公式CSV', 'https://www.daiwa-am.co.jp/funds/detail/3346/detail_top.html'),
     'nasdaq': ('SBI NASDAQ100', '円 / 1万口', 'SBI運用会社案内・Wealth Advisor', 'https://apl.wealthadvisor.jp/webasp/sbi_am/pc/basic/sa_2026052101.html'),
+    'nasdaq_ifree': ('iFreeNEXT NASDAQ100', '円 / 1万口', '大和アセット公式CSV', 'https://www.daiwa-am.co.jp/funds/detail/3373/detail_top.html'),
 }
 
 def fetch(url, encoding=None):
@@ -55,7 +56,7 @@ def series_result(points, kind, peak=False, history_limit=90):
 
 def parse_fund_csv(text, fund):
     rows = csv.DictReader(io.StringIO(text))
-    if fund == 'fang':
+    if fund in ('fang', 'nasdaq_ifree'):
         return series_result([(iso_date(r['基準日']), r['基準価額']) for r in rows], '基準価額', True, history_limit=800)
     return series_result([(iso_date(r['日付']), r['基準価額']) for r in rows], '基準価額', True, history_limit=800)
 
@@ -191,6 +192,7 @@ ADAPTERS = {
     'sox': lambda: parse_fund_csv(fetch('https://www.nam.co.jp/fundinfo/data/csv.php?fund_code=122309', 'cp932'), 'sox'),
     'fang': lambda: parse_fund_csv(fetch('https://www.daiwa-am.co.jp/funds/detail/csv_out.php?code=3346&type=1', 'cp932'), 'fang'),
     'nasdaq': nasdaq,
+    'nasdaq_ifree': lambda: parse_fund_csv(fetch('https://www.daiwa-am.co.jp/funds/detail/csv_out.php?code=3373&type=1', 'cp932'), 'nasdaq_ifree'),
 }
 
 def merge_observation(key, observation, previous, now):
@@ -202,7 +204,7 @@ def merge_observation(key, observation, previous, now):
         raise ValueError('Source returned an older observation')
     points = {p['date']: p['value'] for p in previous.get('history', [])}
     points.update({p['date']: p['value'] for p in observation['history']})
-    history_limit = 800 if key in ('sox', 'fang', 'nasdaq', 'usd', 'brent') else 400 if key == 'vix' else 90
+    history_limit = 800 if key in ('sox', 'fang', 'nasdaq', 'nasdaq_ifree', 'usd', 'brent') else 400 if key == 'vix' else 90
     observation['history'] = [{'date': d, 'value': v} for d, v in sorted(points.items())[-history_limit:]]
     return {**observation, 'status': 'ok', 'lastSuccess': now.isoformat(), 'attemptedAt': now.isoformat(), 'error': None}
 
