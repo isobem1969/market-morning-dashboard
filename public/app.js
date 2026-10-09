@@ -1,7 +1,7 @@
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {changePercent,percentLine} from './change-format.js?v=twoline-20261007';
 import {marketChart,marketHover,selectMarketHistory} from './market-panel.js?v=ranges-20261007';
-import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=green-arrow-20261008';
+import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=drawdowns-20261009';
 import {viCard} from './vi-panel.js?v=green-arrow-20261008';
 import {fearCard} from './fear-panel.js?v=green-arrow-20261008';
 import {quality,signal,overall,VIX_BANDS,vixBand,selectVixHistory} from './logic.js?v=vix-20261006';
@@ -11,13 +11,14 @@ const icons={usd:'¥',vix:'V',fear:'FG',vi:'VI',brent:'B',sox:'S',fang:'F+',nasd
 const descriptions={usd:'為替 · 1ドルあたりの円',vix:'米国株の予想変動幅',fear:'米国市場の恐怖・欲望',vi:'日経平均の予想変動幅',brent:'ブレント期近先物',sox:'29314233 · 米国半導体',fang:'04311181 · 米国大型成長株',nasdaq:'89311265 · NASDAQ100'};
 const store={get(k){try{return JSON.parse(localStorage.getItem(k));}catch{return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}},remove(k){try{localStorage.removeItem(k);}catch{}}};
 const fundRanges=new Map(),marketRanges=new Map();
-let data=null,vixMonths=12,fearMonths=12,viMonths=12,offline=false,loading=false;
+let drawdowns=store.get('market-morning-drawdowns')||{},data=null,vixMonths=12,fearMonths=12,viMonths=12,offline=false,loading=false;
 function format(value,id){return Number.isFinite(value)?value.toLocaleString('ja-JP',{minimumFractionDigits:['usd','vix','vi','brent'].includes(id)?2:0,maximumFractionDigits:['sox','fang','nasdaq'].includes(id)?0:2}):'—';}
 function datetime(value){if(!value)return'未取得';const d=new Date(value.length===10?value+'T00:00:00+09:00':value);return Number.isFinite(d.getTime())?new Intl.DateTimeFormat('ja-JP',{month:'2-digit',day:'2-digit',...(value.length>10?{hour:'2-digit',minute:'2-digit'}:{}),timeZone:'Asia/Tokyo'}).format(d)+(value.length>10?' JST':''): '日時不明';}
 function metrics(){
   if(!data)return [];
   const manual=store.get('market-morning-manual');
-  return data.metrics.map(m=>{
+  return data.metrics.map(original=>{
+    const m={...original,drawdown:drawdowns[original.id]};
     if(m.id!=='fear'||!manual||!Number.isFinite(manual.value)||manual.value<0||manual.value>100)return m;
     if(m.status==='ok'&&m.asOf&&m.asOf.slice(0,10)>=manual.asOf)return m;
     return {...m,value:manual.value,asOf:manual.asOf,status:'manual',kind:'CNN確認・手入力',history:[{date:manual.asOf,value:manual.value}],change:null,changePct:null};
@@ -74,7 +75,8 @@ async function refresh(){
   $('#status').textContent='新しい保存データを確認しています…';
   try{
     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);
-    let response;try{response=await fetch('./data/market.json?t='+Date.now(),{cache:'no-store',signal:controller.signal});}finally{clearTimeout(timer);}
+    const ddRequest=fetch('./data/fund-drawdowns.json?t='+Date.now(),{cache:'no-store',signal:controller.signal}).then(r=>{if(!r.ok)throw new Error();return r.json();}).then(d=>{drawdowns=d;store.set('market-morning-drawdowns',d);}).catch(()=>{});
+    let response;try{response=await fetch('./data/market.json?t='+Date.now(),{cache:'no-store',signal:controller.signal});await ddRequest;}finally{clearTimeout(timer);}
     if(!response.ok)throw new Error(`HTTP ${response.status}`);
     const next=await response.json();
     if(next.schemaVersion!==1||!Array.isArray(next.metrics)||next.metrics.length!==8||!next.generatedAt)throw new Error('データ形式を確認してください');
