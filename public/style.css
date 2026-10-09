@@ -72,3 +72,5 @@
 .date-block #today{font-size:16px;font-weight:400;white-space:nowrap;color:#132d3c}
 .date-block #refresh{font-size:16px;font-weight:650;min-height:44px;padding:12px 16px;border:1px solid #dde4e6;border-radius:12px;background:#fff;color:#19313f;white-space:nowrap}
 @media(max-width:650px){.top{flex-wrap:wrap;align-items:flex-start}.date-block{margin-left:auto}}
+
+.card-title .indicator-threshold{color:#f20d2f!important;font:inherit;white-space:nowrap}
