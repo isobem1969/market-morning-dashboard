@@ -5,7 +5,7 @@ export const FUND_META={
  fang:{name:'iFreeNEXT FANG＋',code:'04311181'},
  nasdaq:{name:'SBI NASDAQ100',code:'89311265'}
 };
-export const FUND_PERIODS=[['1d','1日'],['1w','1週'],['1m','1カ月'],['6m','6カ月'],['1y','1年'],['2y','2年']];
+export const FUND_PERIODS=[['1w','1週'],['1m','1カ月'],['6m','6カ月'],['1y','1年'],['2y','2年']];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=(v,d=0)=>Number.isFinite(v)?v.toLocaleString('ja-JP',{minimumFractionDigits:d,maximumFractionDigits:d}):'—';
 export function fundPoints(history,period='6m'){
@@ -45,11 +45,14 @@ function graph(m,period){
  return '<div class="fund-legend"><span class="nav-line">基準価額 <strong>'+num(last.value)+'</strong></span><span class="ma25-line">25日線 <strong>'+num(last.ma25)+'</strong></span><span class="ma75-line">75日線 <strong>'+num(last.ma75)+'</strong></span></div><div class="fund-chart-wrap"><svg class="fund-chart" data-fund-chart="'+m.id+'" viewBox="0 0 720 300" role="img" aria-label="'+esc(FUND_META[m.id].name)+'の基準価額と25・75日移動平均"><defs><linearGradient id="fund-fill-'+m.id+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#15536b" stop-opacity=".3"/><stop offset="1" stop-color="#15536b" stop-opacity=".02"/></linearGradient></defs>'+grid+area+'<path d="'+line+'" fill="none" stroke="#15536b" stroke-width="2.4"/><path data-ma="25" d="'+path('ma25')+'" fill="none" stroke="#ee303b" stroke-width="2.6"/><path data-ma="75" d="'+path('ma75')+'" fill="none" stroke="#3168ff" stroke-width="2.6"/><circle cx="'+x(pts.length-1)+'" cy="'+y(last.value)+'" r="4" fill="#15536b"/>'+labels+'</svg></div><div class="fund-chart-footer"><span>'+pts[0].date.replaceAll('-','/')+'〜'+last.date.replaceAll('-','/')+' · '+pts.length+'公表日</span><span>最低 <strong>'+num(min)+'円</strong> ／ 最高 <strong>'+num(max)+'円</strong></span></div><p class="fund-hover">グラフに触れると基準価額・移動平均を表示</p><p class="fund-chart-note">'+(period==='1d'?'1日は最新公表日の1点です。日中の値動きはありません。':'取得済みの公表値だけを表示。選択期間より履歴が短い場合は、取得できた範囲だけを表示します。')+'25・75日線は25・75公表日の基準価額の単純平均。日数不足は表示しません。休場日の値は追加しません。</p>';
 }
 export function fundCard(m,q,period,{datetime}){
+ period=FUND_PERIODS.some(([key])=>key===period)?period:'6m';
  const meta=FUND_META[m.id],dir=Number.isFinite(m.change)?m.change>0?'up':m.change<0?'down':'neutral':'neutral';
  const amount=Number.isFinite(m.change)?(m.change>0?'+':m.change<0?'−':'')+num(Math.abs(m.change))+'円':'—';
  const pct=Number.isFinite(m.changePct)?' ('+(m.changePct>0?'+':'')+num(m.changePct,2)+'%)':'';
- const ratio=Number.isFinite(m.peak)&&m.peak>0&&Number.isFinite(m.value)?m.value/m.peak*100:null;
- const peak=ratio!==null?'<div class="peak'+(ratio<=80?' peak-discount':'')+'"><div class="peak-ratio">最高値の <strong>'+num(ratio,1)+'<small>%</small></strong></div><div class="peak-track" role="meter" aria-label="最高値に対する現在値の割合" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.min(100,ratio).toFixed(1)+'"><span style="width:'+Math.min(100,Math.max(0,ratio)).toFixed(1)+'%"></span></div><div>最高値から '+num(ratio-100,1)+'%</div><div class="fund-peak-price"><span>取得データの最高値</span><strong>'+num(m.peak)+'円</strong></div></div>':'';
+ const points=fundPoints(m.history,period),highest=points.length?points.reduce((a,b)=>b.value>a.value?b:a):null;
+ const ratio=highest&&Number.isFinite(m.value)?m.value/highest.value*100:null;
+ const drop=ratio===null?null:ratio-100,periodLabel=FUND_PERIODS.find(([key])=>key===period)[1];
+ const peak='<section class="fund-high" data-fund-high-period="'+period+'"><h3>'+periodLabel+'最高値</h3><p class="fund-high-caption">現在基準価額 / 最高値</p><p class="fund-high-percent">'+num(ratio,1)+'<small>%</small></p><div class="fund-high-meter" aria-hidden="true"><span style="width:'+Math.max(0,Math.min(100,ratio??0))+'%"></span></div><p class="fund-high-price">最高値 <strong>'+num(highest?.value)+'</strong> 円</p><p class="fund-high-drop">最高値から '+(drop===null?'—':(drop<0?'−':drop>0?'+':'')+num(Math.abs(drop),2))+'%</p><p class="fund-high-note">記録日 '+esc(highest?.date||'—')+'<br>取得 '+datetime(m.lastSuccess)+'<br>公表基準価額（1万口あたり）<br>'+(highest?'表示期間 '+esc(points[0].date)+'〜'+esc(points.at(-1).date):'期間内の基準価額を取得待ち')+'</p></section>';
  const base='https://itf.minkabu.jp/fund/'+meta.code;
  const href=base+'#:~:text='+encodeURIComponent('基準価額');
  const source=/^https:\/\//.test(m.sourceUrl)?m.sourceUrl:'#';

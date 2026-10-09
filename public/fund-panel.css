@@ -10,14 +10,10 @@
 @media(max-width:600px){.fund-minkabu{width:176px;height:88px;min-width:176px;min-height:88px;font-size:26px}}
 @media(max-width:360px){.fund-heading h3,.fund-price{font-size:36px}.fund-price-box{padding:8px 10px}.fund-change{font-size:28px}.fund-periods{display:grid;grid-template-columns:repeat(3,1fr)}}
 
-/* Emphasize the peak ratio and its reference NAV. */
-.fund-card .peak-ratio strong{font-size:56px;font-weight:900;color:#f20d2f;line-height:1.3}
-.fund-card .peak-ratio small{font-size:32px}
-.fund-peak-price{display:flex;flex-direction:column;gap:2px;margin-top:8px}
-.fund-peak-price strong{font-size:24px;font-weight:900;color:#f20d2f;line-height:1.4;font-variant-numeric:tabular-nums}
-@media(max-width:360px){.fund-card .peak-ratio strong{font-size:48px}.fund-card .peak-ratio small{font-size:28px}}
-
 .fund-change{display:flex;flex-direction:column;align-items:flex-start;gap:0}
 .fund-change .change-amount,.fund-change .change-pct{display:block}
 
 .drawdown-panel{margin-top:20px;padding:18px 14px;background:#f7f9fc;border:1px solid #dce4eb;border-radius:14px}.drawdown-panel h4{font-size:22px;font-weight:850;color:#132d40;margin:0}.drawdown-source{font-size:12px;color:#53616b;line-height:1.7;margin:6px 0 14px}.drawdown-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.drawdown-summary>div{min-width:0}.drawdown-summary span,.drawdown-summary small{display:block;font-size:11px;color:#52616c;line-height:1.6}.drawdown-summary strong{display:block;color:var(--dd-color);font-size:27px;font-weight:850;white-space:nowrap}.drawdown-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;font-weight:800;margin-top:16px}.drawdown-chart{display:block;width:100%;height:auto;background:white;border-radius:8px;margin-top:8px}.drawdown-chart text{font:14px -apple-system,BlinkMacSystemFont,sans-serif;fill:#53616b}.drawdown-guide{font-size:12px;font-weight:750;line-height:1.7;color:#243b4c;margin:10px 0}.drawdown-panel details{font-size:11px;line-height:1.8;color:#53616b}.drawdown-panel summary{cursor:pointer}.drawdown-panel details p{margin:8px 0}@media(max-width:650px){.drawdown-panel{padding:14px 10px}.drawdown-panel h4{font-size:20px}.drawdown-summary strong{font-size:25px}.drawdown-chart text{font-size:18px}}@media(max-width:360px){.drawdown-summary strong{font-size:22px}.drawdown-summary span{font-size:10px}}
+
+/* Match the stock period-high card typography and colors. */
+.fund-high{border:2px solid #ffbcc5;border-radius:12px;padding:14px;background:#fff8f8;margin:18px 0;color:#18354a}.fund-high h3{margin:0;font-size:22px;font-weight:850;color:#18354a}.fund-high-caption{margin:7px 0 0;font-size:13px;color:#526875}.fund-high-percent{margin:0;color:#f20d2f;font-size:52px;line-height:1.2;font-weight:900;letter-spacing:-1px}.fund-high-percent small{font-size:25px;margin-left:3px}.fund-high-meter{height:10px;background:#f2dfe2;border-radius:10px;overflow:hidden;margin:8px 0}.fund-high-meter span{display:block;height:100%;background:#f20d2f}.fund-high-price{font-size:14px;margin:8px 0}.fund-high-price strong{font-size:25px;font-weight:900;color:#f20d2f}.fund-high-drop{font-size:20px;font-weight:850;margin:6px 0;color:#18354a}.fund-high-note{font-size:10px;color:var(--muted);line-height:1.8;margin:6px 0 0}.fund-price{font-family:inherit}.fund-change.neutral{color:var(--muted)}
