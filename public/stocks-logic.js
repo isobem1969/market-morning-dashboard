@@ -1,4 +1,10 @@
 export const PERIODS=[['1d','1日'],['1w','1週'],['1m','1カ月'],['6m','6カ月'],['1y','1年'],['2y','2年']];
+export function periodHigh(price,period){
+ const points=selectPoints(price,period);
+ if(!points.length||points.some(p=>!Number.isFinite(p.high)||p.high<=0))return {value:null,date:null};
+ const peak=points.reduce((a,b)=>b.high>a.high?b:a);
+ return {value:peak.high,date:nyDate(peak.time),start:nyDate(points[0].time),end:nyDate(points.at(-1).time)};
+}
 export function validPoints(points){return (Array.isArray(points)?points:[]).filter(p=>Number.isFinite(p.time)&&Number.isFinite(p.value)&&p.value>0).sort((a,b)=>a.time-b.time);}
 export function nyDate(time){return new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(time*1000));}
 export function selectPoints(price,period){

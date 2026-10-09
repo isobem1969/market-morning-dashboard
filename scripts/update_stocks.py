@@ -66,12 +66,15 @@ def points(result):
     quote = result['indicators']['quote'][0]
     closes = quote['close']
     volumes = quote.get('volume', [])
+    highs = quote.get('high', [])
     clean = {}
     for i, (stamp, value) in enumerate(zip(result.get('timestamp', []), closes)):
         n = number(value)
         if n is not None and n > 0:
             volume = number(volumes[i]) if i < len(volumes) else None
+            high = number(highs[i]) if i < len(highs) else None
             clean[int(stamp)] = {'time': int(stamp), 'value': n,
+                                 'high': high if high is not None and high > 0 else None,
                                  'volume': volume if volume is not None and volume >= 0 else None}
     return [clean[t] for t in sorted(clean)]
 

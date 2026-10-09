@@ -40,3 +40,19 @@ test('intraday daily averages never use the current session final close',async()
  assert.equal(p.ma25,67);assert.equal(p.ma75,42);assert.equal(p.volume,50);
  assert.equal(chartPoints({daily:daily.slice(0,10),intraday},'1d')[0].ma25,null);
 });
+
+
+test('selected period highs use actual highs, change with range and do not invent missing data',async()=>{
+ const {periodHigh}=await import('../public/stocks-logic.js');
+ const daily=[{...point('2025-10-01',90),high:200},{...point('2026-08-01',90),high:150},{...point('2026-10-01',90),high:110},{...point('2026-10-08',95),high:100}];
+ const intraday=[{...point('2026-10-05',90),high:105},{...point('2026-10-08',95),high:99}];
+ const p={daily,intraday};
+ assert.equal(periodHigh(p,'1d').value,99);
+ assert.equal(periodHigh(p,'1w').value,105);
+ assert.equal(periodHigh(p,'1m').value,110);
+ assert.equal(periodHigh(p,'6m').value,150);
+ assert.equal(periodHigh(p,'1y').value,150);
+ assert.equal(periodHigh(p,'2y').value,200);
+ assert.equal(periodHigh({daily:[point('2026-10-08')]},'1m').value,null);
+ assert.equal(periodHigh({},'1d').value,null);
+});
