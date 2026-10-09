@@ -74,3 +74,6 @@
 @media(max-width:650px){.top{flex-wrap:wrap;align-items:flex-start}.date-block{margin-left:auto}}
 
 .card-title .indicator-threshold{color:#f20d2f!important;font:inherit;white-space:nowrap}
+
+/* Larger headings for the three interpretation panels. */
+.vix-card .card-title{font-size:36px;font-weight:850;line-height:1.3;overflow-wrap:anywhere}.vix-card .card-head{flex-wrap:wrap;align-items:center}.vix-card .vix-close{margin-left:auto}@media(max-width:800px){.vix-card .card-title{font-size:32px}}@media(max-width:650px){.vix-card .card-title{font-size:28px}}@media(max-width:360px){.vix-card .card-title{font-size:26px}}
