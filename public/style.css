@@ -86,3 +86,9 @@
 .top .subtitle{font-size:16px;font-weight:400;line-height:normal;color:#667a83;margin:10px 0}
 .top .sun{font-size:inherit;color:#b9843c;margin-left:18px;transform:none}
 @media(max-width:650px){.top{align-items:flex-start;flex-direction:column;gap:12px}.top h1{font-size:33px}}
+
+/* Highlight only indicators whose usable values meet the specified conditions. */
+.vix-card.alert{background:#ffe59a!important}
+.vix-card.alert :is(.vix-close,.vix-guide,.vix-series-note,.vix-chart-caption,.meta,.history-details){color:#44545b}
+.conditions span.condition-reached{border:3px solid #ffe14a;background:#ffffff18;font-weight:800;padding:8px 14px}
+@media(max-width:650px){.conditions span.condition-reached{padding:8px 10px}}

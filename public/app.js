@@ -54,6 +54,13 @@ function render(){
   $('.overview').className='overview '+ov.tone;
   $('#summary').textContent=ov.title;$('#summary-detail').textContent=ov.detail;
   $('#coverage').textContent=`判定用 ${ov.count}/3 指標`;
+  const conditionLabels={vix:'VIX ≥ 30',fear:'Fear & Greed < 20',vi:'日経VI ≥ 50'};
+  document.querySelectorAll('.conditions [data-condition]').forEach(el=>{
+    const m=ms.find(m=>m.id===el.dataset.condition);
+    const reached=!!m&&quality(m,now,data.generatedAt,offline).usable&&signal(m.id,m.value).tone==='alert';
+    el.classList.toggle('condition-reached',reached);
+    el.textContent=conditionLabels[el.dataset.condition]+(reached?' · 到達':'');
+  });
   $('#cards').innerHTML=ms.map(m=>{
     const q=quality(m,now,data.generatedAt,offline),sig=q.usable?signal(m.id,m.value):{tone:'',text:'判定対象外'};
     const isFund=['sox','fang','nasdaq','nasdaq_ifree'].includes(m.id);
