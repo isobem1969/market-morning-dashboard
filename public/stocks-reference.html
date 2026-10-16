@@ -8,7 +8,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./stocks.css?v=twoline-20261007">
-  <script type="module" src="./stocks-reference.js?v=period-high-20261009"></script>
+  <script type="module" src="./stocks-reference.js?v=stock-alerts-20261017"></script>
 <style>
 .chart-section{display:flex;flex-direction:column;min-width:0}.reference-action{display:flex;flex-direction:column;align-items:flex-end;margin-top:auto;padding-top:8px}.minkabu-small{display:inline-flex;align-items:center;justify-content:center;min-width:78px;min-height:30px;padding:5px 10px;background:#1764a5;color:#fff;border-radius:6px;font-size:12px;font-weight:800;text-decoration:none;line-height:1.4}.minkabu-small:hover{background:#0c4c86;text-decoration:none}.popup-note{font-size:10px;line-height:1.7;color:#667a83;margin-top:4px;max-width:250px;text-align:right}.popup-note:empty{display:none}@media(pointer:coarse){.minkabu-small{min-width:88px;min-height:44px;font-size:13px}}@media(max-width:600px){.minkabu-small{min-width:88px;min-height:44px;font-size:13px}}
 
@@ -51,6 +51,33 @@
 @media(max-width:650px){.reading{display:block}.stock-highs{width:100%}.chart-details .ratios{grid-column:auto}.chart-details .sentiment{grid-column:auto}}
 /* Return panel to the market indicators dashboard. */
 .indicators-entry{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:24px 0 28px;padding:28px 32px;border:3px solid #f28a22;border-radius:22px;background:linear-gradient(115deg,#fff9ed 0%,#ffe1a8 100%);box-shadow:0 7px 18px #d9771520;color:#235b9e;text-decoration:none!important}.indicators-entry-copy{display:flex;flex-direction:column;gap:12px;min-width:0}.indicators-entry-label{align-self:flex-start;background:#e8750a;color:white;font-size:12px;font-weight:850;letter-spacing:1px;padding:5px 12px;border-radius:6px}.indicators-entry-title{font-size:36px;font-weight:900;line-height:1.35;letter-spacing:-.5px}.indicators-entry-detail{color:#705b3f;font-size:14px;line-height:1.7;font-weight:650}.indicators-entry-action{display:flex;align-items:center;justify-content:center;gap:18px;padding:18px 26px;border-radius:14px;min-height:70px;min-width:150px;background:#e8750a;box-shadow:0 5px 0 #b65108;color:white;font-size:22px;font-weight:900;white-space:nowrap}.indicators-entry-action span{font-size:36px;line-height:1}.indicators-entry:hover{border-color:#d96308;box-shadow:0 9px 22px #d9771533}.indicators-entry:focus-visible{outline:4px solid #2563a6;outline-offset:5px}@media(max-width:650px){.indicators-entry{padding:22px 20px;flex-direction:column;align-items:stretch;gap:20px;border-radius:18px}.indicators-entry-title{font-size:29px}.indicators-entry-detail{font-size:12px}.indicators-entry-action{min-height:56px;padding:12px 20px;font-size:20px;justify-content:space-between}.indicators-entry-action span{font-size:30px}}@media(max-width:360px){.indicators-entry{padding:18px 16px}.indicators-entry-title{font-size:25px}}
+
+/* Drawdown conditions: current/all-time hits, and hits in hidden periods. */
+.stock-overview{display:block}
+.stock-overview.is-alert{background:#782c32}
+#stock-alert-title{font-size:24px;font-weight:850;color:#fff;margin-top:14px}
+#stock-alert-detail{font-size:14px;line-height:1.8}
+.stock-alert-list{display:grid;gap:10px;margin-top:16px}
+.stock-alert-list:empty{display:none}
+.stock-alert-summary{display:flex;flex-direction:column;gap:6px;border:3px solid #ffe14a;border-radius:12px;padding:12px 16px;color:#ffe98a;overflow-wrap:anywhere}
+.stock-alert-summary strong{font-size:22px;line-height:1.4}
+.stock-alert-summary span{font-size:14px;line-height:1.8;color:#fff}
+.stock-alert-summary:hover{background:#ffffff12}
+.stock-tile{scroll-margin-top:16px}
+.stock-tile.stock-alert-active{background:#ffe59a}
+.stock-tile.stock-alert-hidden{background:#fff5d5}
+.stock-tile:is(.stock-alert-active,.stock-alert-hidden) :is(.chart-wrap,.stock-chart,.empty){background:#fff;border-radius:12px}
+.stock-tile:is(.stock-alert-active,.stock-alert-hidden) :is(.ticker,.source-note,.chart-note,.chart-footer,.price-label,.data-date){color:#44545b}
+.stock-alert-notice{border:2px solid #b77c11;border-radius:12px;padding:14px 16px;margin:0 0 20px;color:#42330e}
+.stock-alert-notice>strong{font-size:21px;font-weight:850}
+.stock-alert-notice>p{font-size:13px;line-height:1.7;margin:8px 0}
+.stock-alert-chips{display:flex;flex-wrap:wrap;gap:8px}
+.stock-alert-chips button,.stock-alert-chip{display:inline-flex;align-items:center;border:2px solid #b77c11;background:#fff;border-radius:9px;color:#664410;padding:9px 12px;font-size:14px;font-weight:750;line-height:1.6;overflow-wrap:anywhere;max-width:100%}
+.periods button.period-hit{box-shadow:inset 0 0 0 2px #b77c11;background:#fff0b8;font-weight:850}
+.periods button.period-hit[aria-pressed=true]{box-shadow:inset 0 0 0 3px #b77c11;background:#fff}
+.periods button.period-hit small{display:block;font-size:11px;color:#704400}
+@media(max-width:650px){#stock-alert-title{font-size:22px}.stock-alert-summary strong{font-size:19px}.stock-alert-summary{padding:10px 12px}.stock-alert-notice{padding:12px}.stock-alert-chips button,.stock-alert-chip{font-size:13px}}
+
 </style><link rel="stylesheet" href="./value-pair.css?v=stock-centered-20261008">
 <link rel="stylesheet" href="./header-controls.css?v=links-date-20261008">
 <link rel="stylesheet" href="./float-controls.css?v=float-green-20261008">
@@ -68,9 +95,12 @@
       <span class="indicators-entry-action">開く <span aria-hidden="true">→</span></span>
     </a>
     <p id="status" class="status" role="status" aria-live="polite">12銘柄を読み込んでいます…</p>
-    <section class="intro"><div><span class="eyebrow">YOUR WATCHLIST</span><h2>いつもの12銘柄</h2><p>大きな価格と、銘柄ごとに切り替えられるチャート。</p></div><p>株価は米ドル。時間外は直近の通常取引の終値を表示します。<br>オレンジ＝買いたい・割安 ／ グリーン＝売りたい・割高</p></section>
+    <section class="intro stock-overview" id="stock-overview" aria-labelledby="watchlist-title">
+      <div><span class="eyebrow">YOUR WATCHLIST</span><h2 id="watchlist-title">いつもの12銘柄</h2><p id="stock-alert-title" role="status" aria-live="polite">最高値からの条件を確認しています…</p><p id="stock-alert-detail">上場来と6つの期間の最高値を確認します。</p></div>
+      <div id="stock-alert-list" class="stock-alert-list"></div>
+    </section>
     <div id="stocks" aria-label="米国株12銘柄"></div>
-    <details class="guide"><summary>データの更新と表示について</summary><p>各パネル右下の「みんかぶ」で、その銘柄の評価ページを独立した小窓で開きます。目標株価の文字位置に対応するブラウザーでは、評価欄付近までスクロールして開きます。対応しない場合や文字が見つからない場合はページ上部で開きます。Macでは右下に約520×560ピクセルで開くよう指定します。位置・サイズ・前面表示はブラウザーにより調整されます。iPhone・iPadでは別タブ等で開く場合があります。</p><p>共通の保存データをMac・iPhone・iPadで表示します。自動取得は15分ごとの実行予定で、実行・公開の遅延があります。画面は起動時、5分ごと、画面に戻ったときに保存データを確認します。「更新を確認」は保存データの再読み込みです。リアルタイム配信ではありません。</p><p>株価・チャートはYahoo Financeの通常取引データ。時間外価格は含めません。時間外の「前日終値」は直近で終了した通常取引の終値で、米国の当日取引が終了した直後はその日の終値になります。前日比は、そのひとつ前の取引日の終値との比較です。</p><p>1日は最新の通常取引日、1週は最新取引日を含む7暦日以内の5分足、1カ月以上は日次価格。休場日の値は補間しません。1年・2年に満たない銘柄は取得できた期間を表示します。スペースXは2026年6月12日の上場後のデータだけを表示します。</p><p>25日線（赤）・75日線（青）は、表示期間より前のデータを含む25・75取引日の終値の単純平均です。1日・1週の5分足には前取引日までの終値で計算した日足の平均を表示します。75本の5分足の平均ではありません。日次チャートの最新取引日は取引中の値を含む場合があります。出来高は各足の取引株数で、未取得部分は棒を表示しません。みんかぶのチャートを埋め込む形式ではなく、Yahoo Financeの取得データで描画しています。</p><p>掲示板ゲージはYahoo!ファイナンスの直近1週間の投稿時の感情。「強く買いたい」と「買いたい」を合計し、「強く売りたい」と「売りたい」を合計します。「様子見」を除いて100%に換算することはありません。投稿がない場合や取得できない場合は、割合を作らず「データなし」と表示します。</p><p>PER（実績・株価収益率）は利益に対する株価の倍率、PBR（実績・株価純資産倍率）は純資産に対する株価の倍率です。Yahoo!ファイナンスの公表値と公表日時を表示します。赤字などで値が公表されていない場合は「—」になります。</p><p>前日の値 → 最新値の順で一行表示します。休場日は前取引日、投資信託は前公表日の値です。前日の値が取得できない場合は「—」と表示します。</p><p>52週最高値は最新取引日を含む52週間の日足高値の最大値、上場来最高値はYahoo Financeから取得した全日足の高値の最大値です。配当調整後終値は使用しません。上場日付近からの履歴を確認できない場合は「取得期間内最高値」と表示します。上場後52週未満の場合は上場後の取得期間が対象です。「現在株価 / 最高値」は現在株価÷最高値×100、「最高値から」はその割合−100です。記録日と取得期間を併記します。</p><p>取得失敗時は前回の値と日時を残し「前回保存値」と表示します。通信できない場合や古いデータは最新とは表示しません。</p></details>
+    <details class="guide"><summary>データの更新と表示について</summary><p>条件チェック：現在株価が、上場来または1日・1週・1カ月・6カ月・1年・2年の最高値の80％・70％・60％・50％未満かを、グラフで選択していない期間も含めて判定します。該当する最も低い境界を表示し、境界と等しい値はその境界の「未満」に含めません。割合は丸める前の数値で判定します。上場来または表示中の期間が該当すると濃い黄色、別の期間だけが該当すると薄い黄色になります。グラフは白背景です。上場来高値は全履歴を確認できた場合に判定します。取得失敗・古い株価・オフライン時は判定を保留し、上場来高値の取得が4日を超えた場合も上場来の判定を保留します。</p><p>各パネル右下の「みんかぶ」で、その銘柄の評価ページを独立した小窓で開きます。目標株価の文字位置に対応するブラウザーでは、評価欄付近までスクロールして開きます。対応しない場合や文字が見つからない場合はページ上部で開きます。Macでは右下に約520×560ピクセルで開くよう指定します。位置・サイズ・前面表示はブラウザーにより調整されます。iPhone・iPadでは別タブ等で開く場合があります。</p><p>共通の保存データをMac・iPhone・iPadで表示します。自動取得は15分ごとの実行予定で、実行・公開の遅延があります。画面は起動時、5分ごと、画面に戻ったときに保存データを確認します。「更新を確認」は保存データの再読み込みです。リアルタイム配信ではありません。</p><p>株価・チャートはYahoo Financeの通常取引データ。時間外価格は含めません。時間外の「前日終値」は直近で終了した通常取引の終値で、米国の当日取引が終了した直後はその日の終値になります。前日比は、そのひとつ前の取引日の終値との比較です。</p><p>1日は最新の通常取引日、1週は最新取引日を含む7暦日以内の5分足、1カ月以上は日次価格。休場日の値は補間しません。1年・2年に満たない銘柄は取得できた期間を表示します。スペースXは2026年6月12日の上場後のデータだけを表示します。</p><p>25日線（赤）・75日線（青）は、表示期間より前のデータを含む25・75取引日の終値の単純平均です。1日・1週の5分足には前取引日までの終値で計算した日足の平均を表示します。75本の5分足の平均ではありません。日次チャートの最新取引日は取引中の値を含む場合があります。出来高は各足の取引株数で、未取得部分は棒を表示しません。みんかぶのチャートを埋め込む形式ではなく、Yahoo Financeの取得データで描画しています。</p><p>掲示板ゲージはYahoo!ファイナンスの直近1週間の投稿時の感情。「強く買いたい」と「買いたい」を合計し、「強く売りたい」と「売りたい」を合計します。「様子見」を除いて100%に換算することはありません。投稿がない場合や取得できない場合は、割合を作らず「データなし」と表示します。</p><p>PER（実績・株価収益率）は利益に対する株価の倍率、PBR（実績・株価純資産倍率）は純資産に対する株価の倍率です。Yahoo!ファイナンスの公表値と公表日時を表示します。赤字などで値が公表されていない場合は「—」になります。</p><p>前日の値 → 最新値の順で一行表示します。休場日は前取引日、投資信託は前公表日の値です。前日の値が取得できない場合は「—」と表示します。</p><p>52週最高値は最新取引日を含む52週間の日足高値の最大値、上場来最高値はYahoo Financeから取得した全日足の高値の最大値です。配当調整後終値は使用しません。上場日付近からの履歴を確認できない場合は「取得期間内最高値」と表示します。上場後52週未満の場合は上場後の取得期間が対象です。「現在株価 / 最高値」は現在株価÷最高値×100、「最高値から」はその割合−100です。記録日と取得期間を併記します。</p><p>取得失敗時は前回の値と日時を残し「前回保存値」と表示します。通信できない場合や古いデータは最新とは表示しません。</p></details>
     <footer>MARKET MORNING <a href="./">朝の指標へ戻る ↗</a></footer>
   </main>
 
