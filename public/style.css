@@ -92,3 +92,6 @@
 .vix-card.alert :is(.vix-close,.vix-guide,.vix-series-note,.vix-chart-caption,.meta,.history-details){color:#44545b}
 .conditions span.condition-reached{border:3px solid #ffe14a;background:#ffffff18;font-weight:800;padding:8px 14px}
 @media(max-width:650px){.conditions span.condition-reached{padding:8px 10px}}
+
+/* Keep line charts readable inside yellow condition highlights. */
+.vix-card.alert :is(.vix-chart,.vix-chart-empty){background:#fff;border-radius:8px}
