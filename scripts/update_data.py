@@ -21,8 +21,8 @@ SOURCES = {
     'fang': ('iFreeNEXT FANG+', '円 / 1万口', '大和アセット公式CSV', 'https://www.daiwa-am.co.jp/funds/detail/3346/detail_top.html'),
     'nasdaq': ('SBI NASDAQ100', '円 / 1万口', 'SBI運用会社案内・Wealth Advisor', 'https://apl.wealthadvisor.jp/webasp/sbi_am/pc/basic/sa_2026052101.html'),
     'nasdaq_ifree': ('iFreeNEXT NASDAQ100', '円 / 1万口', '大和アセット公式CSV', 'https://www.daiwa-am.co.jp/funds/detail/3373/detail_top.html'),
-    'sp500_slim': ('eMAXIS Slim 米国株式（S&P500）', '円 / 1万口', '三菱UFJアセット公式CSV', 'https://emaxis.am.mufg.jp/fund/253266.html'),
-    'allcountry_slim': ('eMAXIS Slim 全世界株式（オルカン）', '円 / 1万口', '三菱UFJアセット公式CSV', 'https://emaxis.am.mufg.jp/fund/253425.html'),
+    'sp500_slim': ('eMAXIS Slim 米国株式（S&P500）', '円 / 1万口', '三菱UFJ銀行公表CSV', 'https://fs.bk.mufg.jp/webasp/mufg/fund/detail/m00355320.html'),
+    'allcountry_slim': ('eMAXIS Slim 全世界株式（オルカン）', '円 / 1万口', '三菱UFJ銀行公表CSV', 'https://fs.bk.mufg.jp/webasp/mufg/fund/detail/m00355920.html'),
 }
 
 def fetch(url, encoding=None):
@@ -216,8 +216,8 @@ ADAPTERS = {
     'fang': lambda: parse_fund_csv(fetch('https://www.daiwa-am.co.jp/funds/detail/csv_out.php?code=3346&type=1', 'cp932'), 'fang'),
     'nasdaq': nasdaq,
     'nasdaq_ifree': lambda: parse_fund_csv(fetch('https://www.daiwa-am.co.jp/funds/detail/csv_out.php?code=3373&type=1', 'cp932'), 'nasdaq_ifree'),
-    'sp500_slim': lambda: parse_mufg_csv(fetch('https://www.am.mufg.jp/fund_file/setteirai/253266.csv', 'cp932')),
-    'allcountry_slim': lambda: parse_mufg_csv(fetch('https://www.am.mufg.jp/fund_file/setteirai/253425.csv', 'cp932')),
+    'sp500_slim': lambda: parse_mufg_csv(fetch('https://fs.bk.mufg.jp/webasp/mufg/fund/detail/chart/csv/m00355320.csv', 'cp932')),
+    'allcountry_slim': lambda: parse_mufg_csv(fetch('https://fs.bk.mufg.jp/webasp/mufg/fund/detail/chart/csv/m00355920.csv', 'cp932')),
 }
 
 def merge_observation(key, observation, previous, now):
