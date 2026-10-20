@@ -22,8 +22,8 @@ try{
  await fs.mkdir('screenshots',{recursive:true});
  for(const [name,width,height] of [['mac',1440,1000],['iphone',390,844],['ipad-mini',744,1133],['small-iphone',320,700]]){
   await page.setViewportSize({width,height});await page.goto('http://127.0.0.1:8766/stocks.html');await page.waitForSelector('.stock-tile');
-  assert.equal(await page.locator('.stock-tile').count(),12);
-  assert.equal(await page.locator('.research-panel').count(),12);
+  assert.equal(await page.locator('.stock-tile').count(),13);
+  assert.equal(await page.locator('.research-panel').count(),13);
   assert.equal(await page.locator('.research-missing').count(),33);
   const missing=page.locator('.stock-tile[data-symbol="AAPL"] .research-missing');
   for(const link of await missing.all()){
@@ -62,5 +62,5 @@ try{
  await page.unrouteAll();await context.setOffline(true);await page.getByRole('button',{name:'更新を確認'}).click();
  await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('通信できません'));
  assert.deepEqual(errors,[]);
- console.log('PASS: 12 stocks, 4 viewport sizes, 6 independent chart ranges, sentiment with neutral, missing PER, stale and offline data');
+ console.log('PASS: 13 stocks, 4 viewport sizes, 6 independent chart ranges, sentiment with neutral, missing PER, stale and offline data');
 }finally{await browser?.close();server.kill();}

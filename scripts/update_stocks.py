@@ -1,4 +1,4 @@
-"""Collect the user's 12 stocks; preserve dated values on source failures."""
+"""Collect the user's 13 stocks; preserve dated values on source failures."""
 import concurrent.futures
 import datetime as dt
 import json
@@ -13,7 +13,8 @@ UTC = dt.timezone.utc
 NY = ZoneInfo('America/New_York')
 STOCKS = [('AAPL', 'アップル'), ('GOOGL', 'アルファベットA'),
           ('MSFT', 'マイクロソフト'), ('AMZN', 'アマゾン'),
-          ('META', 'メタ・プラットフォームズA'), ('TSLA', 'テスラ'),
+          ('META', 'メタ・プラットフォームズA'), ('NFLX', 'ネットフリックス'),
+          ('TSLA', 'テスラ'),
           ('SPCX', 'スペースX'), ('NVDA', 'エヌビディア'),
           ('LLY', 'イーライリリー'), ('KO', 'コカ・コーラ'),
           ('JNJ', 'ジョンソン・エンド・ジョンソン'), ('ABBV', 'アッヴィ')]
@@ -200,7 +201,7 @@ def main():
     temp.write_text(json.dumps(output, ensure_ascii=False, separators=(',', ':')) + '\n')
     temp.replace(path)
     for s in stocks:
-        print(s['symbol'], 'price:', s['price']['status'], 'Japan:', s['japan']['status'], s['price'].get('error') or '', s['japan'].get('error') or '')
+        print(s['symbol'], 'price:', s['price']['status'], 'highs:', s['highs']['status'], 'Japan:', s['japan']['status'], s['price'].get('error') or '', s['highs'].get('error') or '', s['japan'].get('error') or '')
 
 if __name__ == '__main__':
     main()

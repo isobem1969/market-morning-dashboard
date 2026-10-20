@@ -15,7 +15,7 @@ try{
    await context.route('https://us.minkabu.jp/**',r=>r.fulfill({contentType:'text/html; charset=utf-8',body:'<meta charset="utf-8"><title>Reference navigation test fixture</title><p>Navigation and text-fragment scroll test only</p><div style="height:2000px"></div><p style="font-size:24px">目標株価</p><div style="height:2000px"></div>'}));
    const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.goto('http://127.0.0.1:8771/stocks-reference.html');await page.waitForSelector('.stock-tile');
-   assert.equal(await page.locator('.stock-tile').count(),12);assert.equal(await page.locator('.minkabu-small').count(),12);assert.equal(await page.locator('iframe').count(),0);
+   assert.equal(await page.locator('.stock-tile').count(),13);assert.equal(await page.locator('.minkabu-small').count(),13);assert.equal(await page.locator('iframe').count(),0);
    for(const symbol of symbols){
     const tile=page.locator(`.stock-tile[data-symbol="${symbol}"]`),button=tile.locator('.minkabu-small');
     assert.equal(await button.innerText(),'みんかぶ');assert.equal(await button.getAttribute('href'),`https://us.minkabu.jp/stocks/${symbol}/researches#:~:text=${encodeURIComponent('目標株価')}`);
@@ -24,7 +24,7 @@ try{
    }
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1));assert.deepEqual(errors,[]);
    await page.locator('.stock-tile').first().scrollIntoViewIfNeeded();await page.screenshot({path:`screenshots/reference-${engine}-${device}.png`});
-   console.log(`PASS ${engine} ${device}: 12 double-size orange right-aligned buttons and 12 matching reference popup URLs; Chromium target scroll (fixture)`);await context.close();
+   console.log(`PASS ${engine} ${device}: 13 double-size orange right-aligned buttons and 13 matching reference popup URLs; Chromium target scroll (fixture)`);await context.close();
   }}finally{await browser.close();}
  }
 }finally{server.kill();}
