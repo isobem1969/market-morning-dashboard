@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#19313f"><meta name="apple-mobile-web-app-capable" content="yes">
+<title>朝のヒートマップ｜表示サンプル</title>
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./float-controls.css?v=float-green-20261008">
+<script defer src="./float-controls.js?v=float-green-20261008"></script>
+<style>
+:root{color-scheme:light;--ink:#19313f;--muted:#617580;--paper:#f5f4ef;--line:#dfe6e8}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+main{max-width:1280px;margin:auto;padding:42px 32px calc(40px + env(safe-area-inset-bottom))}
+a{color:#1753a6}button{font:inherit;cursor:pointer;min-height:44px}button:focus-visible,a:focus-visible{outline:4px solid #ed9b2d;outline-offset:3px}
+header{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{font-size:11px;font-weight:800;letter-spacing:2px;margin:0 0 12px}h1{font-size:42px;line-height:1.3;letter-spacing:-1px;margin:0}h1 span{color:#b9843c;margin-left:16px}.subtitle{font-size:16px;color:var(--muted);line-height:1.8;margin:10px 0}
+.date{text-align:right;white-space:nowrap;font-size:16px}nav{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;justify-content:flex-end}nav a{border:1px solid var(--line);border-radius:12px;background:white;padding:12px 16px;text-decoration:none;color:var(--ink);font-size:14px;font-weight:750}
+.sample{background:#fff0cc;border:2px solid #edbd62;border-radius:14px;padding:16px 20px;margin:24px 0;line-height:1.8;font-size:14px}.sample strong{display:block;color:#7b4c08;font-size:18px}.sample p{margin:3px 0 0}
+.controls{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin:22px 0}.control-group{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.control-group>span{font-size:13px;font-weight:750;margin-right:4px}.control-group button{padding:10px 17px;border:1px solid #cfdadd;background:#fff;color:var(--ink);border-radius:10px;font-weight:750;font-size:14px}.control-group button[aria-pressed=true]{background:#19313f;border-color:#19313f;color:#fff}
+.legend{display:flex;align-items:center;justify-content:space-between;gap:8px 18px;flex-wrap:wrap;padding:18px 20px;background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:24px}.legend-title{font-size:14px;font-weight:800;line-height:1.8}.scale{display:flex;gap:2px;flex-wrap:wrap}.scale span{min-width:63px;padding:10px 7px;color:#fff;text-align:center;font-size:12px;font-weight:750;border-radius:4px}.legend-note{font-size:12px;color:var(--muted);margin:0;line-height:1.8}
+.index-panel{background:#fff;border:1px solid var(--line);border-radius:22px;padding:24px;margin-bottom:28px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px}.panel-head h2{font-size:32px;line-height:1.2;margin:0;font-weight:850;color:#000}.panel-head p{font-size:12px;color:var(--muted);margin:7px 0 0;line-height:1.8}.breadth{display:flex;gap:8px;font-size:14px;font-weight:800}.breadth span{border-radius:8px;padding:10px 13px;white-space:nowrap}.positive-count{background:#e6f5e9;color:#126235}.negative-count{background:#fde8e6;color:#a72c27}
+.sector-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px}.sector{min-width:0;grid-column:span var(--span);border-radius:12px;overflow:hidden;background:#edf1f3;border:1px solid #dde4e7}.sector h3{font-size:15px;font-weight:850;margin:0;padding:11px 12px;display:flex;justify-content:space-between;align-items:center;gap:5px;line-height:1.3}.sector h3 small{font-size:10px;font-weight:400;color:#60717b}.tiles{position:relative;height:var(--height);margin:0 3px 3px}
+.tile{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:2px solid #fff;border-radius:6px;color:#fff;padding:8px 5px;text-align:center;overflow:hidden;min-height:0;min-width:0;text-shadow:0 1px 2px #0003;transition:filter .15s}
+.tile:hover{filter:brightness(1.12);z-index:1}.tile:focus-visible{z-index:2;outline-offset:-5px}
+.tile .ticker{font-size:clamp(16px,1.7vw,25px);font-weight:850;line-height:1.15;letter-spacing:.2px}.tile .company{font-size:14px;font-weight:750;line-height:1.35;overflow-wrap:anywhere;max-width:100%;text-wrap:balance}.tile .move{font-size:clamp(18px,2vw,29px);font-weight:900;line-height:1.2;white-space:nowrap;font-variant-numeric:tabular-nums}.tile.compact{gap:2px;padding:4px}.tile.compact .company{font-size:12px}.tile.compact .ticker{font-size:16px}.tile.compact .move{font-size:19px}
+.panel-note{font-size:12px;color:var(--muted);line-height:1.8;margin:14px 0 0}.reading-guide{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0}.reading-guide>div{border-radius:14px;background:#fff;padding:20px;border:1px solid var(--line)}.reading-guide strong{font-size:16px}.reading-guide p{font-size:13px;line-height:1.8;color:var(--muted);margin-bottom:0}footer{text-align:center;font-size:11px;letter-spacing:2px;color:var(--muted);margin:32px 0 0}
+dialog{width:min(470px,calc(100% - 28px));border:0;padding:26px;border-radius:20px;color:var(--ink);box-shadow:0 20px 100px #0004}dialog::backdrop{background:#132d3c88}dialog .close{display:block;margin-left:auto;border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 14px}dialog h2{font-size:27px;margin:18px 0 6px}dialog .detail-ticker{font-size:15px;color:var(--muted)}dialog .detail-move{font-size:52px;font-weight:900;line-height:1.2;margin:20px 0}dialog p{font-size:14px;line-height:1.8}dialog a{display:block;background:#fff0cf;border:2px solid #e8b04e;padding:14px;border-radius:10px;text-align:center;font-weight:800;text-decoration:none;margin-top:20px}dialog .sample-note{font-size:12px;color:#7b4c08;background:#fff4dc;padding:12px;border-radius:8px}
+[hidden]{display:none!important}
+@media(max-width:800px){main{padding:28px 20px}header{flex-direction:column;gap:12px}.date{align-self:flex-end}h1{font-size:36px}.sector{grid-column:span 6!important}.sector:first-child{grid-column:1/-1!important}.tiles{height:250px!important}.tile .ticker{font-size:23px}.tile .company{font-size:15px}.tile .move{font-size:27px}.reading-guide{grid-template-columns:1fr}.panel-head h2{font-size:29px}}
+@media(max-width:500px){main{padding:26px 14px}h1{font-size:31px}.subtitle{font-size:14px}.sample{padding:14px}.index-panel{padding:16px 10px;border-radius:17px}.panel-head{padding:0 5px}.panel-head h2{font-size:29px}.breadth{font-size:12px}.breadth span{padding:8px 10px}.sector-grid{gap:10px}.sector{grid-column:1/-1!important}.tiles{height:270px!important}.sector h3{font-size:16px}.tile .company{font-size:14px}.tile .ticker{font-size:22px}.tile .move{font-size:26px}.tile.compact .move{font-size:20px}.control-group button{font-size:13px;padding:10px 12px}.legend{padding:14px}.scale{width:100%;flex-wrap:nowrap}.scale span{min-width:0;flex:1;font-size:10px;padding:10px 2px}nav a{font-size:13px;padding:11px 13px}.reading-guide{gap:10px}}
+</style><link rel="stylesheet" href="./page-tabs.css?v=heatmap-20261020">
+</head>
+<body><main>
+<header><div><p class="eyebrow">MARKET MORNING / HEATMAP</p><h1>朝のヒートマップ<span aria-hidden="true">◒</span></h1><p class="subtitle">米国株の強弱を、日本語でひと目に。</p></div><div class="date"><span id="today"></span><nav aria-label="ページ切り替え"><a href="./">朝の指標 ↗</a><a href="./stocks-reference.html">朝の米国株 ↗</a></nav></div></header>
+<nav class="morning-pages" aria-label="朝の市場情報・ページ切り替え"><a href="./"><span>01</span>朝の指標</a><a href="./stocks-reference.html"><span>02</span>朝の米国株</a><a href="./heatmap.html" class="heatmap-tab" aria-current="page"><span>03</span>ヒートマップ案</a></nav>
+<section class="sample" aria-label="サンプルデータのお知らせ"><strong>表示サンプル · 数値と面積は仮データです</strong><p>主要銘柄を使ったデザイン案です。実際の騰落率・現在の指数構成・構成比を示すものではありません。銘柄を押すと詳細が開きます。</p></section>
+<div class="controls"><div class="control-group" id="views" aria-label="表示する指数"><button data-view="both" aria-pressed="true">2指数を表示</button><button data-view="sp" aria-pressed="false">S&P500</button><button data-view="nas" aria-pressed="false">NASDAQ100</button></div><div class="control-group" id="periods" aria-label="騰落率の表示例"><span>比較期間の例</span><button data-period="1d" aria-pressed="true">1日</button><button data-period="1w" aria-pressed="false">1週</button><button data-period="1m" aria-pressed="false">1カ月</button></div></div>
+<section class="legend" aria-label="色の意味"><div class="legend-title">下落は赤 ← 変化なし → 上昇は緑</div><div class="scale"><span style="background:#9d2429">−3％以下</span><span style="background:#c13e39">−2％</span><span style="background:#b85b53">−1％</span><span style="background:#617078">0％</span><span style="background:#39834b">＋1％</span><span style="background:#23833b">＋2％</span><span style="background:#116a2d">＋3％以上</span></div><p class="legend-note">矢印と符号も併記。濃い色ほど変化が大きい表示です。欠損値は0％とせず「未取得」とする設計です。</p></section>
+<div id="panels"></div>
+<section class="reading-guide" aria-label="見方"><div><strong>① 色で強弱を見る</strong><p>プラスは緑、マイナスは赤。日本の証券アプリとは配色が異なるため、矢印と＋−も表示します。</p></div><div><strong>② 日本語で銘柄を探す</strong><p>業種名と銘柄名を日本語で表示。ティッカーも残し、いつもの銘柄を見つけやすくしています。</p></div><div><strong>③ 面積で存在感を見る</strong><p>このサンプルの面積は説明用です。本番では指数内の構成比など、面積の基準を明記する想定です。</p></div></section>
+<footer>MARKET MORNING · HEATMAP DESIGN SAMPLE</footer>
+</main>
+<dialog id="detail"><button type="button" class="close">閉じる ×</button><h2 id="detail-name"></h2><div class="detail-ticker" id="detail-symbol"></div><div class="detail-move" id="detail-move"></div><p id="detail-sector"></p><p class="sample-note">この騰落率はデザイン確認用の仮データです。</p><a id="detail-link" target="_blank" rel="noopener noreferrer">Yahoo!ファイナンスで確認 ↗</a></dialog>
+<script>
+const DATA={"sp":[["情報技術",7,[["NVDA","エヌビディア",3.24,22],["MSFT","マイクロソフト",1.12,20],["AAPL","アップル",-0.84,18],["AVGO","ブロードコム",2.18,10],["ORCL","オラクル",-1.53,6],["AMD","AMD",-2.47,5]]],["通信・ネット",5,[["GOOGL","アルファベット",1.46,20],["META","メタ",-1.72,16],["NFLX","ネットフリックス",2.36,9],["DIS","ディズニー",-0.62,5]]],["一般消費財",5,[["AMZN","アマゾン",1.83,22],["TSLA","テスラ",-3.42,17],["HD","ホームデポ",0.43,7],["MCD","マクドナルド",-0.26,6]]],["金融",4,[["BRK-B","バークシャー",0.56,20],["JPM","JPモルガン",-1.12,15],["V","ビザ",0.78,12],["MA","マスターカード",-0.43,9]]],["ヘルスケア",3,[["LLY","イーライリリー",-2.11,16],["JNJ","J&J",0.48,12],["ABBV","アッヴィ",1.23,10]]],["生活必需品",4,[["COST","コストコ",0.91,15],["PG","P&G",-0.37,10],["KO","コカ・コーラ",0.65,9]]],["エネルギー",4,[["XOM","エクソンモービル",-1.86,14],["CVX","シェブロン",-1.34,10]]],["資本財・公益",4,[["CAT","キャタピラー",2.62,10],["GE","GEエアロ",1.37,10],["NEE","ネクステラ",-0.74,8]]]],"nas":[["情報技術",7,[["NVDA","エヌビディア",3.24,23],["MSFT","マイクロソフト",1.12,21],["AAPL","アップル",-0.84,20],["AVGO","ブロードコム",2.18,13],["AMD","AMD",-2.47,7],["ADBE","アドビ",-0.76,5]]],["通信・ネット",5,[["GOOGL","アルファベット",1.46,23],["META","メタ",-1.72,20],["NFLX","ネットフリックス",2.36,14]]],["一般消費財",5,[["AMZN","アマゾン",1.83,24],["TSLA","テスラ",-3.42,20],["BKNG","ブッキング",0.73,8]]],["半導体・装置",4,[["MU","マイクロン",4.12,12],["AMAT","アプライドM",-1.64,11],["LRCX","ラムリサーチ",2.78,10],["QCOM","クアルコム",-0.93,9]]],["生活・ヘルスケア",3,[["COST","コストコ",0.91,16],["PEP","ペプシコ",0.34,10],["AMGN","アムジェン",-1.08,9]]]]};
+const names={sp:'S&P500',nas:'NASDAQ100'},periodNames={'1d':'1日前比','1w':'1週間前比','1m':'1カ月前比'};
+let view='both',period='1d';const dialog=document.querySelector('#detail');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function change(stock){return Number((stock[2]*({'1d':1,'1w':1.8,'1m':3.1}[period])).toFixed(2));}
+function color(value){if(value===0)return '#617078';const n=Math.abs(value);return value>0?(n>=3?'#116a2d':n>=2?'#23833b':n>=1?'#39834b':'#526f58'):(n>=3?'#9d2429':n>=2?'#c13e39':n>=1?'#b85b53':'#82605c');}
+function changeText(value){return (value>0?'↑ ＋':value<0?'↓ −':'→ ')+Math.abs(value).toFixed(2)+'％';}
+function rectangles(items,x,y,w,h){
+ if(items.length===1)return [{item:items[0],x,y,w,h}];
+ const total=items.reduce((s,item)=>s+item[3],0);let split=1,sum=items[0][3];
+ while(split<items.length-1&&Math.abs(sum+items[split][3]-total/2)<Math.abs(sum-total/2)){sum+=items[split][3];split++;}
+ const fraction=sum/total,a=items.slice(0,split),b=items.slice(split);
+ return w>=h?[...rectangles(a,x,y,w*fraction,h),...rectangles(b,x+w*fraction,y,w*(1-fraction),h)]:[...rectangles(a,x,y,w,h*fraction),...rectangles(b,x,y+h*fraction,w,h*(1-fraction))];
+}
+function render(){
+ document.querySelector('#panels').innerHTML=Object.entries(DATA).filter(([key])=>view==='both'||view===key).map(([key,sectors])=>{
+ const stocks=sectors.flatMap(s=>s[2]),up=stocks.filter(s=>change(s)>0).length,down=stocks.filter(s=>change(s)<0).length;
+ return '<section class="index-panel" aria-label="'+names[key]+'の表示サンプル"><div class="panel-head"><div><h2>'+names[key]+'</h2><p>主要'+stocks.length+'銘柄の表示例 · '+periodNames[period]+'の仮データ</p></div><div class="breadth"><span class="positive-count">↑ 上昇 '+up+'</span><span class="negative-count">↓ 下落 '+down+'</span></div></div><div class="sector-grid">'+sectors.map(([label,span,stocks],index)=>'<section class="sector" style="--span:'+span+';--height:'+(index<2?320:240)+'px"><h3>'+label+'<small>'+stocks.length+'銘柄</small></h3><div class="tiles" data-index="'+key+'" data-sector="'+index+'"></div></section>').join('')+'</div><p class="panel-note">面積：サンプルの大きさ ／ 色：'+periodNames[period]+'の騰落率例 ／ 銘柄をタップすると詳細を表示</p></section>';
+ }).join('');
+ layout();
+}
+function layout(){document.querySelectorAll('.tiles').forEach(box=>{
+ const key=box.dataset.index,index=Number(box.dataset.sector),[sector,,stocks]=DATA[key][index];
+ const w=box.clientWidth,h=box.clientHeight;
+ box.innerHTML=rectangles(stocks,0,0,w,h).map(({item,x,y,w,h})=>{
+ const value=change(item);
+ return '<button type="button" class="tile '+(w<135||h<105?'compact':'')+'" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;background:'+color(value)+'" data-index="'+key+'" data-sector="'+index+'" data-symbol="'+item[0]+'" aria-label="'+esc(item[1])+' '+item[0]+' '+changeText(value)+'（仮データ）"><span class="ticker">'+item[0]+'</span><span class="company">'+esc(item[1])+'</span><span class="move">'+changeText(value)+'</span></button>';
+ }).join('');
+});}
+document.querySelector('#views').addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(!b)return;view=b.dataset.view;document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.view===view));render();});
+document.querySelector('#periods').addEventListener('click',e=>{const b=e.target.closest('[data-period]');if(!b)return;period=b.dataset.period;document.querySelectorAll('[data-period]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.period===period));render();});
+document.querySelector('#panels').addEventListener('click',e=>{const b=e.target.closest('[data-symbol]');if(!b)return;const sector=DATA[b.dataset.index][Number(b.dataset.sector)],s=sector[2].find(s=>s[0]===b.dataset.symbol),v=change(s);document.querySelector('#detail-name').textContent=s[1];document.querySelector('#detail-symbol').textContent=s[0]+' · '+names[b.dataset.index]+'の表示例';document.querySelector('#detail-move').textContent=changeText(v);document.querySelector('#detail-move').style.color=color(v);document.querySelector('#detail-sector').textContent=sector[0]+' ／ '+periodNames[period]+'（サンプル）';document.querySelector('#detail-link').href='https://finance.yahoo.co.jp/quote/'+encodeURIComponent(s[0]);dialog.showModal();});
+dialog.querySelector('.close').addEventListener('click',()=>dialog.close());
+dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
+document.querySelector('#today').textContent=new Intl.DateTimeFormat('ja-JP',{month:'long',day:'numeric',weekday:'short',timeZone:'Asia/Tokyo'}).format(new Date());
+let resizeTimer;new ResizeObserver(()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(layout,100);}).observe(document.querySelector('#panels'));
+render();
+</script></body></html>
