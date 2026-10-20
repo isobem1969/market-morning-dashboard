@@ -23,6 +23,7 @@ SOURCES = {
     'nasdaq_ifree': ('iFreeNEXT NASDAQ100', '円 / 1万口', '大和アセット公式CSV', 'https://www.daiwa-am.co.jp/funds/detail/3373/detail_top.html'),
     'sp500_slim': ('eMAXIS Slim 米国株式（S&P500）', '円 / 1万口', '三菱UFJ銀行公表CSV', 'https://fs.bk.mufg.jp/webasp/mufg/fund/detail/m00355320.html'),
     'allcountry_slim': ('eMAXIS Slim 全世界株式（オルカン）', '円 / 1万口', '三菱UFJ銀行公表CSV', 'https://fs.bk.mufg.jp/webasp/mufg/fund/detail/m00355920.html'),
+    'schd': ('SBI・SCHD（年4回決算型）', '円 / 1万口', 'SBI運用会社案内・Wealth Advisor', 'https://apl.wealthadvisor.jp/webasp/sbi_am/pc/basic/sa_2024122003.html'),
 }
 
 def fetch(url, encoding=None):
@@ -63,7 +64,7 @@ def parse_fund_csv(text, fund):
     return series_result([(iso_date(r['日付']), r['基準価額']) for r in rows], '基準価額', True, history_limit=800)
 
 
-def parse_mufg_csv(text):
+def parse_mufg_csv(text, history_limit=800):
     # The official inception-history CSV starts each observation with date, NAV.
     # Skip headings and notices; do not use reinvested NAV or net assets columns.
     points = []
@@ -81,7 +82,7 @@ def parse_mufg_csv(text):
         if not math.isfinite(nav) or nav <= 0:
             raise ValueError('MUFG CSV NAV must be positive')
         points.append((date, nav))
-    return series_result(points, '基準価額', True, history_limit=800)
+    return series_result(points, '基準価額', True, history_limit=history_limit)
 
 def yahoo(symbol):
     from urllib.parse import quote
@@ -175,6 +176,22 @@ def nasdaq():
         latest['historyNote'] = 'チャートの取得失敗・保存済み観測値のみ'
     return latest
 
+
+def parse_wealthadvisor_xml(text, history_limit=800):
+    import xml.etree.ElementTree as ET
+    root = ET.fromstring(text)
+    points = []
+    for year in root.findall('.//year'):
+        for month in year.findall('month'):
+            for day in month.findall('day'):
+                if day.get('price') and day.get('indication') == '1':
+                    date = year.get('value') + month.get('value') + day.get('value')
+                    nav = float(day.get('price'))
+                    if not math.isfinite(nav) or nav <= 0:
+                        raise ValueError('Invalid published NAV')
+                    points.append((iso_date(date), nav))
+    return series_result(points, '基準価額', True, history_limit=history_limit)
+
 def nasdaq_xml():
     import xml.etree.ElementTree as ET
     # The chart XML is linked by the SBI-provided fund detail page.
@@ -191,8 +208,8 @@ def nasdaq_xml():
         return series_result(points, '基準価額', True, history_limit=800)
     raise ValueError('NASDAQ chart has no observations')
 
-def nasdaq_page():
-    text = fetch(SOURCES['nasdaq'][3])
+def nasdaq_page(key='nasdaq'):
+    text = fetch(SOURCES[key][3])
     value = re.search(r'<span class="fprice">([\d,]+)</span>', text)
     date = re.search(r'<span class="ptdate">(\d{4}年\d{2}月\d{2}日)</span>', text)
     change = re.search(r'<div class="fprice(?: (plus|minus))?"[^>]*>(.*?)</div>', text, re.S)
@@ -209,6 +226,22 @@ def nasdaq_page():
     result['changePct'] = sign * float(percent[1]) if percent else None
     return result
 
+
+def schd():
+    latest = nasdaq_page('schd')
+    try:
+        archive = parse_wealthadvisor_xml(fetch('https://apl.wealthadvisor.jp/xml/chart/funddata/2024122003.xml', 'cp932'))
+        if archive['asOf'] > latest['asOf']:
+            return archive
+        points = [(p['date'], p['value']) for p in archive['history']]
+        points.append((latest['asOf'], latest['value']))
+        latest['history'] = series_result(points, '基準価額', history_limit=800)['history']
+        latest['peak'] = max(archive['peak'], latest['value'])
+        latest['peakLabel'] = '取得した設定来データの最高値'
+    except Exception:
+        latest['historyNote'] = 'チャートの取得失敗・保存済み観測値のみ'
+    return latest
+
 ADAPTERS = {
     'usd': lambda: yahoo('JPY=X'), 'vix': cboe, 'fear': cnn, 'vi': nikkei,
     'brent': lambda: yahoo('BZ=F'),
@@ -218,6 +251,7 @@ ADAPTERS = {
     'nasdaq_ifree': lambda: parse_fund_csv(fetch('https://www.daiwa-am.co.jp/funds/detail/csv_out.php?code=3373&type=1', 'cp932'), 'nasdaq_ifree'),
     'sp500_slim': lambda: parse_mufg_csv(fetch('https://fs.bk.mufg.jp/webasp/mufg/fund/detail/chart/csv/m00355320.csv', 'cp932')),
     'allcountry_slim': lambda: parse_mufg_csv(fetch('https://fs.bk.mufg.jp/webasp/mufg/fund/detail/chart/csv/m00355920.csv', 'cp932')),
+    'schd': schd,
 }
 
 def merge_observation(key, observation, previous, now):
@@ -229,7 +263,7 @@ def merge_observation(key, observation, previous, now):
         raise ValueError('Source returned an older observation')
     points = {p['date']: p['value'] for p in previous.get('history', [])}
     points.update({p['date']: p['value'] for p in observation['history']})
-    history_limit = 800 if key in ('sox', 'fang', 'nasdaq', 'nasdaq_ifree', 'sp500_slim', 'allcountry_slim', 'usd', 'brent') else 400 if key == 'vix' else 90
+    history_limit = 800 if key in ('sox', 'fang', 'nasdaq', 'nasdaq_ifree', 'sp500_slim', 'allcountry_slim', 'schd', 'usd', 'brent') else 400 if key == 'vix' else 90
     observation['history'] = [{'date': d, 'value': v} for d, v in sorted(points.items())[-history_limit:]]
     return {**observation, 'status': 'ok', 'lastSuccess': now.isoformat(), 'attemptedAt': now.isoformat(), 'error': None}
 

@@ -1,4 +1,4 @@
-import {drawdownPanel} from './drawdown-panel.js?v=ifree-20261009';
+import {drawdownPanel} from './drawdown-panel.js?v=slim-schd-20261020';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 export const FUND_META={
  sox:{name:'ニッセイSOX',code:'29314233'},
@@ -6,7 +6,8 @@ export const FUND_META={
  nasdaq:{name:'SBI NASDAQ100',code:'89311265'},
  nasdaq_ifree:{name:'iFreeNEXT NASDAQ100',code:'04317188'},
  sp500_slim:{name:'eMAXIS Slim 米国株式（S&P500）',code:'03311187',sourceLabel:'三菱UFJ銀行の公表値'},
- allcountry_slim:{name:'eMAXIS Slim 全世界株式（オルカン）',code:'0331418A',sourceLabel:'三菱UFJ銀行の公表値'}
+ allcountry_slim:{name:'eMAXIS Slim 全世界株式（オルカン）',code:'0331418A',sourceLabel:'三菱UFJ銀行の公表値'},
+ schd:{name:'SBI・SCHD（年4回決算型）',code:'8931224C'}
 };
 export const FUND_PERIODS=[['1w','1週'],['1m','1カ月'],['6m','6カ月'],['1y','1年'],['2y','2年']];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
