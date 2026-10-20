@@ -30,6 +30,32 @@ class CollectorTest(unittest.TestCase):
             merged=c.merge_observation(key,result,{},dt.datetime(2026,10,7,tzinfo=c.UTC))
             self.assertEqual(len(merged['history']),800)
 
+
+    def test_mufg_csv_uses_nav_not_reinvested_nav_or_assets(self):
+        text='ファンド名,eMAXIS Slim\n日付,基準価額,分配金再投資基準価額,純資産総額\n2026/10/19,"20,000",25000,999999\n2026/10/16,21000,26000,999999\n'
+        result=c.parse_mufg_csv(text)
+        self.assertEqual(result['value'],20000)
+        self.assertEqual(result['asOf'],'2026-10-19')
+        self.assertEqual(result['change'],-1000)
+        self.assertAlmostEqual(result['changePct'],-1000/21000*100)
+        self.assertEqual(result['peak'],21000)
+
+    def test_mufg_funds_keep_full_chart_context_and_fail_safely(self):
+        points=[((dt.date(2023,1,1)+dt.timedelta(days=i)).isoformat(),10000+i) for i in range(900)]
+        text='日付,基準価額\n'+''.join(d+','+str(v)+'\n' for d,v in points)
+        result=c.parse_mufg_csv(text)
+        for key in ('sp500_slim','allcountry_slim'):
+            merged=c.merge_observation(key,result,{},dt.datetime(2026,10,20,tzinfo=c.UTC))
+            self.assertEqual(len(merged['history']),800)
+            with patch.dict(c.ADAPTERS,{key:lambda: (_ for _ in ()).throw(ValueError('blocked'))}):
+                failed=c.collect_one(key,merged,dt.datetime(2026,10,20,tzinfo=c.UTC))
+            self.assertEqual(failed['status'],'error')
+            self.assertEqual(failed['lastSuccess'],merged['lastSuccess'])
+            self.assertEqual(failed['value'],merged['value'])
+        for bad in ('<html>Access denied</html>','日付,基準価額\n2026/10/19,0\n','日付,基準価額\n2026/10/19,nan\n'):
+            with self.assertRaises(ValueError):
+                c.parse_mufg_csv(bad)
+
     def test_vix_retains_a_year_of_history_when_merged(self):
         points=[((dt.date(2025,1,1)+dt.timedelta(days=i)).isoformat(),15+i%5) for i in range(500)]
         result=c.series_result(points,'VIX',history_limit=400)

@@ -4,7 +4,9 @@ export const FUND_META={
  sox:{name:'ニッセイSOX',code:'29314233'},
  fang:{name:'iFreeNEXT FANG＋',code:'04311181'},
  nasdaq:{name:'SBI NASDAQ100',code:'89311265'},
- nasdaq_ifree:{name:'iFreeNEXT NASDAQ100',code:'04317188'}
+ nasdaq_ifree:{name:'iFreeNEXT NASDAQ100',code:'04317188'},
+ sp500_slim:{name:'eMAXIS Slim 米国株式（S&P500）',code:'03311187'},
+ allcountry_slim:{name:'eMAXIS Slim 全世界株式（オルカン）',code:'0331418A'}
 };
 export const FUND_PERIODS=[['1w','1週'],['1m','1カ月'],['6m','6カ月'],['1y','1年'],['2y','2年']];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

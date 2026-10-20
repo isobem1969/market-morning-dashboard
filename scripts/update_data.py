@@ -21,6 +21,8 @@ SOURCES = {
     'fang': ('iFreeNEXT FANG+', '円 / 1万口', '大和アセット公式CSV', 'https://www.daiwa-am.co.jp/funds/detail/3346/detail_top.html'),
     'nasdaq': ('SBI NASDAQ100', '円 / 1万口', 'SBI運用会社案内・Wealth Advisor', 'https://apl.wealthadvisor.jp/webasp/sbi_am/pc/basic/sa_2026052101.html'),
     'nasdaq_ifree': ('iFreeNEXT NASDAQ100', '円 / 1万口', '大和アセット公式CSV', 'https://www.daiwa-am.co.jp/funds/detail/3373/detail_top.html'),
+    'sp500_slim': ('eMAXIS Slim 米国株式（S&P500）', '円 / 1万口', '三菱UFJアセット公式CSV', 'https://emaxis.am.mufg.jp/fund/253266.html'),
+    'allcountry_slim': ('eMAXIS Slim 全世界株式（オルカン）', '円 / 1万口', '三菱UFJアセット公式CSV', 'https://emaxis.am.mufg.jp/fund/253425.html'),
 }
 
 def fetch(url, encoding=None):
@@ -59,6 +61,27 @@ def parse_fund_csv(text, fund):
     if fund in ('fang', 'nasdaq_ifree'):
         return series_result([(iso_date(r['基準日']), r['基準価額']) for r in rows], '基準価額', True, history_limit=800)
     return series_result([(iso_date(r['日付']), r['基準価額']) for r in rows], '基準価額', True, history_limit=800)
+
+
+def parse_mufg_csv(text):
+    # The official inception-history CSV starts each observation with date, NAV.
+    # Skip headings and notices; do not use reinvested NAV or net assets columns.
+    points = []
+    for row in csv.reader(io.StringIO(text)):
+        if not row or not re.fullmatch(r'(?:\d{8}|\d{4}[/-]\d{1,2}[/-]\d{1,2})', row[0].strip()):
+            continue
+        if len(row) < 2:
+            raise ValueError('MUFG CSV observation has no NAV')
+        date = row[0].strip()
+        if re.fullmatch(r'\d{8}', date):
+            date = dt.datetime.strptime(date, '%Y%m%d').date().isoformat()
+        else:
+            date = dt.datetime.strptime(date.replace('-', '/'), '%Y/%m/%d').date().isoformat()
+        nav = float(row[1].strip().replace(',', ''))
+        if not math.isfinite(nav) or nav <= 0:
+            raise ValueError('MUFG CSV NAV must be positive')
+        points.append((date, nav))
+    return series_result(points, '基準価額', True, history_limit=800)
 
 def yahoo(symbol):
     from urllib.parse import quote
@@ -193,6 +216,8 @@ ADAPTERS = {
     'fang': lambda: parse_fund_csv(fetch('https://www.daiwa-am.co.jp/funds/detail/csv_out.php?code=3346&type=1', 'cp932'), 'fang'),
     'nasdaq': nasdaq,
     'nasdaq_ifree': lambda: parse_fund_csv(fetch('https://www.daiwa-am.co.jp/funds/detail/csv_out.php?code=3373&type=1', 'cp932'), 'nasdaq_ifree'),
+    'sp500_slim': lambda: parse_mufg_csv(fetch('https://www.am.mufg.jp/fund_file/setteirai/253266.csv', 'cp932')),
+    'allcountry_slim': lambda: parse_mufg_csv(fetch('https://www.am.mufg.jp/fund_file/setteirai/253425.csv', 'cp932')),
 }
 
 def merge_observation(key, observation, previous, now):
@@ -204,7 +229,7 @@ def merge_observation(key, observation, previous, now):
         raise ValueError('Source returned an older observation')
     points = {p['date']: p['value'] for p in previous.get('history', [])}
     points.update({p['date']: p['value'] for p in observation['history']})
-    history_limit = 800 if key in ('sox', 'fang', 'nasdaq', 'nasdaq_ifree', 'usd', 'brent') else 400 if key == 'vix' else 90
+    history_limit = 800 if key in ('sox', 'fang', 'nasdaq', 'nasdaq_ifree', 'sp500_slim', 'allcountry_slim', 'usd', 'brent') else 400 if key == 'vix' else 90
     observation['history'] = [{'date': d, 'value': v} for d, v in sorted(points.items())[-history_limit:]]
     return {**observation, 'status': 'ok', 'lastSuccess': now.isoformat(), 'attemptedAt': now.isoformat(), 'error': None}
 
