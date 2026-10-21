@@ -56,3 +56,37 @@ test('selected period highs use actual highs, change with range and do not inven
  assert.equal(periodHigh({daily:[point('2026-10-08')]},'1m').value,null);
  assert.equal(periodHigh({},'1d').value,null);
 });
+
+test('intraday domain follows price instead of distant 25/75-day averages',async()=>{
+ const {chartDomain,stockGraph}=await import('../public/stock-chart.js');
+ const pts=[{time:1792593000,value:331.14,ma25:346.10,ma75:346.39},{time:1792593300,value:335.09,ma25:346.10,ma75:346.39}];
+ const d=chartDomain(pts,'1d');
+ assert.ok(d.hi<337&&d.lo>330,'Intraday price range remains readable');
+ assert.ok(chartDomain(pts,'1w').hi>346,'Longer periods keep moving averages');
+ const html=stockGraph({symbol:'TEST',name:'テスト',price:{daily:[],intraday:pts}},'1d');
+ assert.equal(html.includes('data-ma='),false);
+ assert.ok(!html.includes('NaN'));
+ const constant=chartDomain([{value:100,ma25:300,ma75:300}],'1d');
+ assert.ok(constant.hi>constant.lo);
+});
+
+test('monthly graph retains every actual daily point and date',async()=>{
+ const {stockGraph}=await import('../public/stock-chart.js');
+ const dates=['2026-10-01','2026-10-02','2026-10-05','2026-10-06','2026-10-07'];
+ const daily=dates.map((date,i)=>({...point(date,100+i),volume:1000,high:105}));
+ const html=stockGraph({symbol:'TEST',name:'テスト',price:{daily}},'1m');
+ assert.equal((html.match(/data-daily-point=/g)||[]).length,dates.length);
+ assert.equal((html.match(/class="daily-date"/g)||[]).length,dates.length);
+ assert.equal(html.includes('data-daily-point="2026-10-03"'),false);
+ assert.ok(html.includes('daily-detail'));
+});
+
+test('analyst card uses fetched data, distinguishes comparison from valuation and handles missing values',async()=>{
+ const {analystPanel}=await import('../public/analyst-panel.js');
+ const html=analystPanel({symbol:'TEST',price:{value:100},research:{target:125,recommendation:'buy',analysts:10,status:'ok',lastSuccess:new Date().toISOString()}},v=>v);
+ assert.ok(html.includes('$125.00')&&html.includes('目標より低い')&&html.includes('+25.00'));
+ assert.ok(html.includes('Yahoo Finance'));
+ assert.equal(html.includes('みんなの評価'),false);
+ const missing=analystPanel({symbol:'TEST',price:{value:100}},()=> '未取得');
+ assert.ok(missing.includes('公表なし')&&!missing.includes('$0.00')&&!missing.includes('undefined'));
+});

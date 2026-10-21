@@ -162,6 +162,49 @@ def collect_highs(symbol, now):
         raise ValueError('No matching equity history')
     return high_observation(results[0], symbol, now)
 
+
+def parse_research(text, symbol):
+    import html
+    for attrs, body in re.findall(r'<script\b([^>]*)>(.*?)</script>', text, re.S):
+        if 'data-sveltekit-fetched' not in attrs or 'quoteSummary/' not in attrs:
+            continue
+        url = re.search(r'data-url="([^"]+)"', attrs)
+        if not url or f'/quoteSummary/{symbol}?' not in html.unescape(url[1]):
+            continue
+        envelope = json.loads(body)
+        if envelope.get('status') != 200:
+            continue
+        payload = json.loads(envelope['body'])
+        for result in payload.get('quoteSummary', {}).get('result') or []:
+            price = result.get('price', {})
+            if price.get('symbol') != symbol or price.get('quoteType') != 'EQUITY' or price.get('currency') != 'USD':
+                raise ValueError('Analyst data issuer/currency mismatch')
+            info = result.get('financialData', {})
+            target = number(info.get('targetMeanPrice', {}).get('raw'))
+            recommendation = info.get('recommendationKey')
+            if recommendation not in ('strong_buy', 'buy', 'hold', 'underperform', 'sell', 'strong_sell'):
+                recommendation = None
+            if target is not None and target <= 0:
+                target = None
+            if target is None and recommendation is None:
+                raise ValueError('No published analyst target or recommendation')
+            count = number(info.get('numberOfAnalystOpinions', {}).get('raw'))
+            return {'target': target, 'recommendation': recommendation,
+                    'analysts': int(count) if count is not None and count > 0 else None,
+                    'source': 'Yahoo Finance・アナリスト集計',
+                    'sourceUrl': f'https://finance.yahoo.com/quote/{symbol}/analysis/',
+                    'publishedAt': None}
+    raise ValueError('Published analyst data not found')
+
+def collect_research(symbol, previous, now):
+    try:
+        age = (now - dt.datetime.fromisoformat(previous['lastSuccess'].replace('Z', '+00:00'))).total_seconds()
+        if previous.get('status') == 'ok' and 0 <= age < 6 * 3600:
+            return previous
+    except (KeyError, TypeError, ValueError):
+        pass
+    return section(lambda: parse_research(fetch(f'https://finance.yahoo.com/quote/{symbol}/analysis/'), symbol), previous, now)
+
 def collect(symbol, name, old, now):
     base = {'symbol': symbol, 'name': name,
             'quoteUrl': f'https://finance.yahoo.co.jp/quote/{symbol}',
@@ -185,7 +228,8 @@ def collect(symbol, name, old, now):
                 'daily': points(daily), 'intraday': points(intraday)}
     return {**base, 'price': section(prices, old.get('price', {}), now),
             'highs': section(lambda: collect_highs(symbol, now), old.get('highs', {}), now),
-            'japan': section(lambda: parse_japan(fetch(base['quoteUrl']), symbol), old.get('japan', {}), now)}
+            'japan': section(lambda: parse_japan(fetch(base['quoteUrl']), symbol), old.get('japan', {}), now),
+            'research': collect_research(symbol, old.get('research', {}), now)}
 
 def main():
     path = ROOT / 'public/data/stocks.json'
@@ -201,7 +245,7 @@ def main():
     temp.write_text(json.dumps(output, ensure_ascii=False, separators=(',', ':')) + '\n')
     temp.replace(path)
     for s in stocks:
-        print(s['symbol'], 'price:', s['price']['status'], 'highs:', s['highs']['status'], 'Japan:', s['japan']['status'], s['price'].get('error') or '', s['highs'].get('error') or '', s['japan'].get('error') or '')
+        print(s['symbol'], 'price:', s['price']['status'], 'highs:', s['highs']['status'], 'Japan:', s['japan']['status'], 'research:', s['research']['status'], s['price'].get('error') or '', s['highs'].get('error') or '', s['japan'].get('error') or '', s['research'].get('error') or '')
 
 if __name__ == '__main__':
     main()

@@ -9,3 +9,18 @@
 .research-tools{background:#fff4e4;border:1px solid #efc18b;border-radius:14px;padding:18px;margin-bottom:22px}.research-tools strong{font-size:18px;color:#2563a6}.research-tools p{font-size:12px;line-height:1.8;margin:6px 0}.research-tool-actions{display:flex;gap:10px;flex-wrap:wrap}.research-tool-actions button:first-child,#import-save{background:#ed8421;color:white;font-weight:800;border-color:#d66c0c}.import-tile-button{font-size:12px;min-height:44px;margin:6px 0 0 10px;color:#2563a6;font-weight:800}.research-source{font-size:11px}#research-import-dialog{width:min(660px,calc(100% - 24px));max-height:90dvh;overflow:auto;border:0;border-radius:18px;padding:24px;color:#19313f}#research-import-dialog::backdrop{background:#132d3c99}.import-heading{display:flex;justify-content:space-between;gap:10px;align-items:center}.import-heading h2{margin:0;font-size:22px;color:#2563a6}#research-import-dialog p{font-size:13px;line-height:1.8}#research-import-dialog label{display:block;font-size:14px;font-weight:700;margin:12px 0}#research-import-dialog textarea,#research-import-dialog select,#research-import-dialog input[type=number]{display:block;width:100%;font:inherit;font-size:16px;border:1px solid #aabac4;border-radius:8px;padding:10px;margin-top:6px}#research-import-dialog textarea{resize:vertical}#research-import-dialog input[type=file]{max-width:100%;display:block;margin-top:10px;font-size:14px}.import-manual{margin:18px 0;border-top:1px solid #dde4e6;padding-top:14px}.import-manual summary{cursor:pointer;font-size:14px;font-weight:750}.import-fields{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}#import-preview p{background:#eef5ff;border-radius:8px;padding:12px;overflow-wrap:anywhere}#import-message{color:#88480d}.import-check{line-height:1.7}#import-save{width:100%;min-height:48px}#import-save:disabled{opacity:.5}@media(max-width:650px){#research-import-dialog{padding:18px}.import-heading h2{font-size:19px}.import-fields{grid-template-columns:1fr}.research-tool-actions button{width:100%}.import-tile-button{margin-left:0;display:block}}
 
 .change .change-amount,.change .change-pct{display:block}
+
+/* A tight intraday price axis and legible trading-day detail. */
+.chart-wrap{background:#fff}
+.chart-wrap.daily-detail{overflow-x:auto;overscroll-behavior-x:contain}
+.chart-wrap.daily-detail .stock-chart{min-width:720px;touch-action:pan-x pan-y}
+.stock-chart .daily-date{font-size:11px}
+.analysis-container{min-width:0}
+.analyst-panel{margin-top:0}
+.analyst-panel .research-top{flex-wrap:wrap;gap:12px}
+.analyst-panel .research-verdicts{gap:12px}
+.analyst-panel .research-verdicts>div{flex-direction:column;align-items:stretch;text-align:center;gap:8px}
+.analyst-panel .research-badge{font-size:16px;white-space:normal;padding:9px 10px}
+.analyst-upside{font-size:15px;font-weight:800;color:#19313f;margin:0;padding:0 20px 12px;line-height:1.7}
+.analyst-panel .research-source{font-size:11px;line-height:1.8}
+@media(max-width:650px){.analyst-panel .research-target{font-size:27px}.analyst-panel .research-top>div{justify-content:flex-start}}

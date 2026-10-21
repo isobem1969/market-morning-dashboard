@@ -4,7 +4,8 @@ import pathlib
 import sys
 import unittest
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / 'scripts'))
-from update_stocks import parse_japan, price_observation, section, high_observation
+from update_stocks import parse_japan, price_observation, section, high_observation, parse_research, collect_research
+from unittest.mock import patch
 
 class StockTests(unittest.TestCase):
     def test_highs_separate_52_weeks_and_full_history(self):
@@ -52,5 +53,32 @@ class StockTests(unittest.TestCase):
         def fail():raise ValueError('unavailable')
         result=section(fail,old,dt.datetime.now(dt.timezone.utc))
         self.assertEqual(result['value'],123);self.assertEqual(result['lastSuccess'],old['lastSuccess']);self.assertEqual(result['status'],'error')
+
+
+    def test_research_reads_issuer_matched_public_yahoo_payload(self):
+        result={'price':{'symbol':'GOOGL','quoteType':'EQUITY','currency':'USD'},'financialData':{'targetMeanPrice':{'raw':430.33},'recommendationKey':'strong_buy','numberOfAnalystOpinions':{'raw':54}}}
+        payload={'status':200,'body':json.dumps({'quoteSummary':{'result':[result]}})}
+        text='<script type="application/json" data-sveltekit-fetched data-url="https://query1.finance.yahoo.com/v10/finance/quoteSummary/GOOGL?formatted=true">'+json.dumps(payload)+'</script>'
+        value=parse_research(text,'GOOGL')
+        self.assertEqual(value['target'],430.33)
+        self.assertEqual(value['recommendation'],'strong_buy')
+        self.assertEqual(value['analysts'],54)
+        self.assertIsNone(value['publishedAt'])
+        with self.assertRaises(ValueError):parse_research(text,'AAPL')
+        with self.assertRaises(ValueError):parse_research('<html>Access denied</html>','GOOGL')
+
+    def test_research_caches_recent_success_and_preserves_dates_on_failure(self):
+        now=dt.datetime(2026,10,22,tzinfo=dt.timezone.utc)
+        old={'target':400,'status':'ok','lastSuccess':(now-dt.timedelta(hours=2)).isoformat()}
+        with patch('update_stocks.fetch') as fetch:
+            self.assertEqual(collect_research('GOOGL',old,now),old)
+            fetch.assert_not_called()
+        old['lastSuccess']=(now-dt.timedelta(hours=8)).isoformat()
+        with patch('update_stocks.fetch',side_effect=ValueError('blocked')):
+            result=collect_research('GOOGL',old,now)
+        self.assertEqual(result['status'],'error')
+        self.assertEqual(result['target'],400)
+        self.assertEqual(result['lastSuccess'],old['lastSuccess'])
+
 
 if __name__=='__main__':unittest.main()
