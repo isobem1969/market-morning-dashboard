@@ -95,3 +95,6 @@
 
 /* Keep line charts readable inside yellow condition highlights. */
 .vix-card.alert :is(.vix-chart,.vix-chart-empty){background:#fff;border-radius:8px}
+
+/* Alert color belongs to the outer tile; enclosed reading fields remain white. */
+.vix-card.alert :is(.vix-value,.vix-legend li,.fear-interpretation,.vi-interpretation,.fear-explanation,.vi-explanation){background:#fff}
