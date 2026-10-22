@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T02:29:55.551185+00:00",
+  "generatedAt": "2026-10-22T05:24:10.519087+00:00",
   "metrics": [
     {
-      "value": 157.986,
-      "asOf": "2026-10-22T02:29:54+00:00",
+      "value": 157.629,
+      "asOf": "2026-10-22T05:24:09+00:00",
       "kind": "市場値（遅延の可能性）",
-      "change": -0.28200537109376,
-      "changePct": -0.1781821729745947,
+      "change": -0.6390053710937593,
+      "changePct": -0.40374892549853714,
       "history": [
         {
           "date": "2024-10-07",
@@ -2139,12 +2139,12 @@
         },
         {
           "date": "2026-10-22",
-          "value": 157.986
+          "value": 157.629
         }
       ],
       "status": "ok",
-      "lastSuccess": "2026-10-22T02:29:55.551185+00:00",
-      "attemptedAt": "2026-10-22T02:29:55.551185+00:00",
+      "lastSuccess": "2026-10-22T05:24:10.519087+00:00",
+      "attemptedAt": "2026-10-22T05:24:10.519087+00:00",
       "error": null,
       "id": "usd",
       "name": "ドル円",
@@ -3761,8 +3761,8 @@
         }
       ],
       "status": "ok",
-      "lastSuccess": "2026-10-22T02:29:55.551185+00:00",
-      "attemptedAt": "2026-10-22T02:29:55.551185+00:00",
+      "lastSuccess": "2026-10-22T05:24:10.519087+00:00",
+      "attemptedAt": "2026-10-22T05:24:10.519087+00:00",
       "error": null,
       "id": "vix",
       "name": "VIX 恐怖指数",
@@ -4141,8 +4141,8 @@
       "source": "Fear & Greed Graph（外部配信）",
       "sourceUrl": "https://fearandgreedgraph.com/data",
       "status": "ok",
-      "lastSuccess": "2026-10-22T02:29:55.551185+00:00",
-      "attemptedAt": "2026-10-22T02:29:55.551185+00:00",
+      "lastSuccess": "2026-10-22T05:24:10.519087+00:00",
+      "attemptedAt": "2026-10-22T05:24:10.519087+00:00",
       "error": null,
       "id": "fear",
       "name": "Fear & Greed",
@@ -4517,8 +4517,8 @@
         }
       ],
       "status": "ok",
-      "lastSuccess": "2026-10-22T02:29:55.551185+00:00",
-      "attemptedAt": "2026-10-22T02:29:55.551185+00:00",
+      "lastSuccess": "2026-10-22T05:24:10.519087+00:00",
+      "attemptedAt": "2026-10-22T05:24:10.519087+00:00",
       "error": null,
       "id": "vi",
       "name": "日経VI",
@@ -4527,11 +4527,11 @@
       "sourceUrl": "https://indexes.nikkei.co.jp/nkave/index/profile?idx=nk225vi"
     },
     {
-      "value": 110.21,
-      "asOf": "2026-10-22T02:19:20+00:00",
+      "value": 111.08,
+      "asOf": "2026-10-22T05:13:32+00:00",
       "kind": "市場値（遅延の可能性）",
-      "change": 1.41999908447265,
-      "changePct": 1.3052661756802753,
+      "change": 2.2600003051757795,
+      "changePct": 2.0768243994796487,
       "history": [
         {
           "date": "2024-10-07",
@@ -6599,12 +6599,16 @@
         },
         {
           "date": "2026-10-21",
-          "value": 110.21
+          "value": 108.81999969482422
+        },
+        {
+          "date": "2026-10-22",
+          "value": 111.08
         }
       ],
       "status": "ok",
-      "lastSuccess": "2026-10-22T02:29:55.551185+00:00",
-      "attemptedAt": "2026-10-22T02:29:55.551185+00:00",
+      "lastSuccess": "2026-10-22T05:24:10.519087+00:00",
+      "attemptedAt": "2026-10-22T05:24:10.519087+00:00",
       "error": null,
       "id": "brent",
       "name": "ブレント原油",
@@ -9823,8 +9827,8 @@
       "peak": 56728.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-10-22T02:29:55.551185+00:00",
-      "attemptedAt": "2026-10-22T02:29:55.551185+00:00",
+      "lastSuccess": "2026-10-22T05:24:10.519087+00:00",
+      "attemptedAt": "2026-10-22T05:24:10.519087+00:00",
       "error": null,
       "id": "sox",
       "name": "ニッセイ SOX",
@@ -13044,7 +13048,7 @@
       "peakLabel": "取得した設定来データの最高値",
       "status": "error",
       "lastSuccess": "2026-10-21T09:32:52.072461+00:00",
-      "attemptedAt": "2026-10-22T02:29:55.551185+00:00",
+      "attemptedAt": "2026-10-22T05:24:10.519087+00:00",
       "error": "HTTPError: HTTP Error 403: Forbidden",
       "id": "fang",
       "name": "iFreeNEXT FANG+",
@@ -13479,8 +13483,8 @@
       "peak": 10598.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-10-22T02:29:55.551185+00:00",
-      "attemptedAt": "2026-10-22T02:29:55.551185+00:00",
+      "lastSuccess": "2026-10-22T05:24:10.519087+00:00",
+      "attemptedAt": "2026-10-22T05:24:10.519087+00:00",
       "error": null,
       "id": "nasdaq",
       "name": "SBI NASDAQ100",
@@ -16700,7 +16704,7 @@
       "peakLabel": "取得した設定来データの最高値",
       "status": "error",
       "lastSuccess": "2026-10-21T09:32:52.072461+00:00",
-      "attemptedAt": "2026-10-22T02:29:55.551185+00:00",
+      "attemptedAt": "2026-10-22T05:24:10.519087+00:00",
       "error": "HTTPError: HTTP Error 403: Forbidden",
       "id": "nasdaq_ifree",
       "name": "iFreeNEXT NASDAQ100",
@@ -19919,8 +19923,8 @@
       "peak": 45727.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-10-22T02:29:55.551185+00:00",
-      "attemptedAt": "2026-10-22T02:29:55.551185+00:00",
+      "lastSuccess": "2026-10-22T05:24:10.519087+00:00",
+      "attemptedAt": "2026-10-22T05:24:10.519087+00:00",
       "error": null,
       "id": "sp500_slim",
       "name": "eMAXIS Slim 米国株式（S&P500）",
@@ -23139,8 +23143,8 @@
       "peak": 39019.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-10-22T02:29:55.551185+00:00",
-      "attemptedAt": "2026-10-22T02:29:55.551185+00:00",
+      "lastSuccess": "2026-10-22T05:24:10.519087+00:00",
+      "attemptedAt": "2026-10-22T05:24:10.519087+00:00",
       "error": null,
       "id": "allcountry_slim",
       "name": "eMAXIS Slim 全世界株式（オルカン）",
@@ -24935,8 +24939,8 @@
       "peak": 13187.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-10-22T02:29:55.551185+00:00",
-      "attemptedAt": "2026-10-22T02:29:55.551185+00:00",
+      "lastSuccess": "2026-10-22T05:24:10.519087+00:00",
+      "attemptedAt": "2026-10-22T05:24:10.519087+00:00",
       "error": null,
       "id": "schd",
       "name": "SBI・SCHD（年4回決算型）",
