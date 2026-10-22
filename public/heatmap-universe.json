@@ -1,0 +1,337 @@
+{
+  "sp": [
+    {
+      "name": "情報技術",
+      "span": 7,
+      "height": 320,
+      "stocks": [
+        {
+          "symbol": "NVDA",
+          "name": "エヌビディア",
+          "layoutWeight": 22
+        },
+        {
+          "symbol": "MSFT",
+          "name": "マイクロソフト",
+          "layoutWeight": 20
+        },
+        {
+          "symbol": "AAPL",
+          "name": "アップル",
+          "layoutWeight": 18
+        },
+        {
+          "symbol": "AVGO",
+          "name": "ブロードコム",
+          "layoutWeight": 10
+        },
+        {
+          "symbol": "ORCL",
+          "name": "オラクル",
+          "layoutWeight": 6
+        },
+        {
+          "symbol": "AMD",
+          "name": "AMD",
+          "layoutWeight": 5
+        }
+      ]
+    },
+    {
+      "name": "通信・ネット",
+      "span": 5,
+      "height": 320,
+      "stocks": [
+        {
+          "symbol": "GOOGL",
+          "name": "アルファベット",
+          "layoutWeight": 20
+        },
+        {
+          "symbol": "META",
+          "name": "メタ",
+          "layoutWeight": 16
+        },
+        {
+          "symbol": "NFLX",
+          "name": "ネットフリックス",
+          "layoutWeight": 9
+        },
+        {
+          "symbol": "DIS",
+          "name": "ディズニー",
+          "layoutWeight": 5
+        }
+      ]
+    },
+    {
+      "name": "一般消費財",
+      "span": 5,
+      "height": 240,
+      "stocks": [
+        {
+          "symbol": "AMZN",
+          "name": "アマゾン",
+          "layoutWeight": 22
+        },
+        {
+          "symbol": "TSLA",
+          "name": "テスラ",
+          "layoutWeight": 17
+        },
+        {
+          "symbol": "HD",
+          "name": "ホームデポ",
+          "layoutWeight": 7
+        },
+        {
+          "symbol": "MCD",
+          "name": "マクドナルド",
+          "layoutWeight": 6
+        }
+      ]
+    },
+    {
+      "name": "金融",
+      "span": 4,
+      "height": 240,
+      "stocks": [
+        {
+          "symbol": "BRK-B",
+          "name": "バークシャー",
+          "layoutWeight": 20
+        },
+        {
+          "symbol": "JPM",
+          "name": "JPモルガン",
+          "layoutWeight": 15
+        },
+        {
+          "symbol": "V",
+          "name": "ビザ",
+          "layoutWeight": 12
+        },
+        {
+          "symbol": "MA",
+          "name": "マスターカード",
+          "layoutWeight": 9
+        }
+      ]
+    },
+    {
+      "name": "ヘルスケア",
+      "span": 3,
+      "height": 240,
+      "stocks": [
+        {
+          "symbol": "LLY",
+          "name": "イーライリリー",
+          "layoutWeight": 16
+        },
+        {
+          "symbol": "JNJ",
+          "name": "J&J",
+          "layoutWeight": 12
+        },
+        {
+          "symbol": "ABBV",
+          "name": "アッヴィ",
+          "layoutWeight": 10
+        }
+      ]
+    },
+    {
+      "name": "生活必需品",
+      "span": 4,
+      "height": 240,
+      "stocks": [
+        {
+          "symbol": "COST",
+          "name": "コストコ",
+          "layoutWeight": 15
+        },
+        {
+          "symbol": "PG",
+          "name": "P&G",
+          "layoutWeight": 10
+        },
+        {
+          "symbol": "KO",
+          "name": "コカ・コーラ",
+          "layoutWeight": 9
+        }
+      ]
+    },
+    {
+      "name": "エネルギー",
+      "span": 4,
+      "height": 240,
+      "stocks": [
+        {
+          "symbol": "XOM",
+          "name": "エクソンモービル",
+          "layoutWeight": 14
+        },
+        {
+          "symbol": "CVX",
+          "name": "シェブロン",
+          "layoutWeight": 10
+        }
+      ]
+    },
+    {
+      "name": "資本財・公益",
+      "span": 4,
+      "height": 240,
+      "stocks": [
+        {
+          "symbol": "CAT",
+          "name": "キャタピラー",
+          "layoutWeight": 10
+        },
+        {
+          "symbol": "GE",
+          "name": "GEエアロ",
+          "layoutWeight": 10
+        },
+        {
+          "symbol": "NEE",
+          "name": "ネクステラ",
+          "layoutWeight": 8
+        }
+      ]
+    }
+  ],
+  "nas": [
+    {
+      "name": "情報技術",
+      "span": 7,
+      "height": 320,
+      "stocks": [
+        {
+          "symbol": "NVDA",
+          "name": "エヌビディア",
+          "layoutWeight": 23
+        },
+        {
+          "symbol": "MSFT",
+          "name": "マイクロソフト",
+          "layoutWeight": 21
+        },
+        {
+          "symbol": "AAPL",
+          "name": "アップル",
+          "layoutWeight": 20
+        },
+        {
+          "symbol": "AVGO",
+          "name": "ブロードコム",
+          "layoutWeight": 13
+        },
+        {
+          "symbol": "AMD",
+          "name": "AMD",
+          "layoutWeight": 7
+        },
+        {
+          "symbol": "ADBE",
+          "name": "アドビ",
+          "layoutWeight": 5
+        }
+      ]
+    },
+    {
+      "name": "通信・ネット",
+      "span": 5,
+      "height": 320,
+      "stocks": [
+        {
+          "symbol": "GOOGL",
+          "name": "アルファベット",
+          "layoutWeight": 23
+        },
+        {
+          "symbol": "META",
+          "name": "メタ",
+          "layoutWeight": 20
+        },
+        {
+          "symbol": "NFLX",
+          "name": "ネットフリックス",
+          "layoutWeight": 14
+        }
+      ]
+    },
+    {
+      "name": "一般消費財",
+      "span": 5,
+      "height": 240,
+      "stocks": [
+        {
+          "symbol": "AMZN",
+          "name": "アマゾン",
+          "layoutWeight": 24
+        },
+        {
+          "symbol": "TSLA",
+          "name": "テスラ",
+          "layoutWeight": 20
+        },
+        {
+          "symbol": "BKNG",
+          "name": "ブッキング",
+          "layoutWeight": 8
+        }
+      ]
+    },
+    {
+      "name": "半導体・装置",
+      "span": 4,
+      "height": 240,
+      "stocks": [
+        {
+          "symbol": "MU",
+          "name": "マイクロン",
+          "layoutWeight": 12
+        },
+        {
+          "symbol": "AMAT",
+          "name": "アプライドM",
+          "layoutWeight": 11
+        },
+        {
+          "symbol": "LRCX",
+          "name": "ラムリサーチ",
+          "layoutWeight": 10
+        },
+        {
+          "symbol": "QCOM",
+          "name": "クアルコム",
+          "layoutWeight": 9
+        }
+      ]
+    },
+    {
+      "name": "生活・ヘルスケア",
+      "span": 3,
+      "height": 240,
+      "stocks": [
+        {
+          "symbol": "COST",
+          "name": "コストコ",
+          "layoutWeight": 16
+        },
+        {
+          "symbol": "PEP",
+          "name": "ペプシコ",
+          "layoutWeight": 10
+        },
+        {
+          "symbol": "AMGN",
+          "name": "アムジェン",
+          "layoutWeight": 9
+        }
+      ]
+    }
+  ]
+}
