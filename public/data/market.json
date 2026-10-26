@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T07:03:28.464237+00:00",
+  "generatedAt": "2026-10-26T11:24:09.035048+00:00",
   "metrics": [
     {
-      "value": 156.925,
-      "asOf": "2026-10-26T07:03:27+00:00",
+      "value": 157.344,
+      "asOf": "2026-10-26T11:24:08+00:00",
       "kind": "市場値（遅延の可能性）",
-      "change": 0.43099670410157387,
-      "changePct": 0.27540780798267495,
+      "change": 0.8499967041015566,
+      "changePct": 0.5431496966017191,
       "history": [
         {
           "date": "2024-10-07",
@@ -2151,12 +2151,12 @@
         },
         {
           "date": "2026-10-26",
-          "value": 156.925
+          "value": 157.344
         }
       ],
       "status": "ok",
-      "lastSuccess": "2026-10-26T07:03:28.464237+00:00",
-      "attemptedAt": "2026-10-26T07:03:28.464237+00:00",
+      "lastSuccess": "2026-10-26T11:24:09.035048+00:00",
+      "attemptedAt": "2026-10-26T11:24:09.035048+00:00",
       "error": null,
       "id": "usd",
       "name": "ドル円",
@@ -3773,8 +3773,8 @@
         }
       ],
       "status": "ok",
-      "lastSuccess": "2026-10-26T07:03:28.464237+00:00",
-      "attemptedAt": "2026-10-26T07:03:28.464237+00:00",
+      "lastSuccess": "2026-10-26T11:24:09.035048+00:00",
+      "attemptedAt": "2026-10-26T11:24:09.035048+00:00",
       "error": null,
       "id": "vix",
       "name": "VIX 恐怖指数",
@@ -3783,16 +3783,12 @@
       "sourceUrl": "https://www.cboe.com/tradable_products/vix/"
     },
     {
-      "value": 21.0,
-      "asOf": "2026-10-23",
+      "value": 21.7,
+      "asOf": "2026-10-26",
       "kind": "外部配信値（CNN直接取得不可）",
-      "change": 1.6000000000000014,
+      "change": 0.0,
       "changePct": null,
       "history": [
-        {
-          "date": "2026-06-17",
-          "value": 32.9
-        },
         {
           "date": "2026-06-18",
           "value": 37.3
@@ -4147,30 +4143,30 @@
         },
         {
           "date": "2026-10-23",
-          "value": 21.0
+          "value": 21.7
+        },
+        {
+          "date": "2026-10-26",
+          "value": 21.7
         }
       ],
       "source": "Fear & Greed Graph（外部配信）",
       "sourceUrl": "https://fearandgreedgraph.com/data",
       "status": "ok",
-      "lastSuccess": "2026-10-26T07:03:28.464237+00:00",
-      "attemptedAt": "2026-10-26T07:03:28.464237+00:00",
+      "lastSuccess": "2026-10-26T11:24:09.035048+00:00",
+      "attemptedAt": "2026-10-26T11:24:09.035048+00:00",
       "error": null,
       "id": "fear",
       "name": "Fear & Greed",
       "unit": "/ 100"
     },
     {
-      "value": 38.25,
-      "asOf": "2026-10-23",
+      "value": 34.46,
+      "asOf": "2026-10-26",
       "kind": "日本市場・日次終値",
-      "change": 2.280000000000001,
-      "changePct": 6.338615512927448,
+      "change": -3.789999999999999,
+      "changePct": -9.90849673202614,
       "history": [
-        {
-          "date": "2026-06-12",
-          "value": 37.28
-        },
         {
           "date": "2026-06-15",
           "value": 34.78
@@ -4526,11 +4522,15 @@
         {
           "date": "2026-10-23",
           "value": 38.25
+        },
+        {
+          "date": "2026-10-26",
+          "value": 34.46
         }
       ],
       "status": "ok",
-      "lastSuccess": "2026-10-26T07:03:28.464237+00:00",
-      "attemptedAt": "2026-10-26T07:03:28.464237+00:00",
+      "lastSuccess": "2026-10-26T11:24:09.035048+00:00",
+      "attemptedAt": "2026-10-26T11:24:09.035048+00:00",
       "error": null,
       "id": "vi",
       "name": "日経VI",
@@ -4539,11 +4539,11 @@
       "sourceUrl": "https://indexes.nikkei.co.jp/nkave/index/profile?idx=nk225vi"
     },
     {
-      "value": 110.02,
-      "asOf": "2026-10-26T06:52:44+00:00",
+      "value": 109.95,
+      "asOf": "2026-10-26T11:13:48+00:00",
       "kind": "市場値（遅延の可能性）",
-      "change": -6.700001220703129,
-      "changePct": -5.740234022131519,
+      "change": -6.770001220703122,
+      "changePct": -5.8002066054659185,
       "history": [
         {
           "date": "2024-10-07",
@@ -6627,12 +6627,12 @@
         },
         {
           "date": "2026-10-26",
-          "value": 110.02
+          "value": 109.95
         }
       ],
       "status": "ok",
-      "lastSuccess": "2026-10-26T07:03:28.464237+00:00",
-      "attemptedAt": "2026-10-26T07:03:28.464237+00:00",
+      "lastSuccess": "2026-10-26T11:24:09.035048+00:00",
+      "attemptedAt": "2026-10-26T11:24:09.035048+00:00",
       "error": null,
       "id": "brent",
       "name": "ブレント原油",
@@ -6641,16 +6641,12 @@
       "sourceUrl": "https://finance.yahoo.com/quote/BZ=F/"
     },
     {
-      "value": 40293.0,
-      "asOf": "2026-10-23",
+      "value": 40659.0,
+      "asOf": "2026-10-26",
       "kind": "基準価額",
-      "change": -3383.0,
-      "changePct": -7.745672680648408,
+      "change": 366.0,
+      "changePct": 0.9083463628918098,
       "history": [
-        {
-          "date": "2023-07-13",
-          "value": 12374.0
-        },
         {
           "date": "2023-07-14",
           "value": 12564.0
@@ -9846,13 +9842,17 @@
         {
           "date": "2026-10-23",
           "value": 40293.0
+        },
+        {
+          "date": "2026-10-26",
+          "value": 40659.0
         }
       ],
       "peak": 56728.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-10-26T07:03:28.464237+00:00",
-      "attemptedAt": "2026-10-26T07:03:28.464237+00:00",
+      "lastSuccess": "2026-10-26T11:24:09.035048+00:00",
+      "attemptedAt": "2026-10-26T11:24:09.035048+00:00",
       "error": null,
       "id": "sox",
       "name": "ニッセイ SOX",
@@ -9861,16 +9861,12 @@
       "sourceUrl": "https://www.nam.co.jp/fundinfo/nssifb/data.html"
     },
     {
-      "value": 96061.0,
-      "asOf": "2026-10-23",
+      "value": 96257.0,
+      "asOf": "2026-10-26",
       "kind": "基準価額",
-      "change": -4195.0,
-      "changePct": -4.184288222151289,
+      "change": 196.0,
+      "changePct": 0.20403701814473152,
       "history": [
-        {
-          "date": "2023-07-13",
-          "value": 37060.0
-        },
         {
           "date": "2023-07-14",
           "value": 37883.0
@@ -13066,13 +13062,17 @@
         {
           "date": "2026-10-23",
           "value": 96061.0
+        },
+        {
+          "date": "2026-10-26",
+          "value": 96257.0
         }
       ],
       "peak": 104358.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-10-26T07:03:28.464237+00:00",
-      "attemptedAt": "2026-10-26T07:03:28.464237+00:00",
+      "lastSuccess": "2026-10-26T11:24:09.035048+00:00",
+      "attemptedAt": "2026-10-26T11:24:09.035048+00:00",
       "error": null,
       "id": "fang",
       "name": "iFreeNEXT FANG+",
@@ -13081,11 +13081,11 @@
       "sourceUrl": "https://www.daiwa-am.co.jp/funds/detail/3346/detail_top.html"
     },
     {
-      "value": 9708.0,
-      "asOf": "2026-10-23",
+      "value": 9752.0,
+      "asOf": "2026-10-26",
       "kind": "基準価額",
-      "change": -400.0,
-      "changePct": -3.96,
+      "change": 44.0,
+      "changePct": 0.45,
       "history": [
         {
           "date": "2026-05-21",
@@ -13510,13 +13510,17 @@
         {
           "date": "2026-10-23",
           "value": 9708.0
+        },
+        {
+          "date": "2026-10-26",
+          "value": 9752.0
         }
       ],
       "peak": 10598.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-10-26T07:03:28.464237+00:00",
-      "attemptedAt": "2026-10-26T07:03:28.464237+00:00",
+      "lastSuccess": "2026-10-26T11:24:09.035048+00:00",
+      "attemptedAt": "2026-10-26T11:24:09.035048+00:00",
       "error": null,
       "id": "nasdaq",
       "name": "SBI NASDAQ100",
@@ -13525,16 +13529,12 @@
       "sourceUrl": "https://apl.wealthadvisor.jp/webasp/sbi_am/pc/basic/sa_2026052101.html"
     },
     {
-      "value": 54019.0,
-      "asOf": "2026-10-23",
+      "value": 54266.0,
+      "asOf": "2026-10-26",
       "kind": "基準価額",
-      "change": -2224.0,
-      "changePct": -3.954269864694271,
+      "change": 247.0,
+      "changePct": 0.4572465243710466,
       "history": [
-        {
-          "date": "2023-07-13",
-          "value": 25219.0
-        },
         {
           "date": "2023-07-14",
           "value": 25536.0
@@ -16730,13 +16730,17 @@
         {
           "date": "2026-10-23",
           "value": 54019.0
+        },
+        {
+          "date": "2026-10-26",
+          "value": 54266.0
         }
       ],
       "peak": 58978.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-10-26T07:03:28.464237+00:00",
-      "attemptedAt": "2026-10-26T07:03:28.464237+00:00",
+      "lastSuccess": "2026-10-26T11:24:09.035048+00:00",
+      "attemptedAt": "2026-10-26T11:24:09.035048+00:00",
       "error": null,
       "id": "nasdaq_ifree",
       "name": "iFreeNEXT NASDAQ100",
@@ -19955,8 +19959,8 @@
       "peak": 45727.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-10-26T07:03:28.464237+00:00",
-      "attemptedAt": "2026-10-26T07:03:28.464237+00:00",
+      "lastSuccess": "2026-10-26T11:24:09.035048+00:00",
+      "attemptedAt": "2026-10-26T11:24:09.035048+00:00",
       "error": null,
       "id": "sp500_slim",
       "name": "eMAXIS Slim 米国株式（S&P500）",
@@ -23175,8 +23179,8 @@
       "peak": 39019.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-10-26T07:03:28.464237+00:00",
-      "attemptedAt": "2026-10-26T07:03:28.464237+00:00",
+      "lastSuccess": "2026-10-26T11:24:09.035048+00:00",
+      "attemptedAt": "2026-10-26T11:24:09.035048+00:00",
       "error": null,
       "id": "allcountry_slim",
       "name": "eMAXIS Slim 全世界株式（オルカン）",
@@ -23185,11 +23189,11 @@
       "sourceUrl": "https://fs.bk.mufg.jp/webasp/mufg/fund/detail/m00355920.html"
     },
     {
-      "value": 13026.0,
-      "asOf": "2026-10-23",
+      "value": 13039.0,
+      "asOf": "2026-10-26",
       "kind": "基準価額",
-      "change": 131.0,
-      "changePct": 1.02,
+      "change": 13.0,
+      "changePct": 0.1,
       "history": [
         {
           "date": "2024-12-20",
@@ -24974,13 +24978,17 @@
         {
           "date": "2026-10-23",
           "value": 13026.0
+        },
+        {
+          "date": "2026-10-26",
+          "value": 13039.0
         }
       ],
       "peak": 13187.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-10-26T07:03:28.464237+00:00",
-      "attemptedAt": "2026-10-26T07:03:28.464237+00:00",
+      "lastSuccess": "2026-10-26T11:24:09.035048+00:00",
+      "attemptedAt": "2026-10-26T11:24:09.035048+00:00",
       "error": null,
       "id": "schd",
       "name": "SBI・SCHD（年4回決算型）",
