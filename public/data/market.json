@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T19:43:46.164104+00:00",
+  "generatedAt": "2026-11-03T01:49:30.465189+00:00",
   "metrics": [
     {
-      "value": 157.856,
-      "asOf": "2026-11-02T19:40:44+00:00",
+      "value": 157.882,
+      "asOf": "2026-11-03T01:49:29+00:00",
       "kind": "市場値（遅延の可能性）",
-      "change": 0.05199914550780704,
-      "changePct": 0.032951728236452205,
+      "change": 0.204998046875005,
+      "changePct": 0.13001138043957639,
       "history": [
         {
           "date": "2024-10-07",
@@ -2175,12 +2175,16 @@
         },
         {
           "date": "2026-11-02",
-          "value": 157.856
+          "value": 157.677001953125
+        },
+        {
+          "date": "2026-11-03",
+          "value": 157.882
         }
       ],
       "status": "ok",
-      "lastSuccess": "2026-11-02T19:43:46.164104+00:00",
-      "attemptedAt": "2026-11-02T19:43:46.164104+00:00",
+      "lastSuccess": "2026-11-03T01:49:30.465189+00:00",
+      "attemptedAt": "2026-11-03T01:49:30.465189+00:00",
       "error": null,
       "id": "usd",
       "name": "ドル円",
@@ -3797,8 +3801,8 @@
         }
       ],
       "status": "ok",
-      "lastSuccess": "2026-11-02T19:43:46.164104+00:00",
-      "attemptedAt": "2026-11-02T19:43:46.164104+00:00",
+      "lastSuccess": "2026-11-03T01:49:30.465189+00:00",
+      "attemptedAt": "2026-11-03T01:49:30.465189+00:00",
       "error": null,
       "id": "vix",
       "name": "VIX 恐怖指数",
@@ -3807,10 +3811,10 @@
       "sourceUrl": "https://www.cboe.com/tradable_products/vix/"
     },
     {
-      "value": 23.2,
+      "value": 22.7,
       "asOf": "2026-11-02",
       "kind": "外部配信値（CNN直接取得不可）",
-      "change": -3.1000000000000014,
+      "change": -3.6000000000000014,
       "changePct": null,
       "history": [
         {
@@ -4171,14 +4175,14 @@
         },
         {
           "date": "2026-11-02",
-          "value": 23.2
+          "value": 22.7
         }
       ],
       "source": "Fear & Greed Graph（外部配信）",
       "sourceUrl": "https://fearandgreedgraph.com/data",
       "status": "ok",
-      "lastSuccess": "2026-11-02T19:43:46.164104+00:00",
-      "attemptedAt": "2026-11-02T19:43:46.164104+00:00",
+      "lastSuccess": "2026-11-03T01:49:30.465189+00:00",
+      "attemptedAt": "2026-11-03T01:49:30.465189+00:00",
       "error": null,
       "id": "fear",
       "name": "Fear & Greed",
@@ -4553,8 +4557,8 @@
         }
       ],
       "status": "ok",
-      "lastSuccess": "2026-11-02T19:43:46.164104+00:00",
-      "attemptedAt": "2026-11-02T19:43:46.164104+00:00",
+      "lastSuccess": "2026-11-03T01:49:30.465189+00:00",
+      "attemptedAt": "2026-11-03T01:49:30.465189+00:00",
       "error": null,
       "id": "vi",
       "name": "日経VI",
@@ -4563,11 +4567,11 @@
       "sourceUrl": "https://indexes.nikkei.co.jp/nkave/index/profile?idx=nk225vi"
     },
     {
-      "value": 104.79,
-      "asOf": "2026-11-02T19:30:43+00:00",
+      "value": 104.66,
+      "asOf": "2026-11-03T01:37:58+00:00",
       "kind": "市場値（遅延の可能性）",
-      "change": -12.849999389648431,
-      "changePct": -10.923154927166001,
+      "change": -12.979999389648441,
+      "changePct": -11.033661558137165,
       "history": [
         {
           "date": "2024-10-07",
@@ -6675,12 +6679,12 @@
         },
         {
           "date": "2026-11-02",
-          "value": 104.79
+          "value": 104.66
         }
       ],
       "status": "ok",
-      "lastSuccess": "2026-11-02T19:43:46.164104+00:00",
-      "attemptedAt": "2026-11-02T19:43:46.164104+00:00",
+      "lastSuccess": "2026-11-03T01:49:30.465189+00:00",
+      "attemptedAt": "2026-11-03T01:49:30.465189+00:00",
       "error": null,
       "id": "brent",
       "name": "ブレント原油",
@@ -9899,8 +9903,8 @@
       "peak": 56728.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-11-02T19:43:46.164104+00:00",
-      "attemptedAt": "2026-11-02T19:43:46.164104+00:00",
+      "lastSuccess": "2026-11-03T01:49:30.465189+00:00",
+      "attemptedAt": "2026-11-03T01:49:30.465189+00:00",
       "error": null,
       "id": "sox",
       "name": "ニッセイ SOX",
@@ -13120,7 +13124,7 @@
       "peakLabel": "取得した設定来データの最高値",
       "status": "error",
       "lastSuccess": "2026-10-30T07:15:10.986216+00:00",
-      "attemptedAt": "2026-11-02T19:43:46.164104+00:00",
+      "attemptedAt": "2026-11-03T01:49:30.465189+00:00",
       "error": "HTTPError: HTTP Error 403: Forbidden",
       "id": "fang",
       "name": "iFreeNEXT FANG+",
@@ -13587,8 +13591,8 @@
       "peak": 10598.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-11-02T19:43:46.164104+00:00",
-      "attemptedAt": "2026-11-02T19:43:46.164104+00:00",
+      "lastSuccess": "2026-11-03T01:49:30.465189+00:00",
+      "attemptedAt": "2026-11-03T01:49:30.465189+00:00",
       "error": null,
       "id": "nasdaq",
       "name": "SBI NASDAQ100",
@@ -16808,7 +16812,7 @@
       "peakLabel": "取得した設定来データの最高値",
       "status": "error",
       "lastSuccess": "2026-10-30T07:15:10.986216+00:00",
-      "attemptedAt": "2026-11-02T19:43:46.164104+00:00",
+      "attemptedAt": "2026-11-03T01:49:30.465189+00:00",
       "error": "HTTPError: HTTP Error 403: Forbidden",
       "id": "nasdaq_ifree",
       "name": "iFreeNEXT NASDAQ100",
@@ -20027,8 +20031,8 @@
       "peak": 45727.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-11-02T19:43:46.164104+00:00",
-      "attemptedAt": "2026-11-02T19:43:46.164104+00:00",
+      "lastSuccess": "2026-11-03T01:49:30.465189+00:00",
+      "attemptedAt": "2026-11-03T01:49:30.465189+00:00",
       "error": null,
       "id": "sp500_slim",
       "name": "eMAXIS Slim 米国株式（S&P500）",
@@ -23247,8 +23251,8 @@
       "peak": 39019.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-11-02T19:43:46.164104+00:00",
-      "attemptedAt": "2026-11-02T19:43:46.164104+00:00",
+      "lastSuccess": "2026-11-03T01:49:30.465189+00:00",
+      "attemptedAt": "2026-11-03T01:49:30.465189+00:00",
       "error": null,
       "id": "allcountry_slim",
       "name": "eMAXIS Slim 全世界株式（オルカン）",
@@ -25075,8 +25079,8 @@
       "peak": 13273.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-11-02T19:43:46.164104+00:00",
-      "attemptedAt": "2026-11-02T19:43:46.164104+00:00",
+      "lastSuccess": "2026-11-03T01:49:30.465189+00:00",
+      "attemptedAt": "2026-11-03T01:49:30.465189+00:00",
       "error": null,
       "id": "schd",
       "name": "SBI・SCHD（年4回決算型）",
