@@ -28,9 +28,10 @@ class DrawdownTest(unittest.TestCase):
         self.assertEqual(nav['change'],73)
         self.assertEqual(len(nav['history']),2)
         self.assertIn('schd',c.SOURCES)
-        self.assertEqual(list(c.SOURCES)[-1],'schd')
+        self.assertEqual(list(c.SOURCES)[-2:],['schd','tqqq'])
 
     def test_invalid_or_duplicate_nav_rejected(self):
         for points in [[],[('2025-01-01',100),('2025-01-01',100)],[('2026-01-01',float('nan'))]]:
             with self.assertRaises(ValueError):
                 d.comparison_points(points,'test','https://example.test','test')
+

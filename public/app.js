@@ -1,7 +1,7 @@
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {changePercent,percentLine} from './change-format.js?v=twoline-20261007';
 import {marketChart,marketHover,selectMarketHistory} from './market-panel.js?v=ranges-20261007';
-import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=slim-schd-20261020';
+import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=tqqq-20261104';
 import {viCard} from './vi-panel.js?v=threshold-descending-20261009';
 import {fearCard} from './fear-panel.js?v=threshold-descending-20261009';
 import {quality,signal,overall,VIX_BANDS,vixBand,selectVixHistory} from './logic.js?v=vix-20261006';
@@ -63,7 +63,7 @@ function render(){
   });
   $('#cards').innerHTML=ms.map(m=>{
     const q=quality(m,now,data.generatedAt,offline),sig=q.usable?signal(m.id,m.value):{tone:'',text:'判定対象外'};
-    const isFund=['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd'].includes(m.id);
+    const isFund=['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd','tqqq'].includes(m.id);
     if(isFund)return fundCard(m,q,fundRanges.get(m.id)||'6m',{datetime});
     const amount=Number.isFinite(m.change)?`${m.change>0?'↑ +':m.change<0?'↓ −':'→ '}${format(Math.abs(m.change),m.id)}`:'前日比 —';
     const percent=percentLine(changePercent(m));
@@ -127,3 +127,4 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catc
 refresh();
 
 watchValuePairs(document.querySelector('#cards'));
+

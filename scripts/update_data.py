@@ -24,6 +24,7 @@ SOURCES = {
     'sp500_slim': ('eMAXIS Slim 米国株式（S&P500）', '円 / 1万口', '三菱UFJ銀行公表CSV', 'https://fs.bk.mufg.jp/webasp/mufg/fund/detail/m00355320.html'),
     'allcountry_slim': ('eMAXIS Slim 全世界株式（オルカン）', '円 / 1万口', '三菱UFJ銀行公表CSV', 'https://fs.bk.mufg.jp/webasp/mufg/fund/detail/m00355920.html'),
     'schd': ('SBI・SCHD（年4回決算型）', '円 / 1万口', 'SBI運用会社案内・Wealth Advisor', 'https://apl.wealthadvisor.jp/webasp/sbi_am/pc/basic/sa_2024122003.html'),
+    'tqqq': ('TQQQ / プロシェアーズ・ウルトラプロQQQ', 'USD / 1口', 'Yahoo Finance', 'https://finance.yahoo.com/quote/TQQQ/'),
 }
 
 def fetch(url, encoding=None):
@@ -242,6 +243,28 @@ def schd():
         latest['historyNote'] = 'チャートの取得失敗・保存済み観測値のみ'
     return latest
 
+def tqqq_history():
+    from zoneinfo import ZoneInfo
+    end = int(dt.datetime.now(UTC).timestamp()) + 86400
+    data = json.loads(fetch(f'https://query1.finance.yahoo.com/v8/finance/chart/TQQQ?period1=0&period2={end}&interval=1d'))
+    obj = data['chart']['result'][0]
+    if obj['meta'].get('symbol') != 'TQQQ' or obj['meta'].get('currency') != 'USD':
+        raise ValueError('Unexpected TQQQ symbol or currency')
+    tz = ZoneInfo(obj['meta']['exchangeTimezoneName'])
+    closes = obj['indicators']['quote'][0]['close']
+    points = [(dt.datetime.fromtimestamp(t, tz).date().isoformat(), float(v))
+              for t, v in zip(obj['timestamp'], closes) if v is not None]
+    result = series_result(points, '米国通常取引・日次株価（分割調整済み）', True, history_limit=100000)
+    # A truncated response must never silently become an inception comparison.
+    if result['history'][0]['date'] > '2010-02-12':
+        raise ValueError('TQQQ inception history is incomplete')
+    result['peakLabel'] = '取得した上場来最高終値（分割調整済み）'
+    if obj['meta'].get('regularMarketTime'):
+        result['asOf'] = dt.datetime.fromtimestamp(obj['meta']['regularMarketTime'], UTC).isoformat()
+    result['historyNote'] = 'TQQQはNASDAQ100の日次騰落率の3倍を目標とする米国ETFです。長期間の騰落率が3倍になるわけではありません。価格・下落率は米ドル建てで、分配金再投資・為替変動は含みません。'
+    return result
+
+
 ADAPTERS = {
     'usd': lambda: yahoo('JPY=X'), 'vix': cboe, 'fear': cnn, 'vi': nikkei,
     'brent': lambda: yahoo('BZ=F'),
@@ -252,6 +275,7 @@ ADAPTERS = {
     'sp500_slim': lambda: parse_mufg_csv(fetch('https://fs.bk.mufg.jp/webasp/mufg/fund/detail/chart/csv/m00355320.csv', 'cp932')),
     'allcountry_slim': lambda: parse_mufg_csv(fetch('https://fs.bk.mufg.jp/webasp/mufg/fund/detail/chart/csv/m00355920.csv', 'cp932')),
     'schd': schd,
+    'tqqq': tqqq_history,
 }
 
 def merge_observation(key, observation, previous, now):
@@ -263,7 +287,7 @@ def merge_observation(key, observation, previous, now):
         raise ValueError('Source returned an older observation')
     points = {p['date']: p['value'] for p in previous.get('history', [])}
     points.update({p['date']: p['value'] for p in observation['history']})
-    history_limit = 800 if key in ('sox', 'fang', 'nasdaq', 'nasdaq_ifree', 'sp500_slim', 'allcountry_slim', 'schd', 'usd', 'brent') else 400 if key == 'vix' else 90
+    history_limit = 800 if key in ('sox', 'fang', 'nasdaq', 'nasdaq_ifree', 'sp500_slim', 'allcountry_slim', 'schd', 'tqqq', 'usd', 'brent') else 400 if key == 'vix' else 90
     observation['history'] = [{'date': d, 'value': v} for d, v in sorted(points.items())[-history_limit:]]
     return {**observation, 'status': 'ok', 'lastSuccess': now.isoformat(), 'attemptedAt': now.isoformat(), 'error': None}
 
@@ -296,3 +320,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
