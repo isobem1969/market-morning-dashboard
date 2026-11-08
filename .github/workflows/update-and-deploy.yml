@@ -26,7 +26,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test tests/logic.test.js tests/stocks.test.js tests/research-import.test.js
+      - run: node --test tests/logic.test.js tests/stocks.test.js tests/research-import.test.js tests/shared-data.test.js
       - run: python -m unittest discover -s tests -p 'test_*.py'
       - name: Collect public source data
         run: |

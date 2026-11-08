@@ -1,3 +1,4 @@
+import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=prefetch-20261109';
 const UNIVERSE={"sp":[{"name":"情報技術","span":7,"height":320,"stocks":[{"symbol":"NVDA","name":"エヌビディア","layoutWeight":22},{"symbol":"MSFT","name":"マイクロソフト","layoutWeight":20},{"symbol":"AAPL","name":"アップル","layoutWeight":18},{"symbol":"AVGO","name":"ブロードコム","layoutWeight":10},{"symbol":"ORCL","name":"オラクル","layoutWeight":6},{"symbol":"AMD","name":"AMD","layoutWeight":5}]},{"name":"通信・ネット","span":5,"height":320,"stocks":[{"symbol":"GOOGL","name":"アルファベット","layoutWeight":20},{"symbol":"META","name":"メタ","layoutWeight":16},{"symbol":"NFLX","name":"ネットフリックス","layoutWeight":9},{"symbol":"DIS","name":"ディズニー","layoutWeight":5}]},{"name":"一般消費財","span":5,"height":240,"stocks":[{"symbol":"AMZN","name":"アマゾン","layoutWeight":22},{"symbol":"TSLA","name":"テスラ","layoutWeight":17},{"symbol":"HD","name":"ホームデポ","layoutWeight":7},{"symbol":"MCD","name":"マクドナルド","layoutWeight":6}]},{"name":"金融","span":4,"height":240,"stocks":[{"symbol":"BRK-B","name":"バークシャー","layoutWeight":20},{"symbol":"JPM","name":"JPモルガン","layoutWeight":15},{"symbol":"V","name":"ビザ","layoutWeight":12},{"symbol":"MA","name":"マスターカード","layoutWeight":9}]},{"name":"ヘルスケア","span":3,"height":240,"stocks":[{"symbol":"LLY","name":"イーライリリー","layoutWeight":16},{"symbol":"JNJ","name":"J&J","layoutWeight":12},{"symbol":"ABBV","name":"アッヴィ","layoutWeight":10}]},{"name":"生活必需品","span":4,"height":240,"stocks":[{"symbol":"COST","name":"コストコ","layoutWeight":15},{"symbol":"PG","name":"P&G","layoutWeight":10},{"symbol":"KO","name":"コカ・コーラ","layoutWeight":9}]},{"name":"エネルギー","span":4,"height":240,"stocks":[{"symbol":"XOM","name":"エクソンモービル","layoutWeight":14},{"symbol":"CVX","name":"シェブロン","layoutWeight":10}]},{"name":"資本財・公益","span":4,"height":240,"stocks":[{"symbol":"CAT","name":"キャタピラー","layoutWeight":10},{"symbol":"GE","name":"GEエアロ","layoutWeight":10},{"symbol":"NEE","name":"ネクステラ","layoutWeight":8}]}],"nas":[{"name":"情報技術","span":7,"height":320,"stocks":[{"symbol":"NVDA","name":"エヌビディア","layoutWeight":23},{"symbol":"MSFT","name":"マイクロソフト","layoutWeight":21},{"symbol":"AAPL","name":"アップル","layoutWeight":20},{"symbol":"AVGO","name":"ブロードコム","layoutWeight":13},{"symbol":"AMD","name":"AMD","layoutWeight":7},{"symbol":"ADBE","name":"アドビ","layoutWeight":5}]},{"name":"通信・ネット","span":5,"height":320,"stocks":[{"symbol":"GOOGL","name":"アルファベット","layoutWeight":23},{"symbol":"META","name":"メタ","layoutWeight":20},{"symbol":"NFLX","name":"ネットフリックス","layoutWeight":14}]},{"name":"一般消費財","span":5,"height":240,"stocks":[{"symbol":"AMZN","name":"アマゾン","layoutWeight":24},{"symbol":"TSLA","name":"テスラ","layoutWeight":20},{"symbol":"BKNG","name":"ブッキング","layoutWeight":8}]},{"name":"半導体・装置","span":4,"height":240,"stocks":[{"symbol":"MU","name":"マイクロン","layoutWeight":12},{"symbol":"AMAT","name":"アプライドM","layoutWeight":11},{"symbol":"LRCX","name":"ラムリサーチ","layoutWeight":10},{"symbol":"QCOM","name":"クアルコム","layoutWeight":9}]},{"name":"生活・ヘルスケア","span":3,"height":240,"stocks":[{"symbol":"COST","name":"コストコ","layoutWeight":16},{"symbol":"PEP","name":"ペプシコ","layoutWeight":10},{"symbol":"AMGN","name":"アムジェン","layoutWeight":9}]}]};
 const names={sp:'S&P500',nas:'NASDAQ100'},periodNames={'1d':'前取引日比','1w':'1週間前比','1m':'1カ月前比'};
 let view='both',period='1d',data=null,offline=false,loading=false,selected=null;
@@ -59,13 +60,9 @@ function showDetail(selection,open=true){
  if(open)dialog.showModal();
 }
 async function refresh(){
- if(loading)return;loading=true;const button=document.querySelector('#refresh-heatmap');button.disabled=true;
+ if(loading)return;loading=true;void prefetchOtherPages('heatmap');const button=document.querySelector('#refresh-heatmap');button.disabled=true;
  try{
- const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);let response;
- try{response=await fetch('./data/heatmap.json?t='+Date.now(),{cache:'no-store',signal:controller.signal});}finally{clearTimeout(timer);}
- if(!response.ok)throw Error('HTTP '+response.status);const next=await response.json();
- if(next.schemaVersion!==1||!Array.isArray(next.stocks)||!next.generatedAt)throw Error('Invalid heatmap data');
- data=next;offline=false;try{localStorage.setItem(cacheKey,JSON.stringify(data));}catch{}
+ data=await updateSnapshot('heatmap');offline=false;
  }catch{offline=true;if(!data)try{data=JSON.parse(localStorage.getItem(cacheKey)||'null');}catch{}}
  finally{loading=false;button.disabled=false;render();if(!data)document.querySelector('#heatmap-status').textContent='価格データを取得できません。「更新を確認」で再試行できます。';}
 }
@@ -80,4 +77,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden){updateTod
 window.addEventListener('online',refresh);
 setInterval(()=>{if(!document.hidden)refresh();},5*60000);
 let resizeTimer;new ResizeObserver(()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(layout,100);}).observe(document.querySelector('#panels'));
-updateToday();render();refresh();
+data=readSnapshot('heatmap');updateToday();render();
+void restoreSnapshot('heatmap').then(saved=>{if(!data&&saved){data=saved;render();}});
+refresh();
+

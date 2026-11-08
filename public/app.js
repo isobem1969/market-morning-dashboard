@@ -1,3 +1,4 @@
+import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=prefetch-20261109';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {changePercent,percentLine} from './change-format.js?v=twoline-20261007';
 import {marketChart,marketHover,selectMarketHistory} from './market-panel.js?v=ranges-20261007';
@@ -79,15 +80,12 @@ function render(){
 }
 async function refresh(){
   if(loading)return;loading=true;$('#refresh').disabled=true;
-  $('#status').textContent='新しい保存データを確認しています…';
+  $('#status').textContent=(data?'取得処理 '+datetime(data.generatedAt)+' · 表示中の値を背景で更新確認しています…':'新しい保存データを確認しています…');
+  void prefetchOtherPages('market');
   try{
-    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);
-    const ddRequest=fetch('./data/fund-drawdowns.json?t='+Date.now(),{cache:'no-store',signal:controller.signal}).then(r=>{if(!r.ok)throw new Error();return r.json();}).then(d=>{drawdowns=d;store.set('market-morning-drawdowns',d);}).catch(()=>{});
-    let response;try{response=await fetch('./data/market.json?t='+Date.now(),{cache:'no-store',signal:controller.signal});await ddRequest;}finally{clearTimeout(timer);}
-    if(!response.ok)throw new Error(`HTTP ${response.status}`);
-    const next=await response.json();
-    if(next.schemaVersion!==1||!Array.isArray(next.metrics)||next.metrics.length<8||!next.generatedAt)throw new Error('データ形式を確認してください');
-    data=next;offline=false;store.set('market-morning-cache',data);
+    const ddRequest=updateSnapshot('drawdowns').then(d=>{drawdowns=d;render();}).catch(()=>{});
+    data=await updateSnapshot('market');offline=false;render();
+    void ddRequest;
     const ok=data.metrics.filter(m=>m.status==='ok').length;
     $('#status').textContent=`取得処理 ${datetime(data.generatedAt)} · 成功 ${ok}/${data.metrics.length} · 画面確認 ${datetime(new Date().toISOString())}`;
   }catch(e){
@@ -124,7 +122,11 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden){updateTod
 window.addEventListener('online',refresh);
 setInterval(()=>{if(!document.hidden)refresh();},5*60000);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+data=readSnapshot('market');drawdowns=readSnapshot('drawdowns')||drawdowns;
+if(data)render();
+void restoreSnapshot('market').then(saved=>{if(!data&&saved){data=saved;render();}});
 refresh();
 
 watchValuePairs(document.querySelector('#cards'));
+
 

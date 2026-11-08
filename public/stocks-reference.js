@@ -1,3 +1,4 @@
+import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=prefetch-20261109';
 import {stockGraph as graph} from './stock-chart.js?v=daily-axis-20261022';
 import {analystPanel} from './analyst-panel.js?v=analyst-20261022';
 import {stockAlerts} from './stock-alerts.js?v=stock-alerts-20261017';
@@ -60,13 +61,17 @@ function tile(s){
 function render(){if(!data)return;document.querySelector('#watchlist-title').textContent='いつもの'+data.stocks.length+'銘柄';container.innerHTML=data.stocks.map(tile).join('');renderStockOverview();const good=data.stocks.filter(s=>!stale(s.price)).length;status.textContent=`${offline?'通信できません · ':''}取得処理 ${stamp(data.generatedAt)} · 株価 ${good}/${data.stocks.length} 銘柄 · 自動取得15分ごとの予定（遅延あり）`;}
 async function load(){
   if(loading)return;loading=true;refresh.disabled=true;
-  try{const response=await fetch(`./data/stocks.json?t=${Date.now()}`,{cache:'no-store'});if(!response.ok)throw Error('data');const next=await response.json();if(!Array.isArray(next.stocks)||next.stocks.length<12)throw Error('schema');data=next;offline=false;try{localStorage.setItem('morning-stocks-v1',JSON.stringify(data));}catch{}render();}
+  void prefetchOtherPages('stocks');
+  try{data=await updateSnapshot('stocks');offline=false;render();}
   catch{offline=true;if(!data){try{data=JSON.parse(localStorage.getItem('morning-stocks-v1'));}catch{}}if(data)render();else status.textContent='データを取得できませんでした。「更新を確認」で再読み込みしてください。';}
   finally{loading=false;refresh.disabled=false;}
 }
 container.addEventListener('click',e=>{const reference=e.target.closest('[data-minkabu]');if(reference){e.preventDefault();const note=reference.parentElement.querySelector('.popup-note');try{window.open(reference.href,'_blank',popupFeatures(window.screen));note.textContent='開かない場合は、通常リンクを使用してください。';const fallback=document.createElement('a');fallback.href=reference.href;fallback.target='_blank';fallback.rel='noopener noreferrer';fallback.textContent='通常リンク ↗';note.append(' ',fallback);}catch{note.textContent='小窓を開けませんでした。';const fallback=document.createElement('a');fallback.href=reference.href;fallback.target='_blank';fallback.rel='noopener noreferrer';fallback.textContent='通常リンク ↗';note.append(' ',fallback);}return;}const button=e.target.closest('[data-period],[data-alert-period]');if(!button)return;const period=button.dataset.period||button.dataset.alertPeriod;ranges.set(button.dataset.symbol,period);const stock=data.stocks.find(s=>s.symbol===button.dataset.symbol);button.closest('.stock-tile').outerHTML=tile(stock);renderStockOverview();container.querySelector(`[data-symbol="${stock.symbol}"][data-period="${period}"]`)?.focus({preventScroll:true});});
 container.addEventListener('pointermove',e=>{const svg=e.target.closest('svg[data-chart]');if(!svg||!data)return;const stock=data.stocks.find(s=>s.symbol===svg.dataset.chart);const pts=chartPoints(stock.price,ranges.get(stock.symbol)||'6m');const rect=svg.getBoundingClientRect();const pos=(e.clientX-rect.left)/rect.width*720;const index=Math.max(0,Math.min(pts.length-1,Math.round((pos-84)/(704-84)*(pts.length-1))));const point=pts[index];if(!point)return;const time=new Intl.DateTimeFormat('ja-JP',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(point.time*1000));svg.closest('.chart-section').querySelector('.chart-hover').textContent=`${time} 米国東部時間 · ${num(point.value)} USD · 25日線 ${num(point.ma25)} · 75日線 ${num(point.ma75)} · 出来高 ${Number.isFinite(point.volume)?num(point.volume,0)+'株':'未取得'}`;});
-refresh.addEventListener('click',load);document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});setInterval(()=>{if(!document.hidden)load();},5*60e3);load();
+refresh.addEventListener('click',load);document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});setInterval(()=>{if(!document.hidden)load();},5*60e3);
+data=readSnapshot('stocks');if(data)render();
+void restoreSnapshot('stocks').then(saved=>{if(!data&&saved){data=saved;render();}});
+load();
 
 
 watchValuePairs(container);
@@ -75,3 +80,4 @@ function updateToday(){ document.querySelector('#today').textContent=new Intl.Da
 updateToday();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateToday();});
 setInterval(()=>{if(!document.hidden)updateToday();},60000);
+
