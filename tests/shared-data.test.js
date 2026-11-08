@@ -49,3 +49,20 @@ test('all background fetches run concurrently and tolerate one failure',async()=
  const results=await m.prefetchOtherPages('market');
  assert.equal(requests.length,3);assert.equal(results.filter(r=>r.status==='fulfilled').length,2);
 });
+test('an early HTML request is reused instead of downloading stocks twice',async()=>{
+ const {module:m}=await setup();let calls=0;
+ globalThis.__morningPrefetch={stocks:Promise.resolve(snapshot())};
+ globalThis.fetch=async()=>{calls++;return new Response(JSON.stringify(snapshot()));};
+ assert.equal((await m.updateSnapshot('stocks')).stocks.length,13);assert.equal(calls,0);
+ delete globalThis.__morningPrefetch;
+});
+test('HTML starts stock and heatmap requests before DOM/module initialization',async()=>{
+ const {readFile}=await import('node:fs/promises');const vm=await import('node:vm');
+ const html=await readFile(new URL('../public/index.html',import.meta.url),'utf8');
+ const code=html.match(/<script>\n([\s\S]*?)<\/script>/)[1];const requests=[];
+ const sandbox={window:{},document:{getElementById:()=>null,addEventListener:()=>{}},AbortController,setTimeout,clearTimeout,localStorage:{getItem:()=>null,setItem:()=>{}},fetch:async url=>{requests.push(url);return {ok:true,json:async()=>url.includes('market.json')?{schemaVersion:1,generatedAt:snapshot().generatedAt,metrics:[]} :snapshot()};}};
+ vm.runInNewContext(code,sandbox);
+ assert.equal(requests.length,3);assert.ok(requests.some(u=>u.includes('stocks.json')));assert.ok(requests.some(u=>u.includes('heatmap.json')));
+ await Promise.all(Object.values(sandbox.window.__morningPrefetch));
+ assert.equal(sandbox.window.__morningPreloadState.stocks,'準備完了');
+});

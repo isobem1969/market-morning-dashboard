@@ -1,6 +1,15 @@
 <!doctype html>
 <html lang="ja">
 <head>
+<script>
+// Start data transfer while styles and ES modules are still loading.
+(()=>{const configs={market:['market-morning-cache','market.json'],stocks:['morning-stocks-v1','stocks.json'],heatmap:['market-morning-heatmap-v1','heatmap.json']};
+const requests=window.__morningPrefetch={},states=window.__morningPreloadState={};
+function show(){const el=document.getElementById('page-preload-status');if(el)el.textContent=['stocks','heatmap'].map(k=>(k==='stocks'?'米国株':'ヒートマップ')+'：'+(states[k]||'先読み中')).join(' ／ ');}
+for(const [name,[key,file]]of Object.entries(configs)){states[name]='先読み中';const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);
+requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();}).then(next=>{if(next.schemaVersion!==1||!next.generatedAt||!(name==='market'?Array.isArray(next.metrics):Array.isArray(next.stocks)))throw Error('schema');let value=next;try{const old=JSON.parse(localStorage.getItem(key));if(old&&Date.parse(old.generatedAt)>Date.parse(next.generatedAt))value=old;localStorage.setItem(key,JSON.stringify(value));}catch{}states[name]='準備完了';show();return value;}).catch(error=>{states[name]='再確認が必要';show();throw error;}).finally(()=>clearTimeout(timer));requests[name].catch(()=>{});
+}document.addEventListener('DOMContentLoaded',show);})();
+</script>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#19313f"><meta name="apple-mobile-web-app-capable" content="yes">
 <title>朝のヒートマップ｜米国株の騰落率</title>
@@ -40,6 +49,14 @@ dialog .detail-move{font-size:42px;margin:12px 0}
 #detail-status{font-size:12px;color:#617580;line-height:1.8}
 .breadth{flex-wrap:wrap}
 </style><link rel="stylesheet" href="./page-tabs.css?v=tqqq-tabs-20261104">
+<link rel="modulepreload" href="./stocks-reference.js?v=early-prefetch-20261109">
+<link rel="modulepreload" href="./heatmap.js?v=early-prefetch-20261109">
+<link rel="modulepreload" href="./shared-data.js?v=early-prefetch-20261109">
+<link rel="modulepreload" href="./stock-chart.js?v=daily-axis-20261022">
+<link rel="modulepreload" href="./analyst-panel.js?v=analyst-20261022">
+<link rel="modulepreload" href="./stock-alerts.js?v=stock-alerts-20261017">
+<link rel="modulepreload" href="./value-pair.js?v=green-arrow-20261008">
+<link rel="modulepreload" href="./stocks-logic.js?v=period-high-20261009">
 </head>
 <body><main>
 <header><div><p class="eyebrow">MARKET MORNING / HEATMAP</p><h1>朝のヒートマップ<span aria-hidden="true">◒</span></h1><p class="subtitle">米国株の強弱を、日本語でひと目に。</p></div><div class="date"><span id="today"></span><nav aria-label="ページ切り替え"><a href="./">朝の指標 ↗</a><a href="./stocks-reference.html">朝の米国株 ↗</a></nav></div></header>
@@ -52,5 +69,5 @@ dialog .detail-move{font-size:42px;margin:12px 0}
 <footer>MARKET MORNING · HEATMAP</footer>
 </main>
 <dialog id="detail" aria-labelledby="detail-name"><button type="button" class="close">閉じる ×</button><h2 id="detail-name"></h2><div class="detail-ticker" id="detail-symbol"></div><p class="detail-price-label" id="detail-price-label"></p><div class="detail-price" id="detail-price"></div><div class="detail-move" id="detail-move"></div><p id="detail-sector"></p><dl id="detail-facts"></dl><p id="detail-status"></p><a id="detail-link" target="_blank" rel="noopener noreferrer">Yahoo!ファイナンスで確認 ↗</a></dialog>
-<script type="module" src="./heatmap.js?v=prefetch-20261109"></script></body></html>
+<script type="module" src="./heatmap.js?v=early-prefetch-20261109"></script></body></html>
 

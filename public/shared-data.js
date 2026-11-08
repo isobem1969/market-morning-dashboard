@@ -36,14 +36,18 @@ export function updateSnapshot(name){
  const task=(async()=>{
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);
   try{
-   const response=await fetch('./data/'+definitions[name].file+'?t='+Date.now(),{cache:'no-store',signal:controller.signal});
-   if(!response.ok)throw Error('HTTP '+response.status);
-   const next=await response.json();if(!valid(name,next))throw Error('Invalid '+name+' data');
+   const early=globalThis.__morningPrefetch?.[name];
+   if(early)delete globalThis.__morningPrefetch[name];
+   let next;
+   if(early){try{next=await early;}catch{}}
+   if(!next){const response=await fetch('./data/'+definitions[name].file,{cache:'no-cache',signal:controller.signal});
+    if(!response.ok)throw Error('HTTP '+response.status);next=await response.json();}
+   if(!valid(name,next))throw Error('Invalid '+name+' data');
    const previous=readSnapshot(name);
    // A lagging CDN response must not overwrite a newer prefetched snapshot.
    const value=previous&&Date.parse(previous.generatedAt)>Date.parse(next.generatedAt)?previous:next;
    remember(name,value);
-   try{const cache=await caches.open(cacheName);await cache.put('./data/'+definitions[name].file,new Response(JSON.stringify(value),{headers:{'Content-Type':'application/json'}}));}catch{}
+   void (async()=>{try{const cache=await caches.open(cacheName);await cache.put('./data/'+definitions[name].file,new Response(JSON.stringify(value),{headers:{'Content-Type':'application/json'}}));}catch{}})();
    return value;
   }finally{clearTimeout(timer);}
  })().finally(()=>pending.delete(name));

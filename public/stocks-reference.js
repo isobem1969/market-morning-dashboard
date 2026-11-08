@@ -1,4 +1,4 @@
-import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=prefetch-20261109';
+import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=early-prefetch-20261109';
 import {stockGraph as graph} from './stock-chart.js?v=daily-axis-20261022';
 import {analystPanel} from './analyst-panel.js?v=analyst-20261022';
 import {stockAlerts} from './stock-alerts.js?v=stock-alerts-20261017';

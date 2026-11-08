@@ -1,4 +1,4 @@
-import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=prefetch-20261109';
+import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=early-prefetch-20261109';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {changePercent,percentLine} from './change-format.js?v=twoline-20261007';
 import {marketChart,marketHover,selectMarketHistory} from './market-panel.js?v=ranges-20261007';
