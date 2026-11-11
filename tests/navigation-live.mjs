@@ -9,9 +9,13 @@ page.on('crash',()=>errors.push('renderer crashed'));
 const base='https://isobem1969.github.io/market-morning-dashboard/';
 await fs.mkdir('screenshots',{recursive:true});
 try {
- for(let attempt=0;attempt<40;attempt++){const response=await fetch(base+'sw.js?t='+Date.now());if((await response.text()).includes('screens-ready'))break;await new Promise(r=>setTimeout(r,3000));}
+ for(let attempt=0;attempt<40;attempt++){const response=await fetch(base+'sw.js?t='+Date.now());if((await response.text()).includes('ready-alert-20261111'))break;await new Promise(r=>setTimeout(r,3000));}
  await page.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForFunction(()=>document.querySelector('#page-preload-status')?.textContent==='米国株：準備完了 ／ ヒートマップ：準備完了',null,{timeout:30000});
+ await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.state==='ready',null,{timeout:30000});
+ assert.equal(await page.locator('#ready-alert-title').textContent(),'全3ページの準備ができました');
+ await page.screenshot({path:'screenshots/navigation-ready-alert.png'});
+ console.log('READY_ALERT_GREEN_VERIFIED');
  await page.evaluate(()=>navigator.serviceWorker.ready);
  await page.waitForFunction(()=>!!navigator.serviceWorker.controller,null,{timeout:15000});
  console.log('PREFETCH_READY',await page.locator('#page-preload-status').textContent());
@@ -34,4 +38,13 @@ try {
  assert.ok(heatmapMs<1500,'Heatmap rendering waited for the delayed network request');
  assert.deepEqual(errors,[]);
  console.log('NAVIGATION_VERIFIED_NO_PAGE_ERRORS');
+ const failureContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true});
+ const failurePage=await failureContext.newPage();
+ await failurePage.route('**/data/stocks.json*',route=>route.abort());
+ await failurePage.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
+ await failurePage.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.state==='partial',null,{timeout:30000});
+ assert.equal(await failurePage.locator('#ready-alert-title').textContent(),'一部のページが未完了です');
+ await failurePage.screenshot({path:'screenshots/navigation-partial-alert.png'});
+ console.log('READY_ALERT_FETCH_FAILURE_VERIFIED');
+ await failureContext.close();
 } finally {await browser.close();}

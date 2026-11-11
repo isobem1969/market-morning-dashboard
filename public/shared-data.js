@@ -33,6 +33,8 @@ export async function restoreSnapshot(name){
 }
 export function updateSnapshot(name){
  if(pending.has(name))return pending.get(name);
+ const states=globalThis.__morningPreloadState||(globalThis.__morningPreloadState={});
+ states[name]='先読み中';
  const task=(async()=>{
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);
   try{
@@ -46,13 +48,14 @@ export function updateSnapshot(name){
    const previous=readSnapshot(name);
    // A lagging CDN response must not overwrite a newer prefetched snapshot.
    const value=previous&&Date.parse(previous.generatedAt)>Date.parse(next.generatedAt)?previous:next;
-   remember(name,value);
+   remember(name,value);states[name]='準備完了';
    void (async()=>{try{const cache=await caches.open(cacheName);await cache.put('./data/'+definitions[name].file,new Response(JSON.stringify(value),{headers:{'Content-Type':'application/json'}}));}catch{}})();
    return value;
-  }finally{clearTimeout(timer);}
+  }catch(error){states[name]='再確認が必要';throw error;}finally{clearTimeout(timer);}
  })().finally(()=>pending.delete(name));
  pending.set(name,task);return task;
 }
 export function prefetchOtherPages(current){
  return Promise.allSettled(Object.keys(definitions).filter(name=>name!==current).map(updateSnapshot));
 }
+

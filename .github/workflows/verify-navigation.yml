@@ -4,6 +4,8 @@ on:
     paths:
       - '.github/workflows/verify-navigation.yml'
       - 'tests/navigation-live.mjs'
+      - 'public/page-ready-alert.*'
+      - 'tests/ready-alert.test.js'
   workflow_dispatch:
 permissions:
   contents: read
@@ -18,6 +20,7 @@ jobs:
           node-version: '22'
       - run: npm install --no-save --ignore-scripts playwright@1.62.1
       - run: npx playwright install --with-deps chromium
+      - run: node --test tests/ready-alert.test.js
       - run: node tests/navigation-live.mjs
       - uses: actions/upload-artifact@v4
         if: always()
