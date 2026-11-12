@@ -9,7 +9,7 @@ page.on('crash',()=>errors.push('renderer crashed'));
 const base='https://isobem1969.github.io/market-morning-dashboard/';
 await fs.mkdir('screenshots',{recursive:true});
 try {
- for(let attempt=0;attempt<40;attempt++){const response=await fetch(base+'sw.js?t='+Date.now());if((await response.text()).includes('nasdaq-rsi-20261113'))break;await new Promise(r=>setTimeout(r,3000));}
+ for(let attempt=0;attempt<40;attempt++){const response=await fetch(base+'sw.js?t='+Date.now());if((await response.text()).includes('nasdaq-rsi-20261113-r2'))break;await new Promise(r=>setTimeout(r,3000));}
  await page.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForFunction(()=>document.querySelector('#page-preload-status')?.textContent==='米国株：準備完了 ／ ヒートマップ：準備完了 ／ NASDAQ100・RSI：準備完了',null,{timeout:30000});
  await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.state==='ready',null,{timeout:30000});
@@ -47,6 +47,7 @@ try {
  await rsi.getByRole('button',{name:'5年',exact:true}).click();
  assert.equal(await rsi.getByRole('button',{name:'5年',exact:true}).getAttribute('aria-pressed'),'true');
  const overflows=await rsi.locator('body').evaluate(el=>el.scrollWidth>innerWidth+1);
+ if(overflows){console.log('OVERFLOW_ELEMENTS',await rsi.locator('body').evaluate(()=>[...document.querySelectorAll('body *')].map(e=>({tag:e.tagName,cls:e.className,left:e.getBoundingClientRect().left,right:e.getBoundingClientRect().right,width:e.getBoundingClientRect().width,text:e.textContent.slice(0,60)})).filter(e=>e.right>innerWidth+1||e.left< -1).slice(0,25)));await page.screenshot({path:'screenshots/navigation-rsi-overflow.png'});}
  assert.equal(overflows,false,'RSI page overflows phone viewport');
  console.log('RSI_REAL_DATA_VERIFIED_NAVIGATION_MS',rsiMs);
  await page.screenshot({path:'screenshots/navigation-rsi-mobile.png'});
