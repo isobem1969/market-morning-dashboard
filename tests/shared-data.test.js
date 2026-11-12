@@ -45,9 +45,9 @@ test('Cache Storage restores data when localStorage cannot hold it',async()=>{
 });
 test('all background fetches run concurrently and tolerate one failure',async()=>{
  const {module:m}=await setup();const requests=[];
- globalThis.fetch=async u=>{requests.push(u);if(u.includes('stocks.json'))throw Error('offline');return new Response(JSON.stringify(u.includes('drawdowns')?{fang:{years:{},currentYear:2026}}:snapshot()));};
+ globalThis.fetch=async u=>{requests.push(u);if(u.includes('stocks.json'))throw Error('offline');return new Response(JSON.stringify(u.includes('nasdaq-rsi')?{schemaVersion:1,generatedAt:snapshot().generatedAt,confirmed:{rsi:39},history:[],prices:{ndx:{},tqqq:{}}}:u.includes('drawdowns')?{fang:{years:{},currentYear:2026}}:snapshot()));};
  const results=await m.prefetchOtherPages('market');
- assert.equal(requests.length,3);assert.equal(results.filter(r=>r.status==='fulfilled').length,2);
+ assert.equal(requests.length,4);assert.equal(results.filter(r=>r.status==='fulfilled').length,3);
 });
 test('an early HTML request is reused instead of downloading stocks twice',async()=>{
  const {module:m}=await setup();let calls=0;
@@ -60,9 +60,10 @@ test('HTML starts stock and heatmap requests before DOM/module initialization',a
  const {readFile}=await import('node:fs/promises');const vm=await import('node:vm');
  const html=await readFile(new URL('../public/index.html',import.meta.url),'utf8');
  const code=html.match(/<script>\n([\s\S]*?)<\/script>/)[1];const requests=[];
- const sandbox={window:{},document:{querySelector:()=>null,getElementById:()=>null,addEventListener:()=>{}},AbortController,setTimeout,clearTimeout,localStorage:{getItem:()=>null,setItem:()=>{}},fetch:async url=>{requests.push(url);return {ok:true,json:async()=>url.includes('market.json')?{schemaVersion:1,generatedAt:snapshot().generatedAt,metrics:[]} :snapshot()};}};
+ const sandbox={window:{},document:{querySelector:()=>null,getElementById:()=>null,addEventListener:()=>{}},AbortController,setTimeout,clearTimeout,localStorage:{getItem:()=>null,setItem:()=>{}},fetch:async url=>{requests.push(url);return {ok:true,json:async()=>url.includes('nasdaq-rsi')?{schemaVersion:1,generatedAt:snapshot().generatedAt,confirmed:{rsi:39},history:[],prices:{ndx:{},tqqq:{}}}:url.includes('market.json')?{schemaVersion:1,generatedAt:snapshot().generatedAt,metrics:[]} :snapshot()};}};
  vm.runInNewContext(code,sandbox);
- assert.equal(requests.length,3);assert.ok(requests.some(u=>u.includes('stocks.json')));assert.ok(requests.some(u=>u.includes('heatmap.json')));
+ assert.equal(requests.length,4);assert.ok(requests.some(u=>u.includes('stocks.json')));assert.ok(requests.some(u=>u.includes('heatmap.json')));
  await Promise.all(Object.values(sandbox.window.__morningPrefetch));
  assert.equal(sandbox.window.__morningPreloadState.stocks,'準備完了');
 });
+

@@ -1,7 +1,7 @@
-import {chromium} from 'playwright';
+import {chromium,webkit} from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-const browser=await chromium.launch();
+const browser=await (process.env.BROWSER==='webkit'?webkit:chromium).launch();
 const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true});
 const page=await context.newPage();
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -9,13 +9,13 @@ page.on('crash',()=>errors.push('renderer crashed'));
 const base='https://isobem1969.github.io/market-morning-dashboard/';
 await fs.mkdir('screenshots',{recursive:true});
 try {
- for(let attempt=0;attempt<40;attempt++){const response=await fetch(base+'sw.js?t='+Date.now());if((await response.text()).includes('ready-alert-20261111'))break;await new Promise(r=>setTimeout(r,3000));}
+ for(let attempt=0;attempt<40;attempt++){const response=await fetch(base+'sw.js?t='+Date.now());if((await response.text()).includes('nasdaq-rsi-20261113'))break;await new Promise(r=>setTimeout(r,3000));}
  await page.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
- await page.waitForFunction(()=>document.querySelector('#page-preload-status')?.textContent==='米国株：準備完了 ／ ヒートマップ：準備完了',null,{timeout:30000});
+ await page.waitForFunction(()=>document.querySelector('#page-preload-status')?.textContent==='米国株：準備完了 ／ ヒートマップ：準備完了 ／ NASDAQ100・RSI：準備完了',null,{timeout:30000});
  await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.state==='ready',null,{timeout:30000});
- assert.equal(await page.locator('#ready-alert-title').textContent(),'全3ページの準備ができました');
+ assert.equal(await page.locator('#ready-alert-title').textContent(),'全4ページの準備ができました');
  await page.screenshot({path:'screenshots/navigation-ready-alert.png'});
- console.log('READY_ALERT_GREEN_VERIFIED');
+ console.log('READY_ALERT_GREEN_VERIFIED',process.env.BROWSER||'chromium');
  await page.evaluate(()=>navigator.serviceWorker.ready);
  await page.waitForFunction(()=>!!navigator.serviceWorker.controller,null,{timeout:15000});
  console.log('PREFETCH_READY',await page.locator('#page-preload-status').textContent());
@@ -36,6 +36,22 @@ try {
  console.log('HEATMAP_DISPLAYED',await page.frameLocator('iframe[data-morning-page="heatmap"]').locator('.tile').count(),'NAVIGATION_MS',heatmapMs,'NETWORK_DELAY_MS',8000);
  await page.screenshot({path:'screenshots/navigation-heatmap.png'});
  assert.ok(heatmapMs<1500,'Heatmap rendering waited for the delayed network request');
+ started=Date.now();
+ await page.frameLocator('iframe[data-morning-page="heatmap"]').locator('.morning-pages a[href="./nasdaq-rsi.html"]').click();
+ await page.waitForFunction(()=>document.querySelector('iframe[data-morning-page="rsi"]')?.style.visibility==='visible',null,{timeout:15000});
+ const rsiMs=Date.now()-started;
+ const rsi=page.frameLocator('iframe[data-morning-page="rsi"]');
+ assert.equal(await rsi.locator('.rsi-ready').count(),1);
+ assert.equal(await rsi.locator('.morning-pages a').count(),4);
+ assert.ok(rsiMs<1500,'RSI navigation waited for network');
+ await rsi.getByRole('button',{name:'5年',exact:true}).click();
+ assert.equal(await rsi.getByRole('button',{name:'5年',exact:true}).getAttribute('aria-pressed'),'true');
+ const overflows=await rsi.locator('body').evaluate(el=>el.scrollWidth>innerWidth+1);
+ assert.equal(overflows,false,'RSI page overflows phone viewport');
+ console.log('RSI_REAL_DATA_VERIFIED_NAVIGATION_MS',rsiMs);
+ await page.screenshot({path:'screenshots/navigation-rsi-mobile.png'});
+ await page.setViewportSize({width:1440,height:1000});
+ await page.screenshot({path:'screenshots/navigation-rsi-desktop.png'});
  assert.deepEqual(errors,[]);
  console.log('NAVIGATION_VERIFIED_NO_PAGE_ERRORS');
  const failureContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true});
@@ -47,4 +63,13 @@ try {
  await failurePage.screenshot({path:'screenshots/navigation-partial-alert.png'});
  console.log('READY_ALERT_FETCH_FAILURE_VERIFIED');
  await failureContext.close();
+ const rsiFailureContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true});
+ const rsiFailurePage=await rsiFailureContext.newPage();
+ await rsiFailurePage.route('**/data/nasdaq-rsi.json*',route=>route.abort());
+ await rsiFailurePage.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
+ await rsiFailurePage.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.state==='partial',null,{timeout:30000});
+ assert.ok((await rsiFailurePage.locator('#ready-alert-pages').textContent()).includes('! NASDAQ100・RSI'));
+ console.log('RSI_FAILURE_FOUR_PAGE_BANNER_VERIFIED');
+ await rsiFailureContext.close();
 } finally {await browser.close();}
+

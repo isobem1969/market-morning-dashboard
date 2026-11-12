@@ -3,6 +3,7 @@ const definitions={
  market:{key:'market-morning-cache',file:'market.json'},
  drawdowns:{key:'market-morning-drawdowns',file:'fund-drawdowns.json'},
  stocks:{key:'morning-stocks-v1',file:'stocks.json'},
+ rsi:{key:'market-morning-rsi-v1',file:'nasdaq-rsi.json'},
  heatmap:{key:'market-morning-heatmap-v1',file:'heatmap.json'}
 };
 const memory=new Map(),pending=new Map(),cacheName='market-morning-snapshots-v1';
@@ -10,6 +11,7 @@ function valid(name,value){
  if(!value||typeof value!=='object'||Array.isArray(value))return false;
  if(name==='drawdowns')return Object.values(value).some(d=>d?.years&&Number.isInteger(d.currentYear));
  if(value.schemaVersion!==1||!Number.isFinite(Date.parse(value.generatedAt)))return false;
+ if(name==='rsi')return Number.isFinite(value.confirmed?.rsi)&&Array.isArray(value.history)&&value.prices?.ndx&&value.prices?.tqqq;
  return name==='market'?Array.isArray(value.metrics)&&value.metrics.length>=8
   :Array.isArray(value.stocks)&&(name==='stocks'?value.stocks.length>=12:value.stocks.length>0);
 }
@@ -58,4 +60,5 @@ export function updateSnapshot(name){
 export function prefetchOtherPages(current){
  return Promise.allSettled(Object.keys(definitions).filter(name=>name!==current).map(updateSnapshot));
 }
+
 

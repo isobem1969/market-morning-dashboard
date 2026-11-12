@@ -4,11 +4,11 @@
   <meta charset="utf-8">
 <script>
 // Start data transfer while styles and ES modules are still loading.
-(()=>{const configs={market:['market-morning-cache','market.json'],stocks:['morning-stocks-v1','stocks.json'],heatmap:['market-morning-heatmap-v1','heatmap.json']};
+(()=>{const configs={market:['market-morning-cache','market.json'],stocks:['morning-stocks-v1','stocks.json'],heatmap:['market-morning-heatmap-v1','heatmap.json'],rsi:['market-morning-rsi-v1','nasdaq-rsi.json']};
 const requests=window.__morningPrefetch={},states=window.__morningPreloadState={};
 function show(){if(document.querySelector('iframe[data-morning-page]'))return;const el=document.getElementById('page-preload-status');if(el)el.textContent=['stocks','heatmap'].map(k=>(k==='stocks'?'米国株':'ヒートマップ')+'：'+(states[k]||'先読み中')).join(' ／ ');}
 for(const [name,[key,file]]of Object.entries(configs)){states[name]='先読み中';const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);
-requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();}).then(next=>{if(next.schemaVersion!==1||!next.generatedAt||!(name==='market'?Array.isArray(next.metrics):Array.isArray(next.stocks)))throw Error('schema');let value=next;try{const old=JSON.parse(localStorage.getItem(key));if(old&&Date.parse(old.generatedAt)>Date.parse(next.generatedAt))value=old;localStorage.setItem(key,JSON.stringify(value));}catch{}states[name]='準備完了';show();return value;}).catch(error=>{states[name]='再確認が必要';show();throw error;}).finally(()=>clearTimeout(timer));requests[name].catch(()=>{});
+requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();}).then(next=>{if(next.schemaVersion!==1||!next.generatedAt||!(name==='market'?Array.isArray(next.metrics):name==='rsi'?Number.isFinite(next.confirmed?.rsi):Array.isArray(next.stocks)))throw Error('schema');let value=next;try{const old=JSON.parse(localStorage.getItem(key));if(old&&Date.parse(old.generatedAt)>Date.parse(next.generatedAt))value=old;localStorage.setItem(key,JSON.stringify(value));}catch{}states[name]='準備完了';show();return value;}).catch(error=>{states[name]='再確認が必要';show();throw error;}).finally(()=>clearTimeout(timer));requests[name].catch(()=>{});
 }document.addEventListener('DOMContentLoaded',show);})();
 </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -27,7 +27,7 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
 <link rel="stylesheet" href="./header-controls.css?v=links-date-20261008">
 <link rel="stylesheet" href="./float-controls.css?v=float-green-20261008">
 <script defer src="./float-controls.js?v=float-green-20261008"></script>
-<link rel="stylesheet" href="./page-tabs.css?v=tqqq-tabs-20261104">
+<link rel="stylesheet" href="./page-tabs.css?v=nasdaq-rsi-20261113">
 <link rel="modulepreload" href="./stocks-reference.js?v=early-prefetch-20261109">
 <link rel="modulepreload" href="./heatmap.js?v=early-prefetch-20261109">
 <link rel="modulepreload" href="./shared-data.js?v=early-prefetch-20261109">
@@ -36,17 +36,17 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
 <link rel="modulepreload" href="./stock-alerts.js?v=stock-alerts-20261017">
 <link rel="modulepreload" href="./value-pair.js?v=green-arrow-20261008">
 <link rel="modulepreload" href="./stocks-logic.js?v=period-high-20261009">
-<script type="module" src="./page-warm.js?v=screens-ready-20261109"></script>
+<script type="module" src="./page-warm.js?v=nasdaq-rsi-20261113"></script>
 <link rel="stylesheet" href="./page-ready-alert.css?v=ready-alert-20261111">
-<script type="module" src="./page-ready-alert.js?v=ready-alert-20261111"></script>
+<script type="module" src="./page-ready-alert.js?v=nasdaq-rsi-20261113"></script>
 </head>
 <body>
   <main>
     <header class="top">
-      <div><p class="eyebrow">MARKET MORNING</p><h1>朝の指標<span class="sun" aria-hidden="true">◒</span></h1><section id="page-ready-alert" class="page-ready-alert" data-state="loading" role="status" aria-live="polite" aria-atomic="true"><div class="ready-alert-heading"><span id="ready-alert-icon" aria-hidden="true">↻</span><strong id="ready-alert-title">最新情報を更新しています</strong></div><p id="ready-alert-detail">米国株とヒートマップも、背面で準備しています。</p><div id="ready-alert-pages" class="ready-alert-pages"><span>◷ 朝の指標</span><span>◷ 朝の米国株</span><span>◷ ヒートマップ</span></div><p id="ready-alert-foot" class="ready-alert-foot">準備が完了すると、緑色の通知に変わります。</p></section><p class="subtitle">世界の市場を、ひと目で。</p></div>
+      <div><p class="eyebrow">MARKET MORNING</p><h1>朝の指標<span class="sun" aria-hidden="true">◒</span></h1><section id="page-ready-alert" class="page-ready-alert" data-state="loading" role="status" aria-live="polite" aria-atomic="true"><div class="ready-alert-heading"><span id="ready-alert-icon" aria-hidden="true">↻</span><strong id="ready-alert-title">最新情報を更新しています</strong></div><p id="ready-alert-detail">米国株・ヒートマップ・NASDAQ100のRSIも、背面で準備しています。</p><div id="ready-alert-pages" class="ready-alert-pages"><span>◷ 朝の指標</span><span>◷ 朝の米国株</span><span>◷ ヒートマップ</span><span>◷ NASDAQ100・RSI</span></div><p id="ready-alert-foot" class="ready-alert-foot">準備が完了すると、緑色の通知に変わります。</p></section><p class="subtitle">世界の市場を、ひと目で。</p></div>
       <div class="date-block header-controls"><span id="today" class="header-date"></span><div class="header-actions"><a href="./stocks-reference.html">朝の米国株 ↗</a><button id="refresh" type="button">↻ 更新を確認</button></div></div>
     </header>
-<nav class="morning-pages" aria-label="朝の市場情報・ページ切り替え"><a href="./" aria-current="page">朝の指標</a><a href="./stocks-reference.html">朝の米国株</a><a href="./heatmap.html" class="heatmap-tab">ヒートマップ</a></nav>
+<nav class="morning-pages" aria-label="朝の市場情報・ページ切り替え"><a href="./" aria-current="page">朝の指標</a><a href="./stocks-reference.html">朝の米国株</a><a href="./heatmap.html" class="heatmap-tab">ヒートマップ</a><a href="./nasdaq-rsi.html" class="rsi-tab">NASDAQ100・RSI</a></nav>
     <div class="status-line" role="status" aria-live="polite" id="status">データを読み込んでいます…</div>
     <p id="page-preload-status" hidden>米国株：先読み中 ／ ヒートマップ：先読み中</p>
     <section class="overview" aria-labelledby="overview-title">
@@ -59,7 +59,7 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
     <section class="guide">
       <details><summary>投資信託・TQQQのチャートとみんかぶ表示</summary><div class="details-body"><p>基準価額は1万口あたりの公表価格です。1週は最新公表日を含む7暦日、1カ月以上は日次の基準価額を表示します。日中の株価チャートではありません。左側の最高値・割合・下落率は、右のグラフの選択期間に連動します。最高値はその期間の公表基準価額の最大値です。履歴が選択期間より短い場合は、取得できた範囲だけを表示します。25・75日線は基準価額の単純平均で、日数が不足する部分は表示しません。グラフは分配金を再投資した総リターンではありません。SBI・SCHDは年4回決算型です。基準価額のグラフおよび「最高値からの下落と回復」には分配金の支払いによる基準価額の低下も含み、受取分配金込みの損益ではありません。</p><p>TQQQは米ドル建てETFの市場価格で、米国通常取引の価格を表示します。時間外価格は含みません。最高値は株式分割調整済み終値で計算し、分配金の再投資は含みません。NASDAQ100の日次騰落率の3倍を目標とする商品で、長期間の騰落率が3倍になるわけではありません。</p><p>右下のオレンジ色の「みんかぶ」で、その投資信託・ETFのページを小窓で開きます。Macでは右下に約520×560ピクセルを指定します。iPhone・iPadでは別タブ等で開く場合があります。対応するブラウザーでは「基準価額」の文字位置へ移動します。みんかぶのデータをアプリへ取り込む方式ではありません。</p></div></details>
       <details><summary>更新とアラートについて</summary><div class="details-body">
-        <p>起動時・画面に戻ったときに、3ページ分のサーバー保存データを並行して先読みします。ページ切り替え時は先読み済みデータを先に表示し、背景で最新版を確認します。表示中の取得日時は維持し、通信失敗時は保存値と明示します。取得は毎時実行予定です。<strong>リアルタイム配信ではなく、GitHub Actionsの実行遅延もあります。</strong>「更新を確認」は新しい保存データを読み直すボタンです。自動取得した値は共通のサーバーに保存され、Mac・iPhone・iPadで共有されます。</p>
+        <p>起動時・画面に戻ったときに、4ページ分のサーバー保存データを並行して先読みします。ページ切り替え時は先読み済みデータを先に表示し、背景で最新版を確認します。表示中の取得日時は維持し、通信失敗時は保存値と明示します。取得は毎時実行予定です。<strong>リアルタイム配信ではなく、GitHub Actionsの実行遅延もあります。</strong>「更新を確認」は新しい保存データを読み直すボタンです。自動取得した値は共通のサーバーに保存され、Mac・iPhone・iPadで共有されます。</p>
         <p>主な数値は前日の値 → 最新値の順で一行表示します。休場日は前取引日、投資信託は前公表日の値です。前日の値が未取得の場合は「—」と表示します。VIX・日経VIは日次終値。投資信託の基準価額は1万口あたりの公表価格です。米国市場の値と日本の投信は同じ時点ではありません。ブレントは期近先物で、限月切り替えの影響があります。</p>
         <p>VIXの数値は15未満が緑、15以上20未満が青、20以上30未満が黄、30以上40未満が橙、40以上が赤です。添付画像に沿った表示の目安で、総合条件チェックは従来どおりVIX 30以上で条件到達とします。データ不足時は総合判定を保留します。</p>
         <p>取得失敗・データの古さを別々に表示します。4日を超えた値や、サーバー取得処理が30時間を超えて止まっている値は、判定に使いません。休日は公表日が変わらないことがあります。VIXのグラフは最新の取得終値を終点に3か月／6か月／1年で切り替えます。ドル円・ブレント原油は各パネルで1週／1カ月／6カ月／1年／2年を切り替えます。1週は最新データの日付を含む7暦日。日次の市場値で、最新日は更新時点の値を含みます。取得履歴が短い場合は取得できた範囲を表示します。</p>
@@ -74,6 +74,7 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
   </main>
 </body>
 </html>
+
 
 
 
