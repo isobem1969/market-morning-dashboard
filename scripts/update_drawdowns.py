@@ -4,7 +4,7 @@ import datetime as dt
 import io
 import json
 from pathlib import Path
-from update_data import fetch, iso_date, parse_mufg_csv, parse_wealthadvisor_xml, nasdaq_page, tqqq_history
+from update_data import fetch, iso_date, parse_mufg_csv, parse_wealthadvisor_xml, nasdaq_page, tqqq_history, soxl_history
 
 ROOT = Path(__file__).resolve().parents[1]
 FUNDS = {
@@ -39,11 +39,12 @@ def comparison(text, name, code):
         f'https://www.daiwa-am.co.jp/funds/detail/{code}/detail_top.html', '大和アセットの公表データ')
 
 def extra_comparison(key):
-    if key == 'tqqq':
-        nav = tqqq_history()
+    if key in ('tqqq','soxl'):
+        symbol=key.upper()
+        nav = tqqq_history() if key=='tqqq' else soxl_history()
         result = comparison_points([(p['date'], p['value']) for p in nav['history']],
-            'TQQQ / プロシェアーズ・ウルトラプロQQQ',
-            'https://finance.yahoo.com/quote/TQQQ/history/', 'Yahoo Financeの日次株価')
+            'TQQQ / プロシェアーズ・ウルトラプロQQQ' if key=='tqqq' else 'SOXL / Direxion デイリー半導体株ブル3倍ETF',
+            f'https://finance.yahoo.com/quote/{symbol}/history/', 'Yahoo Financeの日次株価')
         result['distributionNote'] = '米ドル建て・株式分割調整済み終値で計算。分配金再投資・為替変動は含みません。'
         return result
     if key == 'schd':
@@ -67,7 +68,7 @@ def extra_comparison(key):
 def main():
     path = ROOT / 'public/data/fund-drawdowns.json'
     output = json.loads(path.read_text()) if path.exists() else {}
-    for key in [*FUNDS, *EXTRA_FUNDS, 'schd', 'tqqq']:
+    for key in [*FUNDS, *EXTRA_FUNDS, 'schd', 'tqqq', 'soxl']:
         try:
             if key in FUNDS:
                 code, name = FUNDS[key]
@@ -87,4 +88,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 

@@ -5,3 +5,6 @@
 /* Keep intrinsic text widths from widening grid tracks in WebKit. */
 .hero-grid>*,.watch-grid>*,.price-grid>*{min-width:0}
 @media(max-width:650px){.quote-row{gap:8px}.quote{font-size:32px}.quote-row .previous{font-size:20px}.quote-row .arrow{font-size:24px}.header-right{flex-wrap:wrap;gap:8px}.panel,.watch,.value-box{min-width:0}.price-title{flex-wrap:wrap}}
+
+
+@media(min-width:1200px){.price-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.price-grid .quote{font-size:32px}.price-grid .previous{font-size:20px}}

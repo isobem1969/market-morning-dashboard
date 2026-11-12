@@ -1,4 +1,4 @@
-import {drawdownPanel} from './drawdown-panel.js?v=tqqq-20261104';
+import {drawdownPanel} from './drawdown-panel.js?v=soxl-20261113';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 export const FUND_META={
  sox:{name:'ニッセイSOX',code:'29314233'},
@@ -8,7 +8,8 @@ export const FUND_META={
  sp500_slim:{name:'eMAXIS Slim 米国株式（S&P500）',code:'03311187',sourceLabel:'三菱UFJ銀行の公表値'},
  allcountry_slim:{name:'eMAXIS Slim 全世界株式（オルカン）',code:'0331418A',sourceLabel:'三菱UFJ銀行の公表値'},
  schd:{name:'SBI・SCHD（年4回決算型）',code:'8931224C'},
- tqqq:{name:'TQQQ / プロシェアーズ・ウルトラプロQQQ',code:'TQQQ',currency:'USD',sourceLabel:'Yahoo Finance',referenceUrl:'https://us.minkabu.jp/stocks/TQQQ'}
+ tqqq:{name:'TQQQ / プロシェアーズ・ウルトラプロQQQ',code:'TQQQ',currency:'USD',sourceLabel:'Yahoo Finance',referenceUrl:'https://us.minkabu.jp/stocks/TQQQ'},
+ soxl:{name:'SOXL / Direxion デイリー半導体株ブル3倍ETF',code:'SOXL',currency:'USD',sourceLabel:'Yahoo Finance',referenceUrl:'https://us.minkabu.jp/stocks/SOXL'}
 };
 export const FUND_PERIODS=[['1w','1週'],['1m','1カ月'],['6m','6カ月'],['1y','1年'],['2y','2年']];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -78,6 +79,7 @@ export function fundHover(e,metrics,ranges){
  const m=metrics.find(m=>m.id===svg.dataset.fundChart);if(!m)return;
  const ps=fundPoints(m.history,ranges.get(m.id)||'6m'),r=svg.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*720;
  const index=Math.max(0,Math.min(ps.length-1,Math.round((x-84)/620*Math.max(1,ps.length-1)))),p=ps[index];if(!p)return;
- svg.closest('.fund-plot').querySelector('.fund-hover').textContent=p.date+' · '+(m.id==='tqqq'?'株価':'基準価額')+' '+num(p.value,m.id==='tqqq'?2:0)+(m.id==='tqqq'?'ドル':'円')+' · 25日線 '+num(p.ma25,m.id==='tqqq'?2:0)+' · 75日線 '+num(p.ma75,m.id==='tqqq'?2:0);
+ svg.closest('.fund-plot').querySelector('.fund-hover').textContent=p.date+' · '+(FUND_META[m.id].currency==='USD'?'株価':'基準価額')+' '+num(p.value,FUND_META[m.id].currency==='USD'?2:0)+(FUND_META[m.id].currency==='USD'?'ドル':'円')+' · 25日線 '+num(p.ma25,FUND_META[m.id].currency==='USD'?2:0)+' · 75日線 '+num(p.ma75,FUND_META[m.id].currency==='USD'?2:0);
 }
+
 

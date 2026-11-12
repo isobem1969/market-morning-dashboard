@@ -101,11 +101,13 @@ def price(meta, rows, now):
 
 def collect(now=None):
     now=now or dt.datetime.now(UTC)
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
         ndx_task=pool.submit(daily,'^NDX')
         tqqq_task=pool.submit(daily,'TQQQ')
+        soxl_task=pool.submit(daily,'SOXL')
         meta,rows=ndx_task.result()
         tmeta,trows=tqqq_task.result()
+        smeta,srows=soxl_task.result()
     calendar=xcals.get_calendar('XNYS',start=str(int(rows[0]['date'][:4])-1)+'-01-01',end=str(now.year+1)+'-12-31')
     weeks,provisional=weekly(rows,now,calendar)
     scores=wilder([p['value'] for p in weeks])
@@ -117,11 +119,11 @@ def collect(now=None):
     buy=episodes(history,lambda v:v<40)
     sell=episodes(history,lambda v:v>75)
     return {'schemaVersion':1,'generatedAt':now.isoformat(),'status':'ok','error':None,
-            'source':'Yahoo Finance / NASDAQ100 (^NDX)・TQQQ',
+            'source':'Yahoo Finance / NASDAQ100 (^NDX)・TQQQ・SOXL',
             'period':14,'method':'Wilder RMA・週の最終通常取引終値・米国東部時間',
             'historyStart':rows[0]['date'],'confirmed':history[-1],'previous':history[-2],
             'provisional':provisional,'history':history[-520:], 'buy':buy,'sell':sell,
-            'prices':{'ndx':price(meta,rows,now),'tqqq':price(tmeta,trows,now)}}
+            'prices':{'ndx':price(meta,rows,now),'tqqq':price(tmeta,trows,now),'soxl':price(smeta,srows,now)}}
 
 def main():
     target=ROOT/'public/data/nasdaq-rsi.json'
@@ -139,3 +141,4 @@ def main():
 
 if __name__=='__main__':
     main()
+

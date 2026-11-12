@@ -31,4 +31,5 @@ class TQQQTest(unittest.TestCase):
                 c.tqqq_history()
 
     def test_tqqq_follows_schd(self):
-        self.assertEqual(list(c.SOURCES)[-2:],['schd','tqqq'])
+        self.assertEqual(list(c.SOURCES)[-3:],['schd','tqqq','soxl'])
+

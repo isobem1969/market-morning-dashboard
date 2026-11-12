@@ -9,13 +9,26 @@ page.on('crash',()=>errors.push('renderer crashed'));
 const base='https://isobem1969.github.io/market-morning-dashboard/';
 await fs.mkdir('screenshots',{recursive:true});
 try {
- for(let attempt=0;attempt<40;attempt++){const response=await fetch(base+'sw.js?t='+Date.now());if((await response.text()).includes('nasdaq-rsi-20261113-r2'))break;await new Promise(r=>setTimeout(r,3000));}
+ for(let attempt=0;attempt<40;attempt++){const response=await fetch(base+'sw.js?t='+Date.now());if((await response.text()).includes('soxl-20261113'))break;await new Promise(r=>setTimeout(r,3000));}
  await page.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForFunction(()=>document.querySelector('#page-preload-status')?.textContent==='米国株：準備完了 ／ ヒートマップ：準備完了 ／ NASDAQ100・RSI：準備完了',null,{timeout:30000});
  await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.state==='ready',null,{timeout:30000});
  assert.equal(await page.locator('#ready-alert-title').textContent(),'全4ページの準備ができました');
  await page.screenshot({path:'screenshots/navigation-ready-alert.png'});
- console.log('READY_ALERT_GREEN_VERIFIED',process.env.BROWSER||'chromium');
+ const soxl=page.locator('.fund-card[data-fund="soxl"]');
+ assert.equal(await soxl.count(),1);
+ assert.equal(await page.locator('.fund-card[data-fund="tqqq"]').evaluate(e=>e.nextElementSibling?.dataset.fund),'soxl');
+ await soxl.locator('.drawdown-chart').waitFor({timeout:15000});
+ assert.equal(await soxl.locator('.drawdown-chart').count(),1);
+ assert.equal(await soxl.locator('[data-ma]').count(),2);
+ assert.equal(await soxl.locator('.fund-minkabu').getAttribute('href'),'https://us.minkabu.jp/stocks/SOXL');
+ await soxl.locator('[data-fund-period="1y"]').click();
+ assert.equal(await soxl.locator('[data-fund-high-period="1y"]').count(),1);
+ const soxlWidth=await soxl.evaluate(e=>({right:e.getBoundingClientRect().right,width:innerWidth}));
+ assert.ok(soxlWidth.right<=soxlWidth.width+1,'SOXL indicator panel overflows phone width');
+ await soxl.screenshot({path:'screenshots/navigation-soxl-indicator.png'});
+ console.log('SOXL_INDICATOR_REAL_CHART_DRAWDOWN_ORDER_VERIFIED');
+ console.log('READY_ALERT_GREEN_VERIFIED' ,process.env.BROWSER||'chromium');
  await page.evaluate(()=>navigator.serviceWorker.ready);
  await page.waitForFunction(()=>!!navigator.serviceWorker.controller,null,{timeout:15000});
  console.log('PREFETCH_READY',await page.locator('#page-preload-status').textContent());
@@ -42,6 +55,8 @@ try {
  const rsiMs=Date.now()-started;
  const rsi=page.frameLocator('iframe[data-morning-page="rsi"]');
  assert.equal(await rsi.locator('.rsi-ready').count(),1);
+ assert.equal(await rsi.locator('.price-grid>.panel').count(),3);
+ assert.equal(await rsi.locator('.price-grid a[href="https://finance.yahoo.com/quote/SOXL/"]').count(),1);
  assert.equal(await rsi.locator('.morning-pages a').count(),4);
  assert.ok(rsiMs<1500,'RSI navigation waited for network');
  await rsi.getByRole('button',{name:'5年',exact:true}).click();
@@ -73,4 +88,5 @@ try {
  console.log('RSI_FAILURE_FOUR_PAGE_BANNER_VERIFIED');
  await rsiFailureContext.close();
 } finally {await browser.close();}
+
 
