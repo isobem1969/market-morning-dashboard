@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T02:49:01.225067+00:00",
+  "generatedAt": "2026-11-13T10:38:47.449281+00:00",
   "metrics": [
     {
-      "value": 159.922,
-      "asOf": "2026-11-13T02:48:59+00:00",
+      "value": 159.917,
+      "asOf": "2026-11-13T10:38:46+00:00",
       "kind": "市場値（遅延の可能性）",
-      "change": 0.18800646972655954,
-      "changePct": 0.11769972412973839,
+      "change": 0.1830064697265641,
+      "changePct": 0.11456952003887633,
       "history": [
         {
           "date": "2024-10-07",
@@ -2219,12 +2219,12 @@
         },
         {
           "date": "2026-11-13",
-          "value": 159.922
+          "value": 159.917
         }
       ],
       "status": "ok",
-      "lastSuccess": "2026-11-13T02:49:01.225067+00:00",
-      "attemptedAt": "2026-11-13T02:49:01.225067+00:00",
+      "lastSuccess": "2026-11-13T10:38:47.449281+00:00",
+      "attemptedAt": "2026-11-13T10:38:47.449281+00:00",
       "error": null,
       "id": "usd",
       "name": "ドル円",
@@ -3841,8 +3841,8 @@
         }
       ],
       "status": "ok",
-      "lastSuccess": "2026-11-13T02:49:01.225067+00:00",
-      "attemptedAt": "2026-11-13T02:49:01.225067+00:00",
+      "lastSuccess": "2026-11-13T10:38:47.449281+00:00",
+      "attemptedAt": "2026-11-13T10:38:47.449281+00:00",
       "error": null,
       "id": "vix",
       "name": "VIX 恐怖指数",
@@ -3851,16 +3851,12 @@
       "sourceUrl": "https://www.cboe.com/tradable_products/vix/"
     },
     {
-      "value": 39.9,
-      "asOf": "2026-11-12",
+      "value": 39.2,
+      "asOf": "2026-11-13",
       "kind": "外部配信値（CNN直接取得不可）",
-      "change": 4.0,
+      "change": 0.0,
       "changePct": null,
       "history": [
-        {
-          "date": "2026-07-09",
-          "value": 44.7
-        },
         {
           "date": "2026-07-10",
           "value": 46.8
@@ -4215,30 +4211,30 @@
         },
         {
           "date": "2026-11-12",
-          "value": 39.9
+          "value": 39.2
+        },
+        {
+          "date": "2026-11-13",
+          "value": 39.2
         }
       ],
       "source": "Fear & Greed Graph（外部配信）",
       "sourceUrl": "https://fearandgreedgraph.com/data",
       "status": "ok",
-      "lastSuccess": "2026-11-13T02:49:01.225067+00:00",
-      "attemptedAt": "2026-11-13T02:49:01.225067+00:00",
+      "lastSuccess": "2026-11-13T10:38:47.449281+00:00",
+      "attemptedAt": "2026-11-13T10:38:47.449281+00:00",
       "error": null,
       "id": "fear",
       "name": "Fear & Greed",
       "unit": "/ 100"
     },
     {
-      "value": 36.08,
-      "asOf": "2026-11-12",
+      "value": 34.39,
+      "asOf": "2026-11-13",
       "kind": "日本市場・日次終値",
-      "change": 0.35999999999999943,
-      "changePct": 1.00783874580066,
+      "change": -1.6899999999999977,
+      "changePct": -4.684035476718396,
       "history": [
-        {
-          "date": "2026-07-01",
-          "value": 33.78
-        },
         {
           "date": "2026-07-02",
           "value": 24.74
@@ -4594,11 +4590,15 @@
         {
           "date": "2026-11-12",
           "value": 36.08
+        },
+        {
+          "date": "2026-11-13",
+          "value": 34.39
         }
       ],
       "status": "ok",
-      "lastSuccess": "2026-11-13T02:49:01.225067+00:00",
-      "attemptedAt": "2026-11-13T02:49:01.225067+00:00",
+      "lastSuccess": "2026-11-13T10:38:47.449281+00:00",
+      "attemptedAt": "2026-11-13T10:38:47.449281+00:00",
       "error": null,
       "id": "vi",
       "name": "日経VI",
@@ -4607,11 +4607,11 @@
       "sourceUrl": "https://indexes.nikkei.co.jp/nkave/index/profile?idx=nk225vi"
     },
     {
-      "value": 95.9,
-      "asOf": "2026-11-13T02:38:59+00:00",
+      "value": 95.42,
+      "asOf": "2026-11-13T10:28:26+00:00",
       "kind": "市場値（遅延の可能性）",
-      "change": 3.139997863769537,
-      "changePct": 3.385077394843128,
+      "change": -0.39999969482421704,
+      "changePct": -0.4174490671030817,
       "history": [
         {
           "date": "2024-10-07",
@@ -6755,12 +6755,16 @@
         },
         {
           "date": "2026-11-12",
-          "value": 95.9
+          "value": 95.81999969482422
+        },
+        {
+          "date": "2026-11-13",
+          "value": 95.42
         }
       ],
       "status": "ok",
-      "lastSuccess": "2026-11-13T02:49:01.225067+00:00",
-      "attemptedAt": "2026-11-13T02:49:01.225067+00:00",
+      "lastSuccess": "2026-11-13T10:38:47.449281+00:00",
+      "attemptedAt": "2026-11-13T10:38:47.449281+00:00",
       "error": null,
       "id": "brent",
       "name": "ブレント原油",
@@ -9979,8 +9983,8 @@
       "peak": 56728.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-11-13T02:49:01.225067+00:00",
-      "attemptedAt": "2026-11-13T02:49:01.225067+00:00",
+      "lastSuccess": "2026-11-13T10:38:47.449281+00:00",
+      "attemptedAt": "2026-11-13T10:38:47.449281+00:00",
       "error": null,
       "id": "sox",
       "name": "ニッセイ SOX",
@@ -13200,7 +13204,7 @@
       "peakLabel": "取得した設定来データの最高値",
       "status": "error",
       "lastSuccess": "2026-10-30T07:15:10.986216+00:00",
-      "attemptedAt": "2026-11-13T02:49:01.225067+00:00",
+      "attemptedAt": "2026-11-13T10:38:47.449281+00:00",
       "error": "HTTPError: HTTP Error 403: Forbidden",
       "id": "fang",
       "name": "iFreeNEXT FANG+",
@@ -13695,8 +13699,8 @@
       "peak": 10598.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-11-13T02:49:01.225067+00:00",
-      "attemptedAt": "2026-11-13T02:49:01.225067+00:00",
+      "lastSuccess": "2026-11-13T10:38:47.449281+00:00",
+      "attemptedAt": "2026-11-13T10:38:47.449281+00:00",
       "error": null,
       "id": "nasdaq",
       "name": "SBI NASDAQ100",
@@ -16916,7 +16920,7 @@
       "peakLabel": "取得した設定来データの最高値",
       "status": "error",
       "lastSuccess": "2026-10-30T07:15:10.986216+00:00",
-      "attemptedAt": "2026-11-13T02:49:01.225067+00:00",
+      "attemptedAt": "2026-11-13T10:38:47.449281+00:00",
       "error": "HTTPError: HTTP Error 403: Forbidden",
       "id": "nasdaq_ifree",
       "name": "iFreeNEXT NASDAQ100",
@@ -20135,8 +20139,8 @@
       "peak": 45727.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-11-13T02:49:01.225067+00:00",
-      "attemptedAt": "2026-11-13T02:49:01.225067+00:00",
+      "lastSuccess": "2026-11-13T10:38:47.449281+00:00",
+      "attemptedAt": "2026-11-13T10:38:47.449281+00:00",
       "error": null,
       "id": "sp500_slim",
       "name": "eMAXIS Slim 米国株式（S&P500）",
@@ -23355,8 +23359,8 @@
       "peak": 39019.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-11-13T02:49:01.225067+00:00",
-      "attemptedAt": "2026-11-13T02:49:01.225067+00:00",
+      "lastSuccess": "2026-11-13T10:38:47.449281+00:00",
+      "attemptedAt": "2026-11-13T10:38:47.449281+00:00",
       "error": null,
       "id": "allcountry_slim",
       "name": "eMAXIS Slim 全世界株式（オルカン）",
@@ -25211,8 +25215,8 @@
       "peak": 13515.0,
       "peakLabel": "取得した設定来データの最高値",
       "status": "ok",
-      "lastSuccess": "2026-11-13T02:49:01.225067+00:00",
-      "attemptedAt": "2026-11-13T02:49:01.225067+00:00",
+      "lastSuccess": "2026-11-13T10:38:47.449281+00:00",
+      "attemptedAt": "2026-11-13T10:38:47.449281+00:00",
       "error": null,
       "id": "schd",
       "name": "SBI・SCHD（年4回決算型）",
@@ -28432,8 +28436,8 @@
       "peakLabel": "取得した上場来最高終値（分割調整済み）",
       "historyNote": "TQQQはNASDAQ100の日次騰落率の3倍を目標とする米国ETFです。長期間の騰落率が3倍になるわけではありません。価格・下落率は米ドル建てで、分配金再投資・為替変動は含みません。",
       "status": "ok",
-      "lastSuccess": "2026-11-13T02:49:01.225067+00:00",
-      "attemptedAt": "2026-11-13T02:49:01.225067+00:00",
+      "lastSuccess": "2026-11-13T10:38:47.449281+00:00",
+      "attemptedAt": "2026-11-13T10:38:47.449281+00:00",
       "error": null,
       "id": "tqqq",
       "name": "TQQQ / プロシェアーズ・ウルトラプロQQQ",
@@ -31653,8 +31657,8 @@
       "peakLabel": "取得した上場来最高終値（分割調整済み）",
       "historyNote": "SOXLは半導体株指数の日次騰落率の3倍を目標とする米国ETFです。長期間の騰落率が3倍になるわけではありません。価格・下落率は米ドル建てで、分配金再投資・為替変動は含みません。",
       "status": "ok",
-      "lastSuccess": "2026-11-13T02:49:01.225067+00:00",
-      "attemptedAt": "2026-11-13T02:49:01.225067+00:00",
+      "lastSuccess": "2026-11-13T10:38:47.449281+00:00",
+      "attemptedAt": "2026-11-13T10:38:47.449281+00:00",
       "error": null,
       "id": "soxl",
       "name": "SOXL / Direxion デイリー半導体株ブル3倍ETF",
