@@ -72,7 +72,7 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
 .stock-alert-summary strong{font-size:22px;line-height:1.4}
 .stock-alert-summary span{font-size:14px;line-height:1.8;color:#fff}
 .stock-alert-summary:hover{background:#ffffff12}
-.stock-tile{scroll-margin-top:16px}
+.stock-tile{scroll-margin-top:16px}.stock-tile:target{outline:3px solid #2563a6;outline-offset:3px}
 .stock-tile.stock-alert-active{background:#ffe59a}
 .stock-tile.stock-alert-hidden{background:#fff5d5}
 .stock-tile:is(.stock-alert-active,.stock-alert-hidden) :is(.chart-wrap,.stock-chart,.empty){background:#fff;border-radius:12px}
@@ -100,12 +100,12 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
 <link rel="modulepreload" href="./stock-alerts.js?v=stock-alerts-20261017">
 <link rel="modulepreload" href="./value-pair.js?v=green-arrow-20261008">
 <link rel="modulepreload" href="./stocks-logic.js?v=period-high-20261009">
-<script type="module" src="./page-warm.js?v=names-type-20261114"></script>
+<script type="module" src="./page-warm.js?v=alert-jump-20261114"></script>
 <link rel="apple-touch-icon" href="./icon-192.png">
 <meta name="apple-mobile-web-app-title" content="株式指標"></head>
 <body>
   <main>
-    <header class="top"><div><p class="eyebrow">MARKET MORNING / US STOCKS</p><h1>米国株<span aria-hidden="true">◒</span></h1><p class="subtitle">13銘柄の株価とチャート。みんかぶは各パネル右下から。</p></div><div class="header-controls"><span id="today" class="header-date"></span><div class="header-actions"><a href="./">株式指標 ↗</a><button id="refresh">↻ 更新を確認</button></div></div></header>
+    <header class="top"><div><p class="eyebrow">MARKET MORNING / US STOCKS</p><h1>米国株<span aria-hidden="true">◒</span></h1></div><div class="header-controls"><span id="today" class="header-date"></span><div class="header-actions"><a href="./">株式指標 ↗</a><button id="refresh">↻ 更新を確認</button></div></div></header>
 <nav class="morning-pages" aria-label="株式指標・ページ切り替え"><a href="./">株式指標</a><a href="./stocks-reference.html" aria-current="page">米国株</a><a href="./heatmap.html" class="heatmap-tab">ヒートマップ</a><a href="./nasdaq-rsi.html" class="rsi-tab">NASDAQ100・RSI</a></nav>
     <p id="status" class="status" role="status" aria-live="polite">13銘柄を読み込んでいます…</p>
     <section class="intro stock-overview" id="stock-overview" aria-labelledby="watchlist-title">
@@ -119,6 +119,3 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
 
 </body>
 </html>
-
-
-

@@ -57,11 +57,11 @@ dialog .detail-move{font-size:42px;margin:12px 0}
 <link rel="modulepreload" href="./stock-alerts.js?v=stock-alerts-20261017">
 <link rel="modulepreload" href="./value-pair.js?v=green-arrow-20261008">
 <link rel="modulepreload" href="./stocks-logic.js?v=period-high-20261009">
-<script type="module" src="./page-warm.js?v=names-type-20261114"></script>
+<script type="module" src="./page-warm.js?v=alert-jump-20261114"></script>
 <link rel="apple-touch-icon" href="./icon-192.png">
 <meta name="apple-mobile-web-app-title" content="株式指標"></head>
 <body><main>
-<header><div><p class="eyebrow">MARKET MORNING / HEATMAP</p><h1>朝のヒートマップ<span aria-hidden="true">◒</span></h1><p class="subtitle">米国株の強弱を、日本語でひと目に。</p></div><div class="date"><span id="today"></span><nav aria-label="ページ切り替え"><a href="./">株式指標 ↗</a><a href="./stocks-reference.html">米国株 ↗</a><a href="./nasdaq-rsi.html" class="rsi-tab">NASDAQ100・RSI</a></nav></div></header>
+<header><div><p class="eyebrow">MARKET MORNING / HEATMAP</p><h1>朝のヒートマップ<span aria-hidden="true">◒</span></h1></div><div class="date"><span id="today"></span><nav aria-label="ページ切り替え"><a href="./">株式指標 ↗</a><a href="./stocks-reference.html">米国株 ↗</a><a href="./nasdaq-rsi.html" class="rsi-tab">NASDAQ100・RSI</a></nav></div></header>
 <nav class="morning-pages" aria-label="株式指標・ページ切り替え"><a href="./">株式指標</a><a href="./stocks-reference.html">米国株</a><a href="./heatmap.html" class="heatmap-tab" aria-current="page">ヒートマップ</a><a href="./nasdaq-rsi.html" class="rsi-tab">NASDAQ100・RSI</a></nav>
 <p id="heatmap-status" class="sample-caption" role="status" aria-live="polite">価格データを読み込んでいます…</p><button id="refresh-heatmap" type="button">↻ 更新を確認</button>
 <div class="controls"><div class="control-group" id="views" aria-label="表示する指数"><button data-view="both" aria-pressed="true">2指数を表示</button><button data-view="sp" aria-pressed="false">S&P500</button><button data-view="nas" aria-pressed="false">NASDAQ100</button></div><div class="control-group" id="periods" aria-label="騰落率の比較期間"><span>比較期間</span><button data-period="1d" aria-pressed="true">1日</button><button data-period="1w" aria-pressed="false">1週</button><button data-period="1m" aria-pressed="false">1カ月</button></div></div>
@@ -72,5 +72,3 @@ dialog .detail-move{font-size:42px;margin:12px 0}
 </main>
 <dialog id="detail" aria-labelledby="detail-name"><button type="button" class="close">閉じる ×</button><h2 id="detail-name"></h2><div class="detail-ticker" id="detail-symbol"></div><p class="detail-price-label" id="detail-price-label"></p><div class="detail-price" id="detail-price"></div><div class="detail-move" id="detail-move"></div><p id="detail-sector"></p><dl id="detail-facts"></dl><p id="detail-status"></p><a id="detail-link" target="_blank" rel="noopener noreferrer">Yahoo!ファイナンスで確認 ↗</a></dialog>
 <script type="module" src="./heatmap.js?v=early-prefetch-20261109"></script></body></html>
-
-
