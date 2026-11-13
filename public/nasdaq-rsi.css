@@ -17,3 +17,5 @@
 .indicator-panel-link small{font-size:13px;font-weight:650;text-decoration:underline;text-underline-offset:3px}
 .indicator-panel-link:hover{background:#d5e7ff}
 @media(max-width:650px){.price-title{flex-wrap:nowrap}.price-title>a{font-size:12px}.indicator-panel-link{padding:10px 12px}}
+
+.price-grid .panel{scroll-margin-top:20px}.price-grid .panel:target{outline:3px solid #205da2;outline-offset:3px}

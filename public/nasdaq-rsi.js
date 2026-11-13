@@ -18,8 +18,8 @@ function watch(key){
 }
 function price(key,name,symbol){
  const target={ndx:'nasdaq',tqqq:'tqqq',soxl:'soxl'}[key],heading=`<h2><a class="indicator-panel-link" href="./#metric-${target}"><span>${name} <span aria-hidden="true">→</span></span><small>株式指標のパネルへ移動</small></a></h2>`;
- const p=data.prices[key];if(!p)return `<section class="panel">${heading}<p>最新データを確認しています。「更新を確認」で再取得できます。</p></section>`;const change=p.value-p.previous,cls=change>0?'positive':change<0?'negative':'';
- return `<section class="panel"><div class="price-title">${heading}<a href="https://finance.yahoo.com/quote/${symbol}/" target="_blank" rel="noopener">取得元 ↗</a></div><div class="quote-row"><span class="previous">${fmt(p.previous,2)}</span><span class="arrow">→</span><strong class="quote ${cls}">${fmt(p.value,2)}</strong></div><p class="caption">${esc(p.asOf)} 米国日付 ／ ${p.marketOpen?'通常取引中・遅延あり':'直近通常取引の終値'} ／ ${key==='ndx'?'ポイント':'USD'}</p><div class="price-details"><div><small>最高終値に対する割合</small><strong>${fmt(p.ratio)}%</strong></div><div><small>最高終値からの下落率</small><strong class="negative">${fmt(p.drawdown)}%</strong></div></div><div class="peak">最高終値 ${fmt(p.peak,2)}</div><p class="caption">取得期間：${esc(p.historyStart)}〜${esc(p.asOf)}<br>日中高値ではなく、取得期間の最高終値が基準です。</p></section>`;
+ const p=data.prices[key];if(!p)return `<section id="price-${key}" class="panel">${heading}<p>最新データを確認しています。「更新を確認」で再取得できます。</p></section>`;const change=p.value-p.previous,cls=change>0?'positive':change<0?'negative':'';
+ return `<section id="price-${key}" class="panel"><div class="price-title">${heading}<a href="https://finance.yahoo.com/quote/${symbol}/" target="_blank" rel="noopener">取得元 ↗</a></div><div class="quote-row"><span class="previous">${fmt(p.previous,2)}</span><span class="arrow">→</span><strong class="quote ${cls}">${fmt(p.value,2)}</strong></div><p class="caption">${esc(p.asOf)} 米国日付 ／ ${p.marketOpen?'通常取引中・遅延あり':'直近通常取引の終値'} ／ ${key==='ndx'?'ポイント':'USD'}</p><div class="price-details"><div><small>最高終値に対する割合</small><strong>${fmt(p.ratio)}%</strong></div><div><small>最高終値からの下落率</small><strong class="negative">${fmt(p.drawdown)}%</strong></div></div><div class="peak">最高終値 ${fmt(p.peak,2)}</div><p class="caption">取得期間：${esc(p.historyStart)}〜${esc(p.asOf)}<br>日中高値ではなく、取得期間の最高終値が基準です。</p></section>`;
 }
 function drawChart(){
  const rows=data.history.slice(-period),provisional=data.provisional;
@@ -37,6 +37,14 @@ function drawChart(){
  const el=$('rsi-chart').querySelector('svg');el.addEventListener('pointermove',e=>{const rect=el.getBoundingClientRect(),pos=(e.clientX-rect.left)/rect.width*W,n=Math.max(0,Math.min(count-1,Math.round((pos-L)/w*(count-1)))),p=rows[n]||provisional,line=$('rsi-crosshair');line.setAttribute('x1',x(n));line.setAttribute('x2',x(n));line.setAttribute('visibility','visible');$('chart-info').textContent=`${p.date} ｜ RSI ${fmt(p.rsi,2)}${n>=rows.length?'（未確定）':'（確定）'}`;});
  document.querySelectorAll('[data-weeks]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.weeks)===period)));
 }
+let priceJumpPending=true;
+function jumpToPrice(){
+ if(!priceJumpPending||!/^#price-(ndx|tqqq|soxl)$/.test(location.hash))return;
+ const el=document.getElementById(location.hash.slice(1));if(!el)return;
+ priceJumpPending=false;
+ requestAnimationFrame(()=>{el.scrollIntoView({block:'start',behavior:'instant'});});
+}
+window.addEventListener('hashchange',()=>{priceJumpPending=true;jumpToPrice();});
 function render(next){
  data=next;
  const serverAge=Date.now()-Date.parse(data.generatedAt),priceAge=Date.now()-Date.parse(data.prices.ndx.asOf+'T21:00:00Z');
@@ -47,6 +55,7 @@ function render(next){
  $('rsi-content').className=usable?'rsi-ready':'';
  $('rsi-content').innerHTML=`${usable?'':`<div class="warning">保存済みデータを表示しています。取得失敗またはデータが古いため、現在の条件判定は保留です。<br>最終取得：${updated}（日本時間）</div>`}<div class="hero-grid"><section class="panel hero ${usable?state.kind:''}"><h2>確定した週足RSI（14週）</h2><div class="rsi-asof">確定週の最終取引日：${data.confirmed.date}（米国）</div><div class="value-box"><div class="value-row"><span class="previous">${fmt(data.previous.rsi)}</span><span class="arrow">→</span><strong class="rsi-value">${fmt(data.confirmed.rsi)}</strong></div><div class="delta ${delta>0?'positive':delta<0?'negative':''}">${delta>0?'▲ +':delta<0?'▼ ':''}${fmt(delta)} <small>前週比</small></div></div><span class="status-badge ${state.kind}">${usable?state.label:'判定保留'}</span><p class="caption">前週 ${data.previous.date} → 最新確定週 ${data.confirmed.date}</p></section><section class="panel"><h2>今週の暫定RSI <span class="unconfirmed">未確定</span></h2><div class="provisional-value">${p?fmt(p.rsi):'—'}</div><p class="caption">${p?`${p.date}までの通常取引価格から算出。<br>確定RSIとの差：${fmt(p.rsi-data.confirmed.rsi)}ポイント。`:'表示する暫定値はありません。確定した値は「確定した週足RSI」を確認してください。'}</p><p class="caption">今週の最終取引が終了するまでは変わります。<br>開始日・継続週数の判定には使用しません。</p></section></div><section class="panel"><div class="chart-heading"><h2>週足RSIの推移</h2><div class="periods">${[[52,'1年'],[104,'2年'],[260,'5年'],[520,'10年']].map(([v,t])=>`<button data-weeks="${v}" aria-pressed="${v===period}">${t}</button>`).join('')}</div></div><div class="chart-wrap" id="rsi-chart"></div><div class="chart-info" id="chart-info">グラフを指で触れる／マウスを重ねると日付とRSIを確認できます。</div><p class="caption">濃紺：確定値 ／ オレンジの点線：今週の未確定値。40・35・30、75・80・85の水平線を表示。</p></section><div class="watch-grid">${watch('buy')}${watch('sell')}</div><div class="price-grid">${price('ndx','NASDAQ100','%5ENDX')}${price('tqqq','TQQQ','TQQQ')}${price('soxl','SOXL','SOXL')}</div>`;
  document.querySelectorAll('[data-weeks]').forEach(b=>b.addEventListener('click',()=>{period=Number(b.dataset.weeks);drawChart();}));drawChart();
+ jumpToPrice();
  if(!usable)(window.__morningPreloadState||={}).rsi='再確認が必要';
 }
 async function refresh(){
