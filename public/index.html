@@ -27,7 +27,7 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
 <link rel="stylesheet" href="./header-controls.css?v=links-date-20261008">
 <link rel="stylesheet" href="./float-controls.css?v=rsi-links-scroll-20261114">
 <script defer src="./float-controls.js?v=rsi-links-scroll-20261114"></script>
-<link rel="stylesheet" href="./page-tabs.css?v=nasdaq-rsi-20261113">
+<link rel="stylesheet" href="./page-tabs.css?v=aligned-navigation-20261114">
 <link rel="modulepreload" href="./stocks-reference.js?v=early-prefetch-20261109">
 <link rel="modulepreload" href="./heatmap.js?v=early-prefetch-20261109">
 <link rel="modulepreload" href="./shared-data.js?v=early-prefetch-20261109">
@@ -43,11 +43,12 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
 </head>
 <body>
   <main>
-    <header class="top">
-      <div><p class="eyebrow">MARKET MORNING</p><h1>株式指標<span class="sun" aria-hidden="true">◒</span></h1><section id="page-ready-alert" class="page-ready-alert" data-state="loading" role="status" aria-live="polite" aria-atomic="true"><div class="ready-alert-heading"><span id="ready-alert-icon" aria-hidden="true">↻</span><strong id="ready-alert-title">最新情報を更新しています</strong></div><p id="ready-alert-detail">米国株・ヒートマップ・NASDAQ100のRSIも、背面で準備しています。</p><div id="ready-alert-pages" class="ready-alert-pages"><span>◷ 株式指標</span><span>◷ 米国株</span><span>◷ ヒートマップ</span><span>◷ NASDAQ100・RSI</span></div><p id="ready-alert-foot" class="ready-alert-foot">準備が完了すると、緑色の通知に変わります。</p></section></div>
+    <header class="top morning-header">
+      <div><p class="eyebrow">MARKET MORNING</p><h1>株式指標<span class="sun" aria-hidden="true">◒</span></h1></div>
       <div class="date-block header-controls"><span id="today" class="header-date"></span><div class="header-actions"><a href="./stocks-reference.html">米国株 ↗</a><button id="refresh" type="button">↻ 更新を確認</button></div></div>
     </header>
 <nav class="morning-pages" aria-label="株式指標・ページ切り替え"><a href="./" aria-current="page">株式指標</a><a href="./stocks-reference.html">米国株</a><a href="./heatmap.html" class="heatmap-tab">ヒートマップ</a><a href="./nasdaq-rsi.html" class="rsi-tab">NASDAQ100・RSI</a></nav>
+<section id="page-ready-alert" class="page-ready-alert" data-state="loading" role="status" aria-live="polite" aria-atomic="true"><div class="ready-alert-heading"><span id="ready-alert-icon" aria-hidden="true">↻</span><strong id="ready-alert-title">最新情報を更新しています</strong></div><p id="ready-alert-detail">米国株・ヒートマップ・NASDAQ100のRSIも、背面で準備しています。</p><div id="ready-alert-pages" class="ready-alert-pages"><span>◷ 株式指標</span><span>◷ 米国株</span><span>◷ ヒートマップ</span><span>◷ NASDAQ100・RSI</span></div><p id="ready-alert-foot" class="ready-alert-foot">準備が完了すると、緑色の通知に変わります。</p></section>
     <div class="status-line" role="status" aria-live="polite" id="status">データを読み込んでいます…</div>
     <p id="page-preload-status" hidden>米国株：先読み中 ／ ヒートマップ：先読み中</p>
     <section class="overview" aria-labelledby="overview-title">

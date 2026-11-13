@@ -9,7 +9,7 @@ page.on('crash',()=>errors.push('renderer crashed'));
 const base='https://isobem1969.github.io/market-morning-dashboard/';
 await fs.mkdir('screenshots',{recursive:true});
 try {
- for(let attempt=0;attempt<90;attempt++){const response=await fetch(base+'sw.js?t='+Date.now());if((await response.text()).includes('rsi-links-scroll-v2-20261114'))break;await new Promise(r=>setTimeout(r,3000));}
+ for(let attempt=0;attempt<90;attempt++){const response=await fetch(base+'sw.js?t='+Date.now());if((await response.text()).includes('aligned-navigation-20261114'))break;await new Promise(r=>setTimeout(r,3000));}
  await page.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForFunction(()=>document.querySelector('#page-preload-status')?.textContent==='米国株：準備完了 ／ ヒートマップ：準備完了 ／ NASDAQ100・RSI：準備完了',null,{timeout:30000});
  await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.state==='ready',null,{timeout:30000});
@@ -43,6 +43,25 @@ try {
  await page.screenshot({path:'screenshots/navigation-stocks.png'});
  assert.ok(stockMs<1500,'Stock rendering waited for the delayed network request');
 
+
+ // Headers and navigation must align on all pages at desktop and phone widths.
+ await page.frameLocator('iframe[data-morning-page="stocks"]').locator('.morning-pages a[href="./"]').click();
+ for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){
+  await page.setViewportSize(viewport);
+  const rects=await page.evaluate(()=>{
+   const pages=[document,...['stocks','heatmap','rsi'].map(k=>document.querySelector('iframe[data-morning-page="'+k+'"]').contentDocument)];
+   return pages.map(doc=>{const r=doc.querySelector('.morning-pages').getBoundingClientRect();const first=doc.querySelector('.morning-pages a').getBoundingClientRect();return {top:r.top+doc.defaultView.scrollY,left:r.left,width:r.width,height:r.height,buttonHeight:first.height};});
+  });
+  for(const field of ['top','left','width','height','buttonHeight'])assert.ok(Math.max(...rects.map(r=>r[field]))-Math.min(...rects.map(r=>r[field]))<2,'Navigation '+field+' differs at '+viewport.width+': '+JSON.stringify(rects));
+ }
+ await page.setViewportSize({width:390,height:844});
+ const placements=await page.evaluate(()=>({
+  readyAfterNav:!!document.querySelector('main>.morning-pages + #page-ready-alert'),
+  rsiCommentAfterNav:!!document.querySelector('iframe[data-morning-page="rsi"]').contentDocument.querySelector('main>.morning-pages + .subtitle')
+ }));
+ assert.deepEqual(placements,{readyAfterNav:true,rsiCommentAfterNav:true});
+ console.log('FOUR_PAGE_NAVIGATION_ALIGNMENT_AND_BELOW_TAB_PLACEMENTS_VERIFIED');
+ await page.locator('.morning-pages a[href="./stocks-reference.html"]').click();
  // Alert summaries must scroll inside the prepared stocks frame.
  const stockFrame=page.frameLocator('iframe[data-morning-page="stocks"]');
  const alertLinks=stockFrame.locator('#stock-alert-list a');
@@ -122,12 +141,12 @@ try {
  await checkScroll(rsi,'rsi');
  await rsi.locator('.morning-pages a[href="./"]').click();
  for(const [fund,target] of [['nasdaq','ndx'],['tqqq','tqqq'],['soxl','soxl']]){
-  await page.locator('[data-fund="'+fund+'"] .fund-rsi-link').click();
-  await page.waitForURL('**/nasdaq-rsi.html#price-'+target);
+  await page.locator('[data-fund="'+fund+'"] .fund-rsi-link').click({noWaitAfter:true});
+  await page.waitForURL('**/nasdaq-rsi.html#price-'+target,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(id=>{const el=document.getElementById(id);if(!el)return false;const r=el.querySelector('h2').getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight;},'price-'+target);
   await page.screenshot({path:'screenshots/navigation-rsi-destination-'+fund+'.png'});
   if(fund!=='soxl'){
-   await page.locator('.morning-pages a[href="./"]').click();
+   await page.locator('.morning-pages a[href="./"]').click({noWaitAfter:true});
    await page.locator('[data-fund="'+fund+'"] .fund-rsi-link').waitFor();
   }
  }

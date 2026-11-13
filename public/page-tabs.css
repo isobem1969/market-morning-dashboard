@@ -2,3 +2,25 @@
 
 
 .morning-pages a.rsi-tab:not([aria-current]){background:#e8f3ff;border:2px solid #3989d2;color:#134f8c}
+
+/* Keep the navigation row in the same place across all four pages. */
+body>main{max-width:1280px;padding-top:42px;padding-left:32px;padding-right:32px}
+body>main>header.morning-header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:24px;height:100px;min-height:100px;margin-bottom:0}
+.morning-header>div{min-width:0}
+body>main>header.morning-header h1{font-size:42px;line-height:1.3;margin:0;letter-spacing:-1px}
+.morning-header .eyebrow{font-size:11px;line-height:1.3;margin:0 0 12px}
+.morning-header>div:last-child{display:flex;flex-direction:column;align-items:flex-end;gap:10px;text-align:right}
+.morning-header #today{font-size:16px;line-height:20px}
+.morning-header .header-right button{margin-top:0}
+.morning-header .date nav{margin-top:0;gap:6px}
+body>main>.morning-pages{margin:22px 0}
+@media(max-width:800px){
+ body>main{padding-top:26px;padding-left:20px;padding-right:20px}
+ body>main>header.morning-header{grid-template-columns:1fr;grid-template-rows:70px 80px;gap:12px;height:162px;min-height:162px}
+ body>main>header.morning-header h1{font-size:30px;line-height:1.3}
+ .morning-header>div:last-child{width:100%;align-self:start;align-items:flex-end}
+ .morning-header .header-actions{width:100%;justify-content:space-between}
+ .morning-header .date nav{flex-wrap:nowrap}
+ .morning-header .date nav a{font-size:12px;padding:10px 6px;white-space:nowrap}
+}
+@media(max-width:650px){body>main{padding-left:14px;padding-right:14px}}
