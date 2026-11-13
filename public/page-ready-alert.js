@@ -1,4 +1,4 @@
-const names={market:'朝の指標',stocks:'朝の米国株',heatmap:'ヒートマップ',rsi:'NASDAQ100・RSI'};
+const names={market:'株式指標',stocks:'米国株',heatmap:'ヒートマップ',rsi:'NASDAQ100・RSI'};
 export function readiness(pages,elapsed=0){
  const items=Object.keys(names).map(key=>({key,label:names[key],...pages[key]}));
  const allReady=items.every(p=>p.fresh&&p.rendered&&!p.failed);

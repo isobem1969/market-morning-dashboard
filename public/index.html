@@ -14,15 +14,15 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#132d3c">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="朝の指標">
+  <meta name="apple-mobile-web-app-title" content="株式指標">
   <meta name="description" content="毎朝チェックする14の株式指標。データの日時、前日比と条件アラートをまとめて確認。">
-  <title>朝の指標 | Market Morning</title>
+  <title>株式指標 | Market Morning</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icon-192.png">
-  <link rel="stylesheet" href="./style.css?v=white-alert-fields-20261022">
-  <script type="module" src="./app.js?v=panel-links-20261114"></script>
-  <link rel="stylesheet" href="./fund-panel.css?v=period-high-20261009">
+  <link rel="stylesheet" href="./style.css?v=names-type-20261114">
+  <script type="module" src="./app.js?v=names-type-20261114"></script>
+  <link rel="stylesheet" href="./fund-panel.css?v=names-type-20261114">
 <link rel="stylesheet" href="./value-pair.css?v=stock-centered-20261008">
 <link rel="stylesheet" href="./header-controls.css?v=links-date-20261008">
 <link rel="stylesheet" href="./float-controls.css?v=float-green-20261008">
@@ -36,18 +36,18 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
 <link rel="modulepreload" href="./stock-alerts.js?v=stock-alerts-20261017">
 <link rel="modulepreload" href="./value-pair.js?v=green-arrow-20261008">
 <link rel="modulepreload" href="./stocks-logic.js?v=period-high-20261009">
-<script type="module" src="./page-warm.js?v=panel-links-20261114"></script>
+<script type="module" src="./page-warm.js?v=names-type-20261114"></script>
 <link rel="stylesheet" href="./page-ready-alert.css?v=ready-alert-20261111">
-<script type="module" src="./page-ready-alert.js?v=nasdaq-rsi-20261113"></script>
+<script type="module" src="./page-ready-alert.js?v=names-type-20261114"></script>
 <style>.fund-card:target{outline:3px solid #205da2;outline-offset:4px}.fund-card[id^="metric-"]:focus{outline:3px solid #205da2;outline-offset:4px}</style>
 </head>
 <body>
   <main>
     <header class="top">
-      <div><p class="eyebrow">MARKET MORNING</p><h1>朝の指標<span class="sun" aria-hidden="true">◒</span></h1><section id="page-ready-alert" class="page-ready-alert" data-state="loading" role="status" aria-live="polite" aria-atomic="true"><div class="ready-alert-heading"><span id="ready-alert-icon" aria-hidden="true">↻</span><strong id="ready-alert-title">最新情報を更新しています</strong></div><p id="ready-alert-detail">米国株・ヒートマップ・NASDAQ100のRSIも、背面で準備しています。</p><div id="ready-alert-pages" class="ready-alert-pages"><span>◷ 朝の指標</span><span>◷ 朝の米国株</span><span>◷ ヒートマップ</span><span>◷ NASDAQ100・RSI</span></div><p id="ready-alert-foot" class="ready-alert-foot">準備が完了すると、緑色の通知に変わります。</p></section><p class="subtitle">世界の市場を、ひと目で。</p></div>
-      <div class="date-block header-controls"><span id="today" class="header-date"></span><div class="header-actions"><a href="./stocks-reference.html">朝の米国株 ↗</a><button id="refresh" type="button">↻ 更新を確認</button></div></div>
+      <div><p class="eyebrow">MARKET MORNING</p><h1>株式指標<span class="sun" aria-hidden="true">◒</span></h1><section id="page-ready-alert" class="page-ready-alert" data-state="loading" role="status" aria-live="polite" aria-atomic="true"><div class="ready-alert-heading"><span id="ready-alert-icon" aria-hidden="true">↻</span><strong id="ready-alert-title">最新情報を更新しています</strong></div><p id="ready-alert-detail">米国株・ヒートマップ・NASDAQ100のRSIも、背面で準備しています。</p><div id="ready-alert-pages" class="ready-alert-pages"><span>◷ 株式指標</span><span>◷ 米国株</span><span>◷ ヒートマップ</span><span>◷ NASDAQ100・RSI</span></div><p id="ready-alert-foot" class="ready-alert-foot">準備が完了すると、緑色の通知に変わります。</p></section><p class="subtitle">世界の市場を、ひと目で。</p></div>
+      <div class="date-block header-controls"><span id="today" class="header-date"></span><div class="header-actions"><a href="./stocks-reference.html">米国株 ↗</a><button id="refresh" type="button">↻ 更新を確認</button></div></div>
     </header>
-<nav class="morning-pages" aria-label="朝の市場情報・ページ切り替え"><a href="./" aria-current="page">朝の指標</a><a href="./stocks-reference.html">朝の米国株</a><a href="./heatmap.html" class="heatmap-tab">ヒートマップ</a><a href="./nasdaq-rsi.html" class="rsi-tab">NASDAQ100・RSI</a></nav>
+<nav class="morning-pages" aria-label="株式指標・ページ切り替え"><a href="./" aria-current="page">株式指標</a><a href="./stocks-reference.html">米国株</a><a href="./heatmap.html" class="heatmap-tab">ヒートマップ</a><a href="./nasdaq-rsi.html" class="rsi-tab">NASDAQ100・RSI</a></nav>
     <div class="status-line" role="status" aria-live="polite" id="status">データを読み込んでいます…</div>
     <p id="page-preload-status" hidden>米国株：先読み中 ／ ヒートマップ：先読み中</p>
     <section class="overview" aria-labelledby="overview-title">

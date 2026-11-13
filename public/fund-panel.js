@@ -51,6 +51,26 @@ function graph(m,period){
  const area=pts.length>1?'<path d="'+line+' L'+right+','+bottom+' L'+left+','+bottom+' Z" fill="url(#fund-fill-'+m.id+')"/>':'';
  return '<div class="fund-legend"><span class="nav-line">'+priceLabel+' <strong>'+fmt(last.value)+'</strong></span><span class="ma25-line">25日線 <strong>'+fmt(last.ma25)+'</strong></span><span class="ma75-line">75日線 <strong>'+fmt(last.ma75)+'</strong></span></div><div class="fund-chart-wrap"><svg class="fund-chart" data-fund-chart="'+m.id+'" viewBox="0 0 720 300" role="img" aria-label="'+esc(FUND_META[m.id].name)+'の'+priceLabel+'と25・75日移動平均"><defs><linearGradient id="fund-fill-'+m.id+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#15536b" stop-opacity=".3"/><stop offset="1" stop-color="#15536b" stop-opacity=".02"/></linearGradient></defs>'+grid+area+'<path d="'+line+'" fill="none" stroke="#15536b" stroke-width="2.4"/><path data-ma="25" d="'+path('ma25')+'" fill="none" stroke="#ee303b" stroke-width="2.6"/><path data-ma="75" d="'+path('ma75')+'" fill="none" stroke="#3168ff" stroke-width="2.6"/><circle cx="'+x(pts.length-1)+'" cy="'+y(last.value)+'" r="4" fill="#15536b"/>'+labels+'</svg></div><div class="fund-chart-footer"><span>'+pts[0].date.replaceAll('-','/')+'〜'+last.date.replaceAll('-','/')+' · '+pts.length+'公表日</span><span>最低 <strong>'+fmt(min)+unit+'</strong> ／ 最高 <strong>'+fmt(max)+unit+'</strong></span></div><p class="fund-hover">グラフに触れると'+priceLabel+'・移動平均を表示</p><p class="fund-chart-note">'+(period==='1d'?'1日は最新公表日の1点です。日中の値動きはありません。':'取得済みの公表値だけを表示。選択期間より履歴が短い場合は、取得できた範囲だけを表示します。')+'25・75日線は25・75営業日の'+priceLabel+'の単純平均。日数不足は表示しません。休場日の値は追加しません。</p>';
 }
+
+/* Keep the index/ticker prominent while retaining each fund's full name. */
+export function fundTitle(id){
+ const names={
+  sox:['ニッセイ','SOX',''],
+  fang:['iFreeNEXT','FANG＋',''],
+  nasdaq:['SBI','NASDAQ100',''],
+  nasdaq_ifree:['iFreeNEXT','NASDAQ100',''],
+  sp500_slim:['eMAXIS Slim 米国株式','（S&P500）',''],
+  allcountry_slim:['eMAXIS Slim 全世界株式','（オルカン）',''],
+  schd:['SBI・','SCHD','（年4回決算型）'],
+  tqqq:['','TQQQ',' / プロシェアーズ・ウルトラプロQQQ'],
+  soxl:['','SOXL',' / Direxion デイリー半導体株ブル3倍ETF']
+ };
+ const parts=names[id];if(!parts)return esc(FUND_META[id]?.name||id);
+ const [prefix,main,suffix]=parts;
+ return (prefix?'<small class="title-detail title-prefix">'+esc(prefix)+'</small> ':'')+
+  esc(main)+(suffix?' <small class="title-detail">'+esc(suffix.trimStart())+'</small>':'');
+}
+
 export function fundCard(m,q,period,{datetime}){
  period=FUND_PERIODS.some(([key])=>key===period)?period:'6m';
  const meta=FUND_META[m.id],etf=meta.currency==='USD',digits=etf?2:0,unit=etf?'ドル':'円',priceLabel=etf?'株価':'基準価額',fmt=v=>num(v,digits),dir=Number.isFinite(m.change)?m.change>0?'up':m.change<0?'down':'neutral':'neutral';
@@ -63,7 +83,7 @@ export function fundCard(m,q,period,{datetime}){
  const base=meta.referenceUrl||'https://itf.minkabu.jp/fund/'+meta.code;
  const href=etf?base:base+'#:~:text='+encodeURIComponent('基準価額');
  const source=/^https:\/\//.test(m.sourceUrl)?m.sourceUrl:'#';
- return '<article class="card fund-card" data-fund="'+m.id+'" aria-label="'+esc(m.name)+'"><div class="fund-heading"><div><h3>'+meta.name+'</h3><span>'+meta.code+(etf?' · 米国ETF / USD':' · 投資信託 / 円')+'</span></div><a href="'+esc(source)+'" target="_blank" rel="noopener noreferrer">'+(meta.sourceLabel||'運用会社の公表値')+' ↗</a></div><div class="fund-body"><div class="fund-reading"><div class="fund-price-box '+dir+'"><span class="fund-price">'+valuePair(m,fmt)+'</span><span>'+unit+'</span></div><p class="fund-change '+dir+'"><span class="change-amount">'+(dir==='up'?'↑':dir==='down'?'↓':'→')+' '+amount+'</span>'+(pct?'<span class="change-pct">'+pct.trim()+'</span>':'')+'</p><p class="fund-date">'+(etf?'米国通常取引の株価 · 1口あたり':'基準価額 · 1万口あたり')+'<br>公表 '+datetime(m.asOf)+' ／ 取得 '+datetime(m.lastSuccess)+'</p><span class="badge">'+(q.usable?'取得成功':esc(q.label))+'</span>'+peak+'</div><div class="fund-plot"><div class="fund-chart-header"><h4>'+priceLabel+'の推移</h4><div class="fund-periods" role="group" aria-label="'+meta.name+'のチャート期間">'+FUND_PERIODS.map(([key,label])=>'<button type="button" data-fund-id="'+m.id+'" data-fund-period="'+key+'" aria-pressed="'+(key===period)+'">'+label+'</button>').join('')+'</div></div>'+graph(m,period)+drawdownPanel(m)+'<div class="fund-reference-action"><a class="fund-minkabu" data-fund-minkabu="'+m.id+'" href="'+href+'" target="_blank" rel="noopener noreferrer" aria-label="'+meta.name+'のみんかぶを小窓で開く">みんかぶ</a><span class="fund-popup-note" role="status"></span></div></div></div>'+(m.historyNote?'<p class="fund-chart-note">'+esc(m.historyNote)+'</p>':'')+(m.error?'<details class="history-details"><summary>取得エラー</summary>'+esc(m.error)+'</details>':'')+'</article>';
+ return '<article class="card fund-card" data-fund="'+m.id+'" aria-label="'+esc(m.name)+'"><div class="fund-heading"><div><h3>'+fundTitle(m.id)+'</h3><span>'+meta.code+(etf?' · 米国ETF / USD':' · 投資信託 / 円')+'</span></div><a href="'+esc(source)+'" target="_blank" rel="noopener noreferrer">'+(meta.sourceLabel||'運用会社の公表値')+' ↗</a></div><div class="fund-body"><div class="fund-reading"><div class="fund-price-box '+dir+'"><span class="fund-price">'+valuePair(m,fmt)+'</span><span>'+unit+'</span></div><p class="fund-change '+dir+'"><span class="change-amount">'+(dir==='up'?'↑':dir==='down'?'↓':'→')+' '+amount+'</span>'+(pct?'<span class="change-pct">'+pct.trim()+'</span>':'')+'</p><p class="fund-date">'+(etf?'米国通常取引の株価 · 1口あたり':'基準価額 · 1万口あたり')+'<br>公表 '+datetime(m.asOf)+' ／ 取得 '+datetime(m.lastSuccess)+'</p><span class="badge">'+(q.usable?'取得成功':esc(q.label))+'</span>'+peak+'</div><div class="fund-plot"><div class="fund-chart-header"><h4>'+priceLabel+'の推移</h4><div class="fund-periods" role="group" aria-label="'+meta.name+'のチャート期間">'+FUND_PERIODS.map(([key,label])=>'<button type="button" data-fund-id="'+m.id+'" data-fund-period="'+key+'" aria-pressed="'+(key===period)+'">'+label+'</button>').join('')+'</div></div>'+graph(m,period)+drawdownPanel(m)+'<div class="fund-reference-action"><a class="fund-minkabu" data-fund-minkabu="'+m.id+'" href="'+href+'" target="_blank" rel="noopener noreferrer" aria-label="'+meta.name+'のみんかぶを小窓で開く">みんかぶ</a><span class="fund-popup-note" role="status"></span></div></div></div>'+(m.historyNote?'<p class="fund-chart-note">'+esc(m.historyNote)+'</p>':'')+(m.error?'<details class="history-details"><summary>取得エラー</summary>'+esc(m.error)+'</details>':'')+'</article>';
 }
 export function openFundReference(a){
  const s=window.screen,aw=Number(s.availWidth)||1280,ah=Number(s.availHeight)||800;

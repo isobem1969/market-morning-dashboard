@@ -98,3 +98,6 @@
 
 /* Alert color belongs to the outer tile; enclosed reading fields remain white. */
 .vix-card.alert :is(.vix-value,.vix-legend li,.fear-interpretation,.vi-interpretation,.fear-explanation,.vi-explanation){background:#fff}
+
+/* Secondary wording in indicator titles. */
+.card-title .title-detail{font-size:.55em;font-weight:400;letter-spacing:0;line-height:1.4}
