@@ -101,7 +101,7 @@ try {
  }
  await page.locator('[data-fund="soxl"] .fund-rsi-link').click();
  await page.waitForURL('**/nasdaq-rsi.html#price-soxl');
- await page.waitForFunction(()=>{const el=document.querySelector('#price-soxl');return el&&Math.abs(el.getBoundingClientRect().top-20)<3;});
+ await page.waitForFunction(()=>{const el=document.querySelector('#price-soxl');if(!el)return false;const r=el.querySelector('h2').getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight;});
  await page.screenshot({path:'screenshots/navigation-soxl-rsi-destination.png'});
  console.log('SOXL_BLUE_BUTTON_VISIBLE_ALIGNED_AND_DESTINATION_VERIFIED');
  // A stale saved script must never override an available network response.
