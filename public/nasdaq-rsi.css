@@ -8,3 +8,12 @@
 
 
 @media(min-width:1200px){.price-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.price-grid .quote{font-size:32px}.price-grid .previous{font-size:20px}}
+
+/* Indicator names link to their matching morning panels. */
+.price-title{align-items:flex-start}
+.price-title h2{flex:1;min-width:0}
+.price-title>a{flex-shrink:0;padding-top:14px}
+.price-title .indicator-panel-link,.indicator-panel-link{display:flex;flex-direction:column;gap:4px;background:#e5f0ff;border:1px solid #d5e7fc;border-radius:12px;padding:10px 14px;color:var(--blue);text-decoration:none;font-size:inherit;line-height:1.35;min-height:44px}
+.indicator-panel-link small{font-size:13px;font-weight:650;text-decoration:underline;text-underline-offset:3px}
+.indicator-panel-link:hover{background:#d5e7ff}
+@media(max-width:650px){.price-title{flex-wrap:nowrap}.price-title>a{font-size:12px}.indicator-panel-link{padding:10px 12px}}

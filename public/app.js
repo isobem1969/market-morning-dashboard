@@ -49,6 +49,19 @@ function vixCard(m,q,sig,change){
   const url=/^https:\/\//.test(m.sourceUrl)?m.sourceUrl:'#';
   return `<article class="card vix-card ${q.usable?sig.tone:''}" data-band="${band?.key||'unknown'}" aria-label="${escape(m.name)}" style="--vix-color:${band?.color||'#61757d'}"><div class="card-head"><h3 class="card-title">VIX（恐怖指数）<span class="indicator-threshold">≧30</span></h3><span class="vix-close">米国市場・日次終値</span></div><div class="vix-layout"><div class="vix-reading"><div class="value vix-value">${valuePair(m,v=>format(v,'vix'))}</div><div class="change vix-change ${m.change>0?'up':m.change<0?'down':''}">${change}</div><div class="badge vix-badge">${band?band.label:escape(sig.text)}</div><ul class="vix-legend" aria-label="VIXの数値による色分け">${legend}</ul><p class="vix-guide">区分は添付画像に沿った目安です。境界値は数値の高い区分（15は青、20は黄）。10未満も緑で表示します。</p></div><div class="vix-plot"><div class="vix-plot-head"><strong>VIXの推移</strong><div class="range vix-range" aria-label="VIXグラフの期間">${[3,6,12].map(n=>`<button type="button" data-vix-months="${n}" class="${n===vixMonths?'selected':''}" aria-pressed="${n===vixMonths}">${n===12?'1年':n+'か月'}</button>`).join('')}</div></div>${vixChart(ps)}<p class="vix-series-note">選択期間内の取得済み終値を表示。休場日の値は補間しません。</p><details class="history-details"><summary>VIXの数値の推移を見る</summary><table aria-label="VIXの日次推移"><tbody>${ps.length?ps.slice().reverse().map(p=>`<tr><td>${escape(p.date)}</td><td style="color:${vixBand(p.value).color};font-weight:750">${format(p.value,'vix')}</td></tr>`).join(''):'<tr><td>未取得</td></tr>'}</tbody></table></details></div></div><div class="meta vix-meta"><p class="quality">${q.usable?'●':'⚠'} ${escape(q.label)}</p><span>公表 ${datetime(m.asOf)} · 取得成功 ${datetime(m.lastSuccess)}</span><a href="${escape(url)}" target="_blank" rel="noopener noreferrer">${escape(m.source)} ↗</a>${m.error?`<details><summary>取得エラー</summary>${escape(m.error)}</details>`:''}</div></article>`;
 }
+let pendingPanelHash=location.hash;
+function jumpToPanel(hash){
+  if(!/^#metric-(nasdaq|tqqq|soxl)$/.test(hash))return;
+  const panel=document.getElementById(hash.slice(1));
+  if(!panel){pendingPanelHash=hash;return;}
+  pendingPanelHash='';
+  requestAnimationFrame(()=>{
+    panel.scrollIntoView({block:'start',behavior:'instant'});
+    panel.focus({preventScroll:true});
+  });
+}
+window.addEventListener('hashchange',()=>jumpToPanel(location.hash));
+window.addEventListener('morning-panel-jump',e=>jumpToPanel(e.detail));
 function render(){
   if(!data)return;
   const ms=metrics(),now=Date.now(),ov=overall(ms,now,data.generatedAt,offline);
@@ -77,6 +90,11 @@ function render(){
     const url=/^https:\/\//.test(m.sourceUrl)?m.sourceUrl:'#';
     return `<article class="card large-market-card ${sig.tone}" data-metric="${m.id}" aria-label="${escape(m.name)}"><div class="card-head"><h3 class="card-title">${escape(m.name)}</h3><span class="icon" aria-hidden="true">${icons[m.id]||'•'}</span></div><div class="value ${m.change>0?'up':m.change<0?'down':''}">${valuePair(m,v=>format(v,m.id))}</div><div class="unit">${escape(m.unit)}</div><div class="change${isFund?' fund-change':''} ${m.change>0?'up':m.change<0?'down':''}">${change}</div><span class="badge">${escape(sig.text)}</span>${peak}${marketChart(m,marketPeriod)}<div class="meta"><p class="quality">${q.usable?'●':'⚠'} ${escape(q.label)}</p><div>${escape(descriptions[m.id])}</div><div>${escape(m.kind||'未取得')} · ${datetime(m.asOf)}</div><div>取得成功 ${datetime(m.lastSuccess)}</div><a href="${escape(url)}" target="_blank" rel="noopener noreferrer">${escape(m.source)} ↗</a>${m.error?`<details><summary>取得エラー</summary>${escape(m.error)}</details>`:''}</div><details class="history-details"><summary>数値の推移を見る</summary><table aria-label="${escape(m.name)}の日次推移"><tbody>${history.length?history.slice().reverse().map(p=>`<tr><td>${escape(p.date)}</td><td>${format(p.value,m.id)}</td></tr>`).join(''):'<tr><td>未取得</td></tr>'}</tbody></table></details></article>`;
   }).join('');
+  for(const id of ['nasdaq','tqqq','soxl']){
+    const panel=document.querySelector(`[data-fund="${id}"]`);
+    if(panel){panel.id='metric-'+id;panel.tabIndex=-1;panel.style.scrollMarginTop='20px';}
+  }
+  if(pendingPanelHash)jumpToPanel(pendingPanelHash);
 }
 async function refresh(){
   if(loading)return;loading=true;$('#refresh').disabled=true;
