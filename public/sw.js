@@ -1,4 +1,4 @@
-const CACHE='market-morning-shell-fresh-soxl-20261114';
+const CACHE='market-morning-rsi-links-scroll-20261114';
 const SHELL=['./','./nasdaq-rsi.html','./nasdaq-rsi.js','./nasdaq-rsi.css','./page-ready-alert.js','./page-ready-alert.css','./page-warm.js','./shared-data.js','./change-format.js','./market-panel.js','./heatmap.js','./heatmap-universe.json','./stock-chart.js','./analyst-panel.js','./heatmap.html','./page-tabs.css','./index.html','./float-controls.js','./float-controls.css','./value-pair.js','./value-pair.css','./stocks-reference.html','./stocks-reference.js','./stock-alerts.js','./style.css','./app.js','./logic.js','./fear-panel.js','./vi-panel.js','./fund-panel.js','./drawdown-panel.js','./fund-panel.css','./stocks.html','./stocks.css','./stocks.js','./stocks-logic.js','./stocks-research.js','./research-import.js','./research-ui.js','./manifest.webmanifest','./icon.svg','./icon-192.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL.map(url=>new Request(url,{cache:'reload'})))).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',e=>{e.waitUntil((async()=>{

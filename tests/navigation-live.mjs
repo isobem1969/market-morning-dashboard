@@ -9,7 +9,7 @@ page.on('crash',()=>errors.push('renderer crashed'));
 const base='https://isobem1969.github.io/market-morning-dashboard/';
 await fs.mkdir('screenshots',{recursive:true});
 try {
- for(let attempt=0;attempt<90;attempt++){const response=await fetch(base+'sw.js?t='+Date.now());if((await response.text()).includes('shell-fresh-soxl-20261114'))break;await new Promise(r=>setTimeout(r,3000));}
+ for(let attempt=0;attempt<90;attempt++){const response=await fetch(base+'sw.js?t='+Date.now());if((await response.text()).includes('rsi-links-scroll-20261114'))break;await new Promise(r=>setTimeout(r,3000));}
  await page.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForFunction(()=>document.querySelector('#page-preload-status')?.textContent==='米国株：準備完了 ／ ヒートマップ：準備完了 ／ NASDAQ100・RSI：準備完了',null,{timeout:30000});
  await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.state==='ready',null,{timeout:30000});
@@ -81,29 +81,57 @@ try {
  await page.setViewportSize({width:1440,height:1000});
  await page.screenshot({path:'screenshots/navigation-rsi-desktop.png'});
 
- // Verify the bottom-left blue button beside the original orange reference.
+ // Each matching fund has a left blue RSI link and a right reference button.
  await rsi.locator('.morning-pages a[href="./"]').click();
  assert.equal(await page.locator('header .subtitle').count(),0);
  assert.equal(await page.getByRole('heading',{name:'14の指標',exact:true}).count(),0);
  for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){
   await page.setViewportSize(viewport);
-  const row=page.locator('[data-fund="soxl"] .fund-reference-row');
-  await row.scrollIntoViewIfNeeded();
-  const blue=row.locator('.fund-rsi-link'),orange=row.locator('[data-fund-minkabu="soxl"]');
-  await blue.waitFor({state:'visible'});await orange.waitFor({state:'visible'});
-  const b=await blue.boundingBox(),o=await orange.boundingBox();
-  assert.ok(Math.abs(b.y-o.y)<2,'Buttons must share the same top edge');
-  assert.ok(Math.abs(b.height-o.height)<2,'Buttons must have the same height');
-  assert.ok(b.x+b.width<o.x,'Blue button must be left of the orange button');
-  assert.ok(b.x>=0&&o.x+o.width<=viewport.width,'Both buttons must fit the viewport');
-  assert.notEqual(await blue.evaluate(e=>getComputedStyle(e).backgroundColor),await orange.evaluate(e=>getComputedStyle(e).backgroundColor));
-  await row.screenshot({path:'screenshots/navigation-soxl-buttons-'+viewport.width+'.png'});
+  for(const [fund,target] of [['nasdaq','ndx'],['tqqq','tqqq'],['soxl','soxl']]){
+   const row=page.locator('[data-fund="'+fund+'"] .fund-reference-row');
+   await row.scrollIntoViewIfNeeded();
+   const blue=row.locator('.fund-rsi-link'),orange=row.locator('[data-fund-minkabu="'+fund+'"]');
+   const b=await blue.boundingBox(),o=await orange.boundingBox();
+   assert.ok(Math.abs(b.y-o.y)<2&&Math.abs(b.height-o.height)<2,'Buttons must align: '+fund);
+   assert.ok(b.x+b.width<o.x&&b.x>=0&&o.x+o.width<=viewport.width,'Buttons must fit: '+fund);
+   assert.equal(await blue.getAttribute('href'),'./nasdaq-rsi.html#price-'+target);
+   await row.screenshot({path:'screenshots/navigation-'+fund+'-buttons-'+viewport.width+'.png'});
+  }
  }
- await page.locator('[data-fund="soxl"] .fund-rsi-link').click();
- await page.waitForURL('**/nasdaq-rsi.html#price-soxl');
- await page.waitForFunction(()=>{const el=document.querySelector('#price-soxl');if(!el)return false;const r=el.querySelector('h2').getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight;});
- await page.screenshot({path:'screenshots/navigation-soxl-rsi-destination.png'});
- console.log('SOXL_BLUE_BUTTON_VISIBLE_ALIGNED_AND_DESTINATION_VERIFIED');
+ // Exercise both floating controls inside every page, including prewarmed frames.
+ async function checkScroll(surface,name){
+  const up=surface.locator('#back-to-top'),down=surface.locator('#go-to-bottom');
+  if(await up.isEnabled()){await up.click();await page.waitForTimeout(100);}
+  await down.click();
+  await page.waitForTimeout(100);
+  assert.equal(await down.isDisabled(),true,'Down reaches the bottom: '+name);
+  assert.equal(await up.isEnabled(),true);
+  await surface.locator('#page-scroll-controls').screenshot({path:'screenshots/navigation-scroll-'+name+'.png'});
+  await up.click();await page.waitForTimeout(100);
+  assert.equal(await up.isDisabled(),true,'Up reaches the top: '+name);
+  assert.equal(await down.isEnabled(),true);
+ }
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await checkScroll(page,'indicators');
+ await page.locator('.morning-pages a[href="./stocks-reference.html"]').click();
+ await checkScroll(stockFrame,'stocks');
+ await stockFrame.locator('.morning-pages a[href="./heatmap.html"]').click();
+ const heatFrame=page.frameLocator('iframe[data-morning-page="heatmap"]');
+ await checkScroll(heatFrame,'heatmap');
+ await heatFrame.locator('.morning-pages a[href="./nasdaq-rsi.html"]').click();
+ await checkScroll(rsi,'rsi');
+ await rsi.locator('.morning-pages a[href="./"]').click();
+ for(const [fund,target] of [['nasdaq','ndx'],['tqqq','tqqq'],['soxl','soxl']]){
+  await page.locator('[data-fund="'+fund+'"] .fund-rsi-link').click();
+  await page.waitForURL('**/nasdaq-rsi.html#price-'+target);
+  await page.waitForFunction(id=>{const el=document.getElementById(id);if(!el)return false;const r=el.querySelector('h2').getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight;},'price-'+target);
+  await page.screenshot({path:'screenshots/navigation-rsi-destination-'+fund+'.png'});
+  if(fund!=='soxl'){
+   await page.locator('.morning-pages a[href="./"]').click();
+   await page.locator('[data-fund="'+fund+'"] .fund-rsi-link').waitFor();
+  }
+ }
+ console.log('THREE_RSI_LINKS_AND_FOUR_PAGE_SCROLL_CONTROLS_VERIFIED');
  // A stale saved script must never override an available network response.
  await page.waitForFunction(()=>!!navigator.serviceWorker.controller);
  await page.evaluate(async()=>{
