@@ -5,6 +5,8 @@ on:
       - '.github/workflows/verify-navigation.yml'
       - 'tests/navigation-live.mjs'
       - 'public/page-ready-alert.*'
+      - 'public/sw.js'
+      - 'public/fund-panel.*'
       - 'tests/ready-alert.test.js'
   workflow_dispatch:
 permissions:
@@ -12,7 +14,7 @@ permissions:
 jobs:
   browser:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

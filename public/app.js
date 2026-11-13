@@ -2,7 +2,7 @@ import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {changePercent,percentLine} from './change-format.js?v=twoline-20261007';
 import {marketChart,marketHover,selectMarketHistory} from './market-panel.js?v=ranges-20261007';
-import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=soxl-rsi-button-20261114';
+import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=shell-fresh-soxl-20261114';
 import {viCard} from './vi-panel.js?v=names-type-20261114';
 import {fearCard} from './fear-panel.js?v=names-type-20261114';
 import {quality,signal,overall,VIX_BANDS,vixBand,selectVixHistory} from './logic.js?v=vix-20261006';

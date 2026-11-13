@@ -9,7 +9,7 @@ page.on('crash',()=>errors.push('renderer crashed'));
 const base='https://isobem1969.github.io/market-morning-dashboard/';
 await fs.mkdir('screenshots',{recursive:true});
 try {
- for(let attempt=0;attempt<40;attempt++){const response=await fetch(base+'sw.js?t='+Date.now());if((await response.text()).includes('soxl-20261113'))break;await new Promise(r=>setTimeout(r,3000));}
+ for(let attempt=0;attempt<90;attempt++){const response=await fetch(base+'sw.js?t='+Date.now());if((await response.text()).includes('shell-fresh-soxl-20261114'))break;await new Promise(r=>setTimeout(r,3000));}
  await page.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForFunction(()=>document.querySelector('#page-preload-status')?.textContent==='米国株：準備完了 ／ ヒートマップ：準備完了 ／ NASDAQ100・RSI：準備完了',null,{timeout:30000});
  await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.state==='ready',null,{timeout:30000});
@@ -21,7 +21,7 @@ try {
  await soxl.locator('.drawdown-chart').waitFor({timeout:15000});
  assert.equal(await soxl.locator('.drawdown-chart').count(),1);
  assert.equal(await soxl.locator('[data-ma]').count(),2);
- assert.equal(await soxl.locator('.fund-minkabu').getAttribute('href'),'https://us.minkabu.jp/stocks/SOXL');
+ assert.equal(await soxl.locator('[data-fund-minkabu="soxl"]').getAttribute('href'),'https://us.minkabu.jp/stocks/SOXL');
  await soxl.locator('[data-fund-period="1y"]').click();
  assert.equal(await soxl.locator('[data-fund-high-period="1y"]').count(),1);
  const soxlWidth=await soxl.evaluate(e=>({right:e.getBoundingClientRect().right,width:innerWidth}));
@@ -42,6 +42,18 @@ try {
  console.log('STOCKS_DISPLAYED',13,'NAVIGATION_MS',stockMs,'NETWORK_DELAY_MS',8000);
  await page.screenshot({path:'screenshots/navigation-stocks.png'});
  assert.ok(stockMs<1500,'Stock rendering waited for the delayed network request');
+
+ // Alert summaries must scroll inside the prepared stocks frame.
+ const stockFrame=page.frameLocator('iframe[data-morning-page="stocks"]');
+ const alertLinks=stockFrame.locator('#stock-alert-list a');
+ const alertCount=await alertLinks.count();assert.ok(alertCount>0,'Expected current alert summaries');
+ for(let i=0;i<alertCount;i++){
+  const href=await alertLinks.nth(i).getAttribute('href');await alertLinks.nth(i).click();
+  await page.waitForFunction(id=>{const doc=document.querySelector('iframe[data-morning-page="stocks"]').contentDocument;const el=doc.querySelector(id);return el&&Math.abs(el.getBoundingClientRect().top-16)<3;},href);
+ }
+ assert.equal(await stockFrame.locator('header .subtitle').count(),0);
+ console.log('ALL_ALERT_SUMMARY_PANEL_JUMPS_VERIFIED',alertCount);
+
  started=Date.now();
  await page.frameLocator('iframe[data-morning-page="stocks"]').locator('.morning-pages a[href="./heatmap.html"]').click();
  await page.waitForFunction(()=>document.querySelector('iframe[data-morning-page="heatmap"]')?.style.visibility==='visible',null,{timeout:15000});
@@ -68,6 +80,42 @@ try {
  await page.screenshot({path:'screenshots/navigation-rsi-mobile.png'});
  await page.setViewportSize({width:1440,height:1000});
  await page.screenshot({path:'screenshots/navigation-rsi-desktop.png'});
+
+ // Verify the bottom-left blue button beside the original orange reference.
+ await rsi.locator('.morning-pages a[href="./"]').click();
+ assert.equal(await page.locator('header .subtitle').count(),0);
+ assert.equal(await page.getByRole('heading',{name:'14の指標',exact:true}).count(),0);
+ for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){
+  await page.setViewportSize(viewport);
+  const row=page.locator('[data-fund="soxl"] .fund-reference-row');
+  await row.scrollIntoViewIfNeeded();
+  const blue=row.locator('.fund-rsi-link'),orange=row.locator('[data-fund-minkabu="soxl"]');
+  await blue.waitFor({state:'visible'});await orange.waitFor({state:'visible'});
+  const b=await blue.boundingBox(),o=await orange.boundingBox();
+  assert.ok(Math.abs(b.y-o.y)<2,'Buttons must share the same top edge');
+  assert.ok(Math.abs(b.height-o.height)<2,'Buttons must have the same height');
+  assert.ok(b.x+b.width<o.x,'Blue button must be left of the orange button');
+  assert.ok(b.x>=0&&o.x+o.width<=viewport.width,'Both buttons must fit the viewport');
+  assert.notEqual(await blue.evaluate(e=>getComputedStyle(e).backgroundColor),await orange.evaluate(e=>getComputedStyle(e).backgroundColor));
+  await row.screenshot({path:'screenshots/navigation-soxl-buttons-'+viewport.width+'.png'});
+ }
+ await page.locator('[data-fund="soxl"] .fund-rsi-link').click();
+ await page.waitForURL('**/nasdaq-rsi.html#price-soxl');
+ await page.waitForFunction(()=>{const el=document.querySelector('#price-soxl');return el&&Math.abs(el.getBoundingClientRect().top-20)<3;});
+ await page.screenshot({path:'screenshots/navigation-soxl-rsi-destination.png'});
+ console.log('SOXL_BLUE_BUTTON_VISIBLE_ALIGNED_AND_DESTINATION_VERIFIED');
+ // A stale saved script must never override an available network response.
+ await page.waitForFunction(()=>!!navigator.serviceWorker.controller);
+ await page.evaluate(async()=>{
+  await navigator.serviceWorker.ready;
+  const name=(await caches.keys()).find(k=>k.startsWith('market-morning-')&&k!=='market-morning-snapshots-v1');
+  const cache=await caches.open(name);
+  await cache.put(new URL('./fund-panel.js',location.href).href,new Response('STALE_TEST_SCRIPT',{headers:{'Content-Type':'text/javascript'}}));
+ });
+ const moduleText=await page.evaluate(async()=>await (await fetch('./fund-panel.js')).text());
+ assert.ok(moduleText.includes('fund-rsi-link'),'Fresh module must override stale saved module');
+ console.log('STALE_SHELL_RECOVERY_VERIFIED');
+
  assert.deepEqual(errors,[]);
  console.log('NAVIGATION_VERIFIED_NO_PAGE_ERRORS');
  const failureContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true});
