@@ -4,6 +4,7 @@ on:
     paths:
       - '.github/workflows/verify-navigation.yml'
       - 'tests/navigation-live.mjs'
+      - 'tests/progress-browser.mjs'
       - 'public/page-ready-alert.*'
       - 'public/sw.js'
       - 'public/fund-panel.*'
@@ -23,6 +24,9 @@ jobs:
       - run: npm install --no-save --ignore-scripts playwright@1.62.1
       - run: npx playwright install --with-deps chromium webkit
       - run: node --test tests/ready-alert.test.js
+      - run: node tests/progress-browser.mjs
+      - run: BROWSER=webkit node tests/progress-browser.mjs
+        if: always()
       - run: node tests/navigation-live.mjs
       - run: BROWSER=webkit node tests/navigation-live.mjs
         if: always()

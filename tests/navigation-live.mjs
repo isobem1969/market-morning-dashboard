@@ -9,7 +9,7 @@ page.on('crash',()=>errors.push('renderer crashed'));
 const base='https://isobem1969.github.io/market-morning-dashboard/';
 await fs.mkdir('screenshots',{recursive:true});
 try {
- for(let attempt=0;attempt<90;attempt++){const response=await fetch(base+'sw.js?t='+Date.now());if((await response.text()).includes('aligned-navigation-20261114'))break;await new Promise(r=>setTimeout(r,3000));}
+ for(let attempt=0;attempt<90;attempt++){const response=await fetch(base+'sw.js?t='+Date.now());if((await response.text()).includes('staged-progress-20261115'))break;await new Promise(r=>setTimeout(r,3000));}
  await page.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForFunction(()=>document.querySelector('#page-preload-status')?.textContent==='米国株：準備完了 ／ ヒートマップ：準備完了 ／ NASDAQ100・RSI：準備完了',null,{timeout:30000});
  try{await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.state==='ready',null,{timeout:20000});}
@@ -175,7 +175,7 @@ try {
  await failurePage.route('**/data/stocks.json*',route=>route.abort());
  await failurePage.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
  await failurePage.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.state==='partial',null,{timeout:30000});
- assert.equal(await failurePage.locator('#ready-alert-title').textContent(),'一部のページが未完了です');
+ assert.equal(await failurePage.locator('#ready-alert-title').textContent(),'一部の更新を確認できません');
  await failurePage.screenshot({path:'screenshots/navigation-partial-alert.png'});
  console.log('READY_ALERT_FETCH_FAILURE_VERIFIED');
  await failureContext.close();

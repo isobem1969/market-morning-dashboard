@@ -20,3 +20,18 @@ test('RSI alone being incomplete prevents a green four-page banner',()=>{
  assert.equal(readiness({market:ready,stocks:ready,heatmap:ready,rsi:{...ready,fresh:false}}).kind,'loading');
  assert.equal(readiness({market:ready,stocks:ready,heatmap:ready,rsi:{...ready,failed:true}}).kind,'partial');
 });
+
+test('three real checkpoints per page and twelve total',()=>{
+ const p={market:{fresh:true,charts:false,painted:false}};
+ assert.equal(readiness(p).done,1);
+ p.market.charts=true;assert.equal(readiness(p).done,2);
+ p.market.painted=true;assert.equal(readiness(p).done,3);
+ assert.equal(readiness(p).complete,1);
+ const all=Object.fromEntries(['market','stocks','heatmap','rsi'].map(k=>[k,p.market]));
+ assert.equal(readiness(all).done,12);assert.equal(readiness(all).phase,'complete');
+});
+test('slow work and failed updates are distinct and never green',()=>{
+ assert.equal(readiness({},20000).phase,'stalled');
+ assert.equal(readiness({market:{failed:true}},20000).phase,'failed');
+ assert.equal(readiness({market:{fresh:true,charts:true,painted:false}},100).phase,'working');
+});
