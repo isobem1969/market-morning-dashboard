@@ -1,4 +1,4 @@
-import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=nasdaq-rsi-20261113';
+import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=staged-progress-20261115';
 const $=id=>document.getElementById(id),fmt=(n,d=1)=>Number.isFinite(n)?n.toLocaleString('ja-JP',{minimumFractionDigits:d,maximumFractionDigits:d}):'—';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let data=null,period=104,usable=false;
@@ -56,6 +56,7 @@ function render(next){
  $('rsi-content').innerHTML=`${usable?'':`<div class="warning">保存済みデータを表示しています。取得失敗またはデータが古いため、現在の条件判定は保留です。<br>最終取得：${updated}（日本時間）</div>`}<div class="hero-grid"><section class="panel hero ${usable?state.kind:''}"><h2>確定した週足RSI（14週）</h2><div class="rsi-asof">確定週の最終取引日：${data.confirmed.date}（米国）</div><div class="value-box"><div class="value-row"><span class="previous">${fmt(data.previous.rsi)}</span><span class="arrow">→</span><strong class="rsi-value">${fmt(data.confirmed.rsi)}</strong></div><div class="delta ${delta>0?'positive':delta<0?'negative':''}">${delta>0?'▲ +':delta<0?'▼ ':''}${fmt(delta)} <small>前週比</small></div></div><span class="status-badge ${state.kind}">${usable?state.label:'判定保留'}</span><p class="caption">前週 ${data.previous.date} → 最新確定週 ${data.confirmed.date}</p></section><section class="panel"><h2>今週の暫定RSI <span class="unconfirmed">未確定</span></h2><div class="provisional-value">${p?fmt(p.rsi):'—'}</div><p class="caption">${p?`${p.date}までの通常取引価格から算出。<br>確定RSIとの差：${fmt(p.rsi-data.confirmed.rsi)}ポイント。`:'表示する暫定値はありません。確定した値は「確定した週足RSI」を確認してください。'}</p><p class="caption">今週の最終取引が終了するまでは変わります。<br>開始日・継続週数の判定には使用しません。</p></section></div><section class="panel"><div class="chart-heading"><h2>週足RSIの推移</h2><div class="periods">${[[52,'1年'],[104,'2年'],[260,'5年'],[520,'10年']].map(([v,t])=>`<button data-weeks="${v}" aria-pressed="${v===period}">${t}</button>`).join('')}</div></div><div class="chart-wrap" id="rsi-chart"></div><div class="chart-info" id="chart-info">グラフを指で触れる／マウスを重ねると日付とRSIを確認できます。</div><p class="caption">濃紺：確定値 ／ オレンジの点線：今週の未確定値。40・35・30、75・80・85の水平線を表示。</p></section><div class="watch-grid">${watch('buy')}${watch('sell')}</div><div class="price-grid">${price('ndx','NASDAQ100','%5ENDX')}${price('tqqq','TQQQ','TQQQ')}${price('soxl','SOXL','SOXL')}</div>`;
  document.querySelectorAll('[data-weeks]').forEach(b=>b.addEventListener('click',()=>{period=Number(b.dataset.weeks);drawChart();}));drawChart();
  jumpToPrice();
+ (window.__morningRenderState||(window.__morningRenderState={})).rsi={generatedAt:data.generatedAt};
  if(!usable)(window.__morningPreloadState||={}).rsi='再確認が必要';
 }
 async function refresh(){
@@ -67,3 +68,5 @@ void refresh();void prefetchOtherPages('rsi');$('refresh').addEventListener('cli
 let lastResume=0;document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-lastResume>60000){lastResume=Date.now();void refresh();}});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 
+
+window.addEventListener('morning-refresh',refresh);window.__morningRefreshReady=true;

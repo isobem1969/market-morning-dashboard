@@ -51,6 +51,7 @@ export function updateSnapshot(name){
    // A lagging CDN response must not overwrite a newer prefetched snapshot.
    const value=previous&&Date.parse(previous.generatedAt)>Date.parse(next.generatedAt)?previous:next;
    remember(name,value);states[name]='準備完了';
+   (globalThis.__morningDataState||(globalThis.__morningDataState={}))[name]={generatedAt:value.generatedAt,checkedAt:Date.now()};
    void (async()=>{try{const cache=await caches.open(cacheName);await cache.put('./data/'+definitions[name].file,new Response(JSON.stringify(value),{headers:{'Content-Type':'application/json'}}));}catch{}})();
    return value;
   }catch(error){states[name]='再確認が必要';throw error;}finally{clearTimeout(timer);}

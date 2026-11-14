@@ -1,4 +1,4 @@
-import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=early-prefetch-20261109';
+import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=staged-progress-20261115';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {changePercent,percentLine} from './change-format.js?v=twoline-20261007';
 import {marketChart,marketHover,selectMarketHistory} from './market-panel.js?v=ranges-20261007';
@@ -95,6 +95,7 @@ function render(){
     if(panel){panel.id='metric-'+id;panel.tabIndex=-1;panel.style.scrollMarginTop='20px';}
   }
   if(pendingPanelHash)jumpToPanel(pendingPanelHash);
+  (window.__morningRenderState||(window.__morningRenderState={})).market={generatedAt:data.generatedAt};
 }
 async function refresh(){
   if(loading)return;loading=true;$('#refresh').disabled=true;
@@ -149,3 +150,5 @@ watchValuePairs(document.querySelector('#cards'));
 
 
 
+
+window.addEventListener('morning-refresh',refresh);window.__morningRefreshReady=true;
