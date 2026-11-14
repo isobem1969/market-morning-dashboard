@@ -184,6 +184,7 @@ try {
  await rsiFailurePage.route('**/data/nasdaq-rsi.json*',route=>route.abort());
  await rsiFailurePage.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
  await rsiFailurePage.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.state==='partial',null,{timeout:30000});
+ await rsiFailurePage.waitForFunction(()=>document.querySelector('#ready-alert-pages')?.textContent.includes('! NASDAQ100・RSI'),null,{timeout:30000});
  assert.ok((await rsiFailurePage.locator('#ready-alert-pages').textContent()).includes('! NASDAQ100・RSI'));
  console.log('RSI_FAILURE_FOUR_PAGE_BANNER_VERIFIED');
  await rsiFailureContext.close();

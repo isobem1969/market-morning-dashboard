@@ -25,6 +25,7 @@ jobs:
       - run: node --test tests/ready-alert.test.js
       - run: node tests/navigation-live.mjs
       - run: BROWSER=webkit node tests/navigation-live.mjs
+        if: always()
       - uses: actions/upload-artifact@v4
         if: always()
         with:
