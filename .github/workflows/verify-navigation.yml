@@ -6,6 +6,7 @@ on:
       - 'tests/navigation-live.mjs'
       - 'tests/progress-browser.mjs'
       - 'public/page-ready-alert.*'
+      - 'public/page-warm.js'
       - 'public/sw.js'
       - 'public/fund-panel.*'
       - 'tests/ready-alert.test.js'
@@ -21,7 +22,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --no-save --ignore-scripts playwright@1.62.1
+      - run: npm install --no-save --ignore-scripts playwright@1.62.1 pngjs@7.0.0
       - run: npx playwright install --with-deps chromium webkit
       - run: node --test tests/ready-alert.test.js
       - run: node tests/progress-browser.mjs

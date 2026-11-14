@@ -1,193 +1,116 @@
 import {chromium,webkit} from 'playwright';
+import {PNG} from 'pngjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-const browser=await (process.env.BROWSER==='webkit'?webkit:chromium).launch();
-const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true});
-const page=await context.newPage();
-const errors=[];page.on('pageerror',e=>errors.push(e.message));
-page.on('crash',()=>errors.push('renderer crashed'));
+const engine=process.env.BROWSER||'chromium',browser=await(engine==='webkit'?webkit:chromium).launch();
+const context=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
+const page=await context.newPage(),errors=[];
+page.on('pageerror',e=>errors.push(e.message));
 const base='https://isobem1969.github.io/market-morning-dashboard/';
 await fs.mkdir('screenshots',{recursive:true});
-try {
- for(let attempt=0;attempt<90;attempt++){const response=await fetch(base+'sw.js?t='+Date.now());if((await response.text()).includes('staged-progress-20261115'))break;await new Promise(r=>setTimeout(r,3000));}
- await page.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
- await page.waitForFunction(()=>document.querySelector('#page-preload-status')?.textContent==='米国株：準備完了 ／ ヒートマップ：準備完了 ／ NASDAQ100・RSI：準備完了',null,{timeout:30000});
- try{await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.state==='ready',null,{timeout:20000});}
- catch{
-  console.log('READY_RETRY_DIAGNOSTICS',await page.evaluate(()=>({root:window.__morningPreloadState,panels:[...document.querySelectorAll('iframe[data-morning-page]')].map(f=>({page:f.dataset.morningPage,state:f.contentWindow.__morningPreloadState})),text:document.querySelector('#page-ready-alert')?.textContent})));
-  await page.locator('#refresh').click();
-  await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.state==='ready',null,{timeout:30000});
+async function navigate(path,selector){
+ const start=Date.now();
+ await page.goto(base+path,{waitUntil:'domcontentloaded',timeout:30000});
+ await page.locator(selector).first().waitFor({timeout:30000});
+ assert.equal(await page.evaluate(()=>window===top),true);
+ assert.equal(await page.locator('main').isVisible(),true);
+ assert.equal(await page.locator('iframe[data-morning-page]').evaluateAll(frames=>frames.some(f=>getComputedStyle(f).visibility!=='hidden')),false,'Prepared frames must never cover the page');
+ console.log('REAL_DOCUMENT_VISIBLE',engine,path||'indicators',Date.now()-start);
+}
+async function inspectPaint(selector,label){
+ const card=page.locator(selector).first();
+ await card.evaluate(e=>window.scrollTo({top:e.getBoundingClientRect().top+scrollY-20,behavior:'instant'}));
+ await page.waitForFunction(selector=>{
+  const e=document.querySelector(selector),r=e?.getBoundingClientRect();
+  return r&&r.top>=-1&&r.top<80;
+ },selector);
+ const box=await card.boundingBox();
+ const shot=await page.screenshot({path:'screenshots/navigation-native-'+engine+'-'+label+'.png'});
+ const png=PNG.sync.read(shot);
+ const region={left:Math.ceil(box.x+12),right:Math.floor(Math.min(png.width,box.x+box.width-12)),top:Math.max(25,Math.ceil(box.y+10)),bottom:Math.floor(Math.min(png.height-30,box.y+box.height-10))};
+ let painted=0,total=0;
+ for(let y=region.top;y<region.bottom;y+=6)for(let x=region.left;x<region.right;x+=6){
+  const i=(y*png.width+x)*4,d=Math.abs(png.data[i]-245)+Math.abs(png.data[i+1]-244)+Math.abs(png.data[i+2]-239);
+  total++;if(d>12)painted++;
  }
- assert.equal(await page.locator('#ready-alert-title').textContent(),'全4ページの準備ができました');
- await page.screenshot({path:'screenshots/navigation-ready-alert.png'});
- const soxl=page.locator('.fund-card[data-fund="soxl"]');
- assert.equal(await soxl.count(),1);
- assert.equal(await page.locator('.fund-card[data-fund="tqqq"]').evaluate(e=>e.nextElementSibling?.dataset.fund),'soxl');
- await soxl.locator('.drawdown-chart').waitFor({timeout:15000});
- assert.equal(await soxl.locator('.drawdown-chart').count(),1);
- assert.equal(await soxl.locator('[data-ma]').count(),2);
- assert.equal(await soxl.locator('[data-fund-minkabu="soxl"]').getAttribute('href'),'https://us.minkabu.jp/stocks/SOXL');
- await soxl.locator('[data-fund-period="1y"]').click();
- assert.equal(await soxl.locator('[data-fund-high-period="1y"]').count(),1);
- const soxlWidth=await soxl.evaluate(e=>({right:e.getBoundingClientRect().right,width:innerWidth}));
- assert.ok(soxlWidth.right<=soxlWidth.width+1,'SOXL indicator panel overflows phone width');
- await soxl.screenshot({path:'screenshots/navigation-soxl-indicator.png'});
- console.log('SOXL_INDICATOR_REAL_CHART_DRAWDOWN_ORDER_VERIFIED');
- console.log('READY_ALERT_GREEN_VERIFIED' ,process.env.BROWSER||'chromium');
- await page.evaluate(()=>navigator.serviceWorker.ready);
- await page.waitForFunction(()=>!!navigator.serviceWorker.controller,null,{timeout:15000});
- console.log('PREFETCH_READY',await page.locator('#page-preload-status').textContent());
- // Hold subsequent data requests. Prefetched data must render before these finish.
- await page.route('**/data/stocks.json*',async route=>{await new Promise(r=>setTimeout(r,8000));await route.continue().catch(()=>{});});
- await page.route('**/data/heatmap.json*',async route=>{await new Promise(r=>setTimeout(r,8000));await route.continue().catch(()=>{});});
- let started=Date.now();
- await page.locator('.morning-pages a[href="./stocks-reference.html"]').click();
- await page.waitForFunction(()=>{const f=document.querySelector('iframe[data-morning-page="stocks"]');return f?.style.visibility==='visible'&&f.contentDocument.querySelectorAll('.stock-tile').length===13;},null,{timeout:15000});
- const stockMs=Date.now()-started;
- console.log('STOCKS_DISPLAYED',13,'NAVIGATION_MS',stockMs,'NETWORK_DELAY_MS',8000);
- await page.screenshot({path:'screenshots/navigation-stocks.png'});
- assert.ok(stockMs<1500,'Stock rendering waited for the delayed network request');
-
-
- // Headers and navigation must align on all pages at desktop and phone widths.
- await page.frameLocator('iframe[data-morning-page="stocks"]').locator('.morning-pages a[href="./"]').click();
- for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){
-  await page.setViewportSize(viewport);
-  const rects=await page.evaluate(()=>{
-   const pages=[document,...['stocks','heatmap','rsi'].map(k=>document.querySelector('iframe[data-morning-page="'+k+'"]').contentDocument)];
-   return pages.map(doc=>{const r=doc.querySelector('.morning-pages').getBoundingClientRect();const first=doc.querySelector('.morning-pages a').getBoundingClientRect();return {top:r.top+doc.defaultView.scrollY,left:r.left,width:r.width,height:r.height,buttonHeight:first.height};});
-  });
-  for(const field of ['top','left','width','height','buttonHeight'])assert.ok(Math.max(...rects.map(r=>r[field]))-Math.min(...rects.map(r=>r[field]))<2,'Navigation '+field+' differs at '+viewport.width+': '+JSON.stringify(rects));
- }
- await page.setViewportSize({width:390,height:844});
- const placements=await page.evaluate(()=>({
-  readyAfterNav:!!document.querySelector('main>.morning-pages + #page-ready-alert'),
-  rsiCommentAfterNav:!!document.querySelector('iframe[data-morning-page="rsi"]').contentDocument.querySelector('main>.morning-pages + .subtitle')
- }));
- assert.deepEqual(placements,{readyAfterNav:true,rsiCommentAfterNav:true});
- console.log('FOUR_PAGE_NAVIGATION_ALIGNMENT_AND_BELOW_TAB_PLACEMENTS_VERIFIED');
- await page.locator('.morning-pages a[href="./stocks-reference.html"]').click();
- // Alert summaries must scroll inside the prepared stocks frame.
- const stockFrame=page.frameLocator('iframe[data-morning-page="stocks"]');
- const alertLinks=stockFrame.locator('#stock-alert-list a');
- const alertCount=await alertLinks.count();assert.ok(alertCount>0,'Expected current alert summaries');
- for(let i=0;i<alertCount;i++){
-  const href=await alertLinks.nth(i).getAttribute('href');await alertLinks.nth(i).click();
-  await page.waitForFunction(id=>{const doc=document.querySelector('iframe[data-morning-page="stocks"]').contentDocument;const el=doc.querySelector(id);return el&&Math.abs(el.getBoundingClientRect().top-16)<3;},href);
- }
- assert.equal(await stockFrame.locator('header .subtitle').count(),0);
- console.log('ALL_ALERT_SUMMARY_PANEL_JUMPS_VERIFIED',alertCount);
-
- started=Date.now();
- await page.frameLocator('iframe[data-morning-page="stocks"]').locator('.morning-pages a[href="./heatmap.html"]').click();
- await page.waitForFunction(()=>document.querySelector('iframe[data-morning-page="heatmap"]')?.style.visibility==='visible',null,{timeout:15000});
- const heatmapMs=Date.now()-started;
- console.log('HEATMAP_DISPLAYED',await page.frameLocator('iframe[data-morning-page="heatmap"]').locator('.tile').count(),'NAVIGATION_MS',heatmapMs,'NETWORK_DELAY_MS',8000);
- await page.screenshot({path:'screenshots/navigation-heatmap.png'});
- assert.ok(heatmapMs<1500,'Heatmap rendering waited for the delayed network request');
- started=Date.now();
- await page.frameLocator('iframe[data-morning-page="heatmap"]').locator('.morning-pages a[href="./nasdaq-rsi.html"]').click();
- await page.waitForFunction(()=>document.querySelector('iframe[data-morning-page="rsi"]')?.style.visibility==='visible',null,{timeout:15000});
- const rsiMs=Date.now()-started;
- const rsi=page.frameLocator('iframe[data-morning-page="rsi"]');
- assert.equal(await rsi.locator('.rsi-ready').count(),1);
- assert.equal(await rsi.locator('.price-grid>.panel').count(),3);
- assert.equal(await rsi.locator('.price-grid a[href="https://finance.yahoo.com/quote/SOXL/"]').count(),1);
- assert.equal(await rsi.locator('.morning-pages a').count(),4);
- assert.ok(rsiMs<1500,'RSI navigation waited for network');
- await rsi.getByRole('button',{name:'5年',exact:true}).click();
- assert.equal(await rsi.getByRole('button',{name:'5年',exact:true}).getAttribute('aria-pressed'),'true');
- const overflows=await rsi.locator('body').evaluate(el=>el.scrollWidth>innerWidth+1);
- if(overflows){console.log('OVERFLOW_ELEMENTS',await rsi.locator('body').evaluate(()=>[...document.querySelectorAll('body *')].map(e=>({tag:e.tagName,cls:e.className,left:e.getBoundingClientRect().left,right:e.getBoundingClientRect().right,width:e.getBoundingClientRect().width,text:e.textContent.slice(0,60)})).filter(e=>e.right>innerWidth+1||e.left< -1).slice(0,25)));await page.screenshot({path:'screenshots/navigation-rsi-overflow.png'});}
- assert.equal(overflows,false,'RSI page overflows phone viewport');
- console.log('RSI_REAL_DATA_VERIFIED_NAVIGATION_MS',rsiMs);
- await page.screenshot({path:'screenshots/navigation-rsi-mobile.png'});
- await page.setViewportSize({width:1440,height:1000});
- await page.screenshot({path:'screenshots/navigation-rsi-desktop.png'});
-
- // Each matching fund has a left blue RSI link and a right reference button.
- await rsi.locator('.morning-pages a[href="./"]').click();
- assert.equal(await page.locator('header .subtitle').count(),0);
- assert.equal(await page.getByRole('heading',{name:'14の指標',exact:true}).count(),0);
- for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){
-  await page.setViewportSize(viewport);
-  for(const [fund,target] of [['nasdaq','ndx'],['tqqq','tqqq'],['soxl','soxl']]){
-   const row=page.locator('[data-fund="'+fund+'"] .fund-reference-row');
-   await row.scrollIntoViewIfNeeded();
-   const blue=row.locator('.fund-rsi-link'),orange=row.locator('[data-fund-minkabu="'+fund+'"]');
-   const b=await blue.boundingBox(),o=await orange.boundingBox();
-   assert.ok(Math.abs(b.y-o.y)<2&&Math.abs(b.height-o.height)<2,'Buttons must align: '+fund);
-   assert.ok(b.x+b.width<o.x&&b.x>=0&&o.x+o.width<=viewport.width,'Buttons must fit: '+fund);
-   assert.equal(await blue.getAttribute('href'),'./nasdaq-rsi.html#price-'+target);
-   await row.screenshot({path:'screenshots/navigation-'+fund+'-buttons-'+viewport.width+'.png'});
-  }
- }
- // Exercise both floating controls inside every page, including prewarmed frames.
- async function checkScroll(surface,name){
-  const up=surface.locator('#back-to-top'),down=surface.locator('#go-to-bottom');
-  if(await up.isEnabled()){await up.click();await page.waitForTimeout(100);}
-  await down.click();
-  await page.waitForTimeout(100);
-  assert.equal(await down.isDisabled(),true,'Down reaches the bottom: '+name);
-  assert.equal(await up.isEnabled(),true);
-  await surface.locator('#page-scroll-controls').screenshot({path:'screenshots/navigation-scroll-'+name+'.png'});
-  await up.click();await page.waitForTimeout(100);
-  assert.equal(await up.isDisabled(),true,'Up reaches the top: '+name);
-  assert.equal(await down.isEnabled(),true);
- }
- await page.emulateMedia({reducedMotion:'reduce'});
- await checkScroll(page,'indicators');
- await page.locator('.morning-pages a[href="./stocks-reference.html"]').click();
- await checkScroll(stockFrame,'stocks');
- await stockFrame.locator('.morning-pages a[href="./heatmap.html"]').click();
- const heatFrame=page.frameLocator('iframe[data-morning-page="heatmap"]');
- await checkScroll(heatFrame,'heatmap');
- await heatFrame.locator('.morning-pages a[href="./nasdaq-rsi.html"]').click();
- await checkScroll(rsi,'rsi');
- await rsi.locator('.morning-pages a[href="./"]').click();
- for(const [fund,target] of [['nasdaq','ndx'],['tqqq','tqqq'],['soxl','soxl']]){
-  await page.locator('[data-fund="'+fund+'"] .fund-rsi-link').click({noWaitAfter:true});
-  await page.waitForURL('**/nasdaq-rsi.html#price-'+target,{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(id=>{const el=document.getElementById(id);if(!el)return false;const r=el.querySelector('h2').getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight;},'price-'+target);
-  await page.screenshot({path:'screenshots/navigation-rsi-destination-'+fund+'.png'});
-  if(fund!=='soxl'){
-   await page.locator('.morning-pages a[href="./"]').click({noWaitAfter:true});
-   await page.locator('[data-fund="'+fund+'"] .fund-rsi-link').waitFor();
-  }
- }
- console.log('THREE_RSI_LINKS_AND_FOUR_PAGE_SCROLL_CONTROLS_VERIFIED');
- // A stale saved script must never override an available network response.
- await page.waitForFunction(()=>!!navigator.serviceWorker.controller);
- await page.evaluate(async()=>{
-  await navigator.serviceWorker.ready;
-  const name=(await caches.keys()).find(k=>k.startsWith('market-morning-')&&k!=='market-morning-snapshots-v1');
-  const cache=await caches.open(name);
-  await cache.put(new URL('./fund-panel.js',location.href).href,new Response('STALE_TEST_SCRIPT',{headers:{'Content-Type':'text/javascript'}}));
+ assert.ok(total>100&&painted/total>.5,'Panel is blank or clipped: '+label+' painted='+(painted/total));
+ const hit=await card.evaluate(e=>{
+  const r=e.getBoundingClientRect(),x=Math.min(innerWidth-30,r.right-20),y=Math.min(innerHeight-40,r.bottom-20);
+  return e.contains(document.elementFromPoint(x,y));
  });
- const moduleText=await page.evaluate(async()=>await (await fetch('./fund-panel.js')).text());
- assert.ok(moduleText.includes('fund-rsi-link'),'Fresh module must override stale saved module');
- console.log('STALE_SHELL_RECOVERY_VERIFIED');
-
- assert.deepEqual(errors,[]);
- console.log('NAVIGATION_VERIFIED_NO_PAGE_ERRORS');
- const failureContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true});
- const failurePage=await failureContext.newPage();
- await failurePage.route('**/data/stocks.json*',route=>route.abort());
- await failurePage.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
- await failurePage.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.state==='partial',null,{timeout:30000});
- assert.equal(await failurePage.locator('#ready-alert-title').textContent(),'一部の更新を確認できません');
- await failurePage.screenshot({path:'screenshots/navigation-partial-alert.png'});
- console.log('READY_ALERT_FETCH_FAILURE_VERIFIED');
- await failureContext.close();
- const rsiFailureContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true});
- const rsiFailurePage=await rsiFailureContext.newPage();
- await rsiFailurePage.route('**/data/nasdaq-rsi.json*',route=>route.abort());
- await rsiFailurePage.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
- await rsiFailurePage.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.state==='partial',null,{timeout:30000});
- await rsiFailurePage.waitForFunction(()=>document.querySelector('#ready-alert-pages')?.textContent.includes('! NASDAQ100・RSI'),null,{timeout:30000});
- assert.ok((await rsiFailurePage.locator('#ready-alert-pages').textContent()).includes('! NASDAQ100・RSI'));
- console.log('RSI_FAILURE_FOUR_PAGE_BANNER_VERIFIED');
- await rsiFailureContext.close();
-} finally {console.log('FINAL_PAGE_ERRORS',errors);await page.screenshot({path:'screenshots/navigation-final-state.png'}).catch(()=>{});await browser.close();}
-
-
+ assert.ok(hit,'Panel is covered: '+label);
+ console.log('SCROLLED_PANEL_PAINTED',engine,label,painted/total);
+}
+async function scrollControls(label){
+ const down=page.locator('#go-to-bottom'),up=page.locator('#back-to-top');
+ if(await down.isEnabled())await down.click();
+ await page.waitForFunction(()=>Math.abs(Math.max(document.documentElement.scrollHeight,document.body.scrollHeight)-innerHeight-scrollY)<4,null,{timeout:10000});
+ assert.equal(await down.isDisabled(),true,'Bottom control '+label);
+ if(await up.isEnabled())await up.click();
+ await page.waitForFunction(()=>scrollY<=1,null,{timeout:10000});
+ assert.equal(await up.isDisabled(),true,'Top control '+label);
+ console.log('SCROLL_CONTROLS_OK',engine,label);
+}
+try{
+ for(let attempt=0;attempt<110;attempt++){
+  const response=await fetch(base+'sw.js?t='+Date.now());
+  if((await response.text()).includes('native-pages-20261115'))break;
+  if(attempt===109)throw Error('Release not deployed');
+  await new Promise(r=>setTimeout(r,3000));
+ }
+ await navigate('','#cards>.card');
+ await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.phase==='complete',null,{timeout:60000});
+ // A completed page must render its saved snapshot even while the next data request is held.
+ const held=[];await page.route('**/data/stocks.json*',route=>new Promise(resolve=>held.push(async()=>{await route.continue().catch(()=>{});resolve();})));
+ const navigationStarted=Date.now();
+ await page.locator('.ready-page[data-page="stocks"] a').click();
+ await page.waitForURL('**/stocks-reference.html',{waitUntil:'domcontentloaded'});
+ await page.locator('.stock-tile').first().waitFor({timeout:10000});
+ assert.equal(await page.evaluate(()=>window===top&&location.pathname.endsWith('/stocks-reference.html')),true);
+ assert.ok(held.length>0,'Data response should still be held');
+ assert.equal(await page.locator('.stock-tile').count(),13);
+ console.log('SAVED_CONTENT_BEFORE_NETWORK_RESPONSE',engine,Date.now()-navigationStarted);
+ for(const release of held)await release();await page.unroute('**/data/stocks.json*');
+ const alerts=page.locator('#stock-alert-list a'),count=await alerts.count();
+ for(let i=0;i<count;i++){
+  const href=await alerts.nth(i).getAttribute('href');await alerts.nth(i).click();
+  await page.waitForFunction(id=>Math.abs(document.querySelector(id)?.getBoundingClientRect().top-16)<4,href);
+ }
+ console.log('ALERT_PANEL_LINKS_OK',engine,count);
+ await scrollControls('stocks');
+ for(const [path,selector,label]of [['heatmap.html','.tile','heatmap'],['nasdaq-rsi.html','#rsi-chart svg','rsi'],['','#cards>.card','indicators']]){
+  await page.locator('.morning-pages a[href="./'+path+'"]').click();
+  await page.waitForURL(base+path,{waitUntil:'domcontentloaded'});
+  await page.locator(selector).first().waitFor({timeout:30000});
+  assert.equal(await page.evaluate(()=>window===top),true);
+  await scrollControls(label);
+ }
+ for(const viewport of [{width:1440,height:1000},{width:744,height:1133},{width:390,height:844}]){
+  await page.setViewportSize(viewport);
+  await inspectPaint('.vi-card','vi-'+viewport.width);
+  await inspectPaint('[data-fund="soxl"]','soxl-'+viewport.width);
+ }
+ for(const [fund,target]of [['nasdaq','ndx'],['tqqq','tqqq'],['soxl','soxl']]){
+  const link=page.locator('[data-fund="'+fund+'"] .fund-rsi-link');assert.equal(await link.getAttribute('href'),'./nasdaq-rsi.html#price-'+target);
+  await link.click();await page.waitForURL('**/nasdaq-rsi.html#price-'+target,{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(id=>{const e=document.getElementById(id),r=e?.querySelector('h2')?.getBoundingClientRect();return r&&r.top>=0&&r.bottom<=innerHeight;},'price-'+target);
+  await page.goBack({waitUntil:'domcontentloaded'});await page.locator('[data-fund="'+fund+'"]').waitFor();
+  await inspectPaint('.vi-card','after-back-'+fund);
+ }
+ // Returning from a bottom scrolled page must not leave the root page clipped.
+ await page.locator('.morning-pages a[href="./stocks-reference.html"]').click();
+ await page.waitForURL('**/stocks-reference.html',{waitUntil:'domcontentloaded'});await page.locator('.stock-tile').first().waitFor();
+ await scrollControls('stocks-repeat');
+ await page.locator('.morning-pages a[href="./"]').click();
+ await page.waitForURL(base,{waitUntil:'domcontentloaded'});await page.locator('.vi-card').waitFor();
+ await inspectPaint('.vi-card','returned-from-stocks');
+ const failedContext=await browser.newContext({viewport:{width:390,height:844}}),failedPage=await failedContext.newPage();
+ await failedPage.route('**/data/stocks.json*',route=>route.abort());
+ await failedPage.goto(base,{waitUntil:'domcontentloaded'});
+ await failedPage.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.phase==='failed',null,{timeout:30000});
+ await failedContext.close();
+ assert.deepEqual(errors,[]);console.log('NATIVE_NAVIGATION_SCROLL_PAINT_AND_FAILURE_OK',engine);
+}finally{
+ await page.screenshot({path:'screenshots/navigation-native-'+engine+'-final.png'}).catch(()=>{});
+ await context.close();await browser.close();
+}

@@ -17,7 +17,7 @@ export function mountReadyAlert(win=window,doc=document){
  const cards=doc.getElementById('ready-alert-pages');
  for(const [key,label]of Object.entries(names)){
   const card=doc.createElement('section');card.className='ready-page';card.dataset.page=key;card.setAttribute('aria-label',label+'の準備状況');
-  card.innerHTML='<div class="ready-page-head"><h3></h3><span class="ready-page-status"></span></div><ol class="ready-page-steps">'+['データ確認','グラフ準備','表示完了'].map(text=>'<li><span aria-hidden="true">○</span><span>'+text+'</span></li>').join('')+'</ol><p class="ready-page-note"></p><div class="ready-page-actions"><a href="'+links[key]+'" aria-label="'+label+'を開く">ページを開く →</a><button type="button" data-ready-retry="'+key+'" hidden>再確認</button></div>';
+  card.innerHTML='<div class="ready-page-head"><h3></h3><span class="ready-page-status"></span></div><ol class="ready-page-steps">'+['データ確認','グラフ準備','画面構成確認'].map(text=>'<li><span aria-hidden="true">○</span><span>'+text+'</span></li>').join('')+'</ol><p class="ready-page-note"></p><div class="ready-page-actions"><a href="'+links[key]+'" aria-label="'+label+'を開く">ページを開く →</a><button type="button" data-ready-retry="'+key+'" hidden>再確認</button></div>';
   cards.append(card);nodes.set(key,{card,title:card.querySelector('h3'),status:card.querySelector('.ready-page-status'),steps:[...card.querySelectorAll('li')],note:card.querySelector('.ready-page-note'),open:card.querySelector('a'),retry:card.querySelector('button')});
  }
  function target(key){return key==='market'?win:doc.querySelector('iframe[data-morning-page="'+key+'"]')?.contentWindow;}
@@ -58,7 +58,7 @@ export function mountReadyAlert(win=window,doc=document){
   const bar=doc.getElementById('ready-alert-progress');bar.setAttribute('aria-valuenow',String(model.done));bar.setAttribute('aria-valuetext',model.done+' / 12項目、'+model.complete+' / 4ページ完了');
   [...bar.children].forEach((el,i)=>el.classList.toggle('done',i<model.done));
   const waiting=model.items.filter(p=>!p.complete).map(p=>p.label).join('・');
-  const detail=model.kind==='ready'?'データ確認・グラフ準備・表示準備が完了しました。':model.failed?'更新を確認できないページがあります。保存済みの表示は日時を確認してください。':model.stalled?'20秒以上、確認項目の完了に変化がありません。処理を待つか、未完了のページを再確認できます。':waiting+'を準備しています。完了したページは開けます。';
+  const detail=model.kind==='ready'?'4ページのデータと画面構成を確認しました。各ページを開くと表示します。':model.failed?'更新を確認できないページがあります。保存済みの表示は日時を確認してください。':model.stalled?'20秒以上、確認項目の完了に変化がありません。処理を待つか、未完了のページを再確認できます。':waiting+'を準備しています。完了したページは開けます。';
   doc.getElementById('ready-alert-detail').textContent=detail;
   doc.getElementById('ready-alert-foot').textContent=model.kind==='ready'?'各ページをすぐに開けます。数値の公表日時は各パネルで確認できます。':'進捗は完了した確認項目の数です。通信量の割合ではありません。';
   doc.getElementById('ready-alert-retry').hidden=model.kind!=='partial';
@@ -68,7 +68,7 @@ export function mountReadyAlert(win=window,doc=document){
    n.title.textContent=(p.complete?'✓ ':p.failed?'! ':'')+p.label;
    n.status.textContent=p.failed?'再確認が必要':p.complete?'完了':model.stalled?'確認を継続中':p.done===0?'データ確認中':p.done===1?'グラフ準備中':'表示準備中';
    n.steps.forEach((li,i)=>{li.dataset.state=p.steps[i]?'done':!p.failed&&i===p.done?'active':'waiting';li.firstElementChild.textContent=p.steps[i]?'✓':!p.failed&&i===p.done?'↻':'○';});
-   n.note.textContent=p.failed?(p.saved?'保存済みデータを表示中':'表示できるデータを確認できません'):!p.fresh&&p.saved?'保存済みの表示を残して更新確認中':p.complete?'表示の準備が完了しました':'';
+   n.note.textContent=p.failed?(p.saved?'保存済みデータを表示中':'表示できるデータを確認できません'):!p.fresh&&p.saved?'保存済みの表示を残して更新確認中':p.complete?'データ・画面構成の準備完了':'';
    n.open.hidden=!p.complete&&!p.saved;n.open.textContent=p.complete?'ページを開く →':'保存済みの表示を開く →';
    n.retry.hidden=!(p.failed||model.stalled&&!p.complete);
   }
