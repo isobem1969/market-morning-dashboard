@@ -60,7 +60,7 @@ export function mountReadyAlert(win=window,doc=document){
   const waiting=model.items.filter(p=>!p.complete).map(p=>p.label).join('・');
   const detail=model.kind==='ready'?'4ページのデータと画面構成を確認しました。各ページを開くと表示します。':model.failed?'更新を確認できないページがあります。保存済みの表示は日時を確認してください。':model.stalled?'20秒以上、確認項目の完了に変化がありません。処理を待つか、未完了のページを再確認できます。':waiting+'を準備しています。完了したページは開けます。';
   doc.getElementById('ready-alert-detail').textContent=detail;
-  doc.getElementById('ready-alert-foot').textContent=model.kind==='ready'?'各ページをすぐに開けます。数値の公表日時は各パネルで確認できます。':'進捗は完了した確認項目の数です。通信量の割合ではありません。';
+  doc.getElementById('ready-alert-foot').textContent=model.kind==='ready'?'保存済みデータを利用して各ページを開けます。数値の公表日時は各パネルで確認できます。':'進捗は完了した確認項目の数です。通信量の割合ではありません。';
   doc.getElementById('ready-alert-retry').hidden=model.kind!=='partial';
   for(const p of model.items){
    const n=nodes.get(p.key),active=p.failed?'failed':p.complete?'complete':p.done===0?'fetching':p.done===1?'charts':'painting';
@@ -86,7 +86,8 @@ export function mountReadyAlert(win=window,doc=document){
   if(e.target.closest('#ready-alert-retry'))for(const key of Object.keys(names)){const p=sample(key);if(!p.fresh||!p.charts||!p.painted||p.failed)retry(key);}
  });
  doc.querySelector('#refresh')?.addEventListener('click',()=>{started=Date.now();lastAdvance=started;completedAt=null;previousModel='';painted.clear();scheduled.clear();});
- render();const timer=win.setInterval(render,300);
- win.addEventListener('pagehide',()=>win.clearInterval(timer),{once:true});
+ render();let timer=win.setInterval(render,300);
+ win.addEventListener('pagehide',()=>win.clearInterval(timer));
+ win.addEventListener('pageshow',event=>{if(event.persisted){win.clearInterval(timer);render();timer=win.setInterval(render,300);}});
 }
 if(typeof window!=='undefined'&&typeof document!=='undefined')mountReadyAlert();
