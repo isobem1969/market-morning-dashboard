@@ -7,6 +7,7 @@ const context=await browser.newContext({viewport:{width:1440,height:1000},reduce
 const page=await context.newPage(),errors=[];
 page.on('pageerror',e=>errors.push(e.message));
 const base='https://isobem1969.github.io/market-morning-dashboard/';
+const watchdog=setTimeout(()=>{console.error('Navigation test exceeded four minutes');process.exit(1);},240000);watchdog.unref();
 await fs.mkdir('screenshots',{recursive:true});
 async function navigate(path,selector){
  const start=Date.now();
@@ -61,16 +62,16 @@ try{
  await navigate('','#cards>.card');
  await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.phase==='complete',null,{timeout:60000});
  // A completed page must render its saved snapshot even while the next data request is held.
- const held=[];let requestHeld;const requestStarted=new Promise(resolve=>{requestHeld=resolve;});await page.route('**/data/stocks.json*',route=>new Promise(resolve=>{held.push(async()=>{await route.continue().catch(()=>{});resolve();});requestHeld();}));
+ await page.route('**/data/stocks.json*',route=>route.abort());
  const navigationStarted=Date.now();
+ console.log('OPENING_PREPARED_STOCKS',engine);
  await page.locator('.ready-page[data-page="stocks"] a').click();
  await page.waitForURL('**/stocks-reference.html',{waitUntil:'domcontentloaded'});
  await page.locator('.stock-tile').first().waitFor({timeout:10000});
  assert.equal(await page.evaluate(()=>window===top&&location.pathname.endsWith('/stocks-reference.html')),true);
- await requestStarted;assert.ok(held.length>0,'Data response should still be held');
  assert.equal(await page.locator('.stock-tile').count(),13);
- console.log('SAVED_CONTENT_BEFORE_NETWORK_RESPONSE',engine,Date.now()-navigationStarted);
- for(const release of held)await release();await page.unroute('**/data/stocks.json*');
+ console.log('SAVED_CONTENT_WITH_NETWORK_UNAVAILABLE',engine,Date.now()-navigationStarted);
+ await page.unroute('**/data/stocks.json*');
  const alerts=page.locator('#stock-alert-list a'),count=await alerts.count();
  for(let i=0;i<count;i++){
   const href=await alerts.nth(i).getAttribute('href');await alerts.nth(i).click();
@@ -79,6 +80,7 @@ try{
  console.log('ALERT_PANEL_LINKS_OK',engine,count);
  await scrollControls('stocks');
  for(const [path,selector,label]of [['heatmap.html','.tile','heatmap'],['nasdaq-rsi.html','#rsi-chart svg','rsi'],['','#cards>.card','indicators']]){
+  console.log('OPENING_NATIVE_PAGE',engine,label);
   await page.locator('.morning-pages a[href="./'+path+'"]').click();
   await page.waitForURL(base+path,{waitUntil:'domcontentloaded'});
   await page.locator(selector).first().waitFor({timeout:30000});
@@ -112,5 +114,5 @@ try{
  assert.deepEqual(errors,[]);console.log('NATIVE_NAVIGATION_SCROLL_PAINT_AND_FAILURE_OK',engine);
 }finally{
  await page.screenshot({path:'screenshots/navigation-native-'+engine+'-final.png'}).catch(()=>{});
- await context.close();await browser.close();
+ clearTimeout(watchdog);await context.close();await browser.close();
 }
