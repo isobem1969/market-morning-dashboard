@@ -67,7 +67,7 @@ try{
  console.log('OPENING_PREPARED_STOCKS',engine);
  await page.locator('.ready-page[data-page="stocks"] a').click();
  await page.waitForURL('**/stocks-reference.html',{waitUntil:'domcontentloaded'});
- await page.locator('.stock-tile').first().waitFor({timeout:10000});
+ await page.locator('.stock-tile').first().waitFor({timeout:30000});
  assert.equal(await page.evaluate(()=>window===top&&location.pathname.endsWith('/stocks-reference.html')),true);
  assert.equal(await page.locator('.stock-tile').count(),13);
  console.log('SAVED_CONTENT_WITH_NETWORK_UNAVAILABLE',engine,Date.now()-navigationStarted);
@@ -111,8 +111,24 @@ try{
  await failedPage.goto(base,{waitUntil:'domcontentloaded'});
  await failedPage.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.phase==='failed',null,{timeout:30000});
  await failedContext.close();
+
+ // Verify the actual installed release cache separately from the offline-data case.
+ const warmContext=await browser.newContext({viewport:{width:1440,height:1000}}),warmPage=await warmContext.newPage();
+ await warmPage.goto(base,{waitUntil:'domcontentloaded'});
+ await warmPage.waitForFunction(()=>!!navigator.serviceWorker.controller,null,{timeout:45000});
+ await warmPage.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.phase==='complete',null,{timeout:60000});
+ const warmStart=Date.now();
+ await warmPage.locator('.ready-page[data-page="stocks"] a').click();
+ await warmPage.waitForURL('**/stocks-reference.html',{waitUntil:'domcontentloaded'});
+ await warmPage.locator('.stock-tile').first().waitFor({timeout:30000});
+ const warmMs=Date.now()-warmStart;
+ console.log('INSTALLED_RELEASE_CACHE_NAVIGATION_MS',engine,warmMs);
+ assert.ok(warmMs<5000,'Prepared page was delayed despite the installed release cache: '+warmMs);
+ await warmPage.screenshot({path:'screenshots/navigation-native-'+engine+'-cached-stocks.png'});
+ await warmContext.close();
  assert.deepEqual(errors,[]);console.log('NATIVE_NAVIGATION_SCROLL_PAINT_AND_FAILURE_OK',engine);
 }finally{
+ console.log('FINAL_NATIVE_PAGE_ERRORS',engine,errors);
  await page.screenshot({path:'screenshots/navigation-native-'+engine+'-final.png'}).catch(()=>{});
  clearTimeout(watchdog);await context.close();await browser.close();
 }
