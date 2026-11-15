@@ -3,7 +3,7 @@ import {PNG} from 'pngjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 const engine=process.env.BROWSER||'chromium',browser=await(engine==='webkit'?webkit:chromium).launch();
-const context=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
+const context=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce',serviceWorkers:'block'});
 const page=await context.newPage(),errors=[];
 page.on('pageerror',e=>errors.push(e.message));
 const base='https://isobem1969.github.io/market-morning-dashboard/';
@@ -44,10 +44,10 @@ async function inspectPaint(selector,label){
 async function scrollControls(label){
  const down=page.locator('#go-to-bottom'),up=page.locator('#back-to-top');
  if(await down.isEnabled())await down.click();
- await page.waitForFunction(()=>Math.abs(Math.max(document.documentElement.scrollHeight,document.body.scrollHeight)-innerHeight-scrollY)<4,null,{timeout:10000});
+ await page.waitForFunction(()=>Math.abs(Math.max(document.documentElement.scrollHeight,document.body.scrollHeight)-innerHeight-scrollY)<4&&document.getElementById('go-to-bottom').disabled,null,{timeout:10000});
  assert.equal(await down.isDisabled(),true,'Bottom control '+label);
  if(await up.isEnabled())await up.click();
- await page.waitForFunction(()=>scrollY<=1,null,{timeout:10000});
+ await page.waitForFunction(()=>scrollY<=1&&document.getElementById('back-to-top').disabled,null,{timeout:10000});
  assert.equal(await up.isDisabled(),true,'Top control '+label);
  console.log('SCROLL_CONTROLS_OK',engine,label);
 }
@@ -61,13 +61,13 @@ try{
  await navigate('','#cards>.card');
  await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.phase==='complete',null,{timeout:60000});
  // A completed page must render its saved snapshot even while the next data request is held.
- const held=[];await page.route('**/data/stocks.json*',route=>new Promise(resolve=>held.push(async()=>{await route.continue().catch(()=>{});resolve();})));
+ const held=[];let requestHeld;const requestStarted=new Promise(resolve=>{requestHeld=resolve;});await page.route('**/data/stocks.json*',route=>new Promise(resolve=>{held.push(async()=>{await route.continue().catch(()=>{});resolve();});requestHeld();}));
  const navigationStarted=Date.now();
  await page.locator('.ready-page[data-page="stocks"] a').click();
  await page.waitForURL('**/stocks-reference.html',{waitUntil:'domcontentloaded'});
  await page.locator('.stock-tile').first().waitFor({timeout:10000});
  assert.equal(await page.evaluate(()=>window===top&&location.pathname.endsWith('/stocks-reference.html')),true);
- assert.ok(held.length>0,'Data response should still be held');
+ await requestStarted;assert.ok(held.length>0,'Data response should still be held');
  assert.equal(await page.locator('.stock-tile').count(),13);
  console.log('SAVED_CONTENT_BEFORE_NETWORK_RESPONSE',engine,Date.now()-navigationStarted);
  for(const release of held)await release();await page.unroute('**/data/stocks.json*');
@@ -104,7 +104,7 @@ try{
  await page.locator('.morning-pages a[href="./"]').click();
  await page.waitForURL(base,{waitUntil:'domcontentloaded'});await page.locator('.vi-card').waitFor();
  await inspectPaint('.vi-card','returned-from-stocks');
- const failedContext=await browser.newContext({viewport:{width:390,height:844}}),failedPage=await failedContext.newPage();
+ const failedContext=await browser.newContext({viewport:{width:390,height:844},serviceWorkers:'block'}),failedPage=await failedContext.newPage();
  await failedPage.route('**/data/stocks.json*',route=>route.abort());
  await failedPage.goto(base,{waitUntil:'domcontentloaded'});
  await failedPage.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.phase==='failed',null,{timeout:30000});

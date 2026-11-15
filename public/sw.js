@@ -1,4 +1,4 @@
-const CACHE='market-morning-native-pages-20261115';
+const CACHE='market-morning-fast-native-pages-20261115';
 const SHELL=['./','./nasdaq-rsi.html','./nasdaq-rsi.js','./nasdaq-rsi.css','./page-ready-alert.js','./page-ready-alert.css','./page-warm.js','./shared-data.js','./change-format.js','./market-panel.js','./heatmap.js','./heatmap-universe.json','./stock-chart.js','./analyst-panel.js','./heatmap.html','./page-tabs.css','./index.html','./float-controls.js','./float-controls.css','./value-pair.js','./value-pair.css','./stocks-reference.html','./stocks-reference.js','./stock-alerts.js','./style.css','./app.js','./logic.js','./fear-panel.js','./vi-panel.js','./fund-panel.js','./drawdown-panel.js','./fund-panel.css','./stocks.html','./stocks.css','./stocks.js','./stocks-logic.js','./stocks-research.js','./research-import.js','./research-ui.js','./manifest.webmanifest','./icon.svg','./icon-192.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL.map(url=>new Request(url,{cache:'reload'})))).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',e=>{e.waitUntil((async()=>{
@@ -18,7 +18,16 @@ self.addEventListener('fetch',e=>{
  const key=new Request(url.origin+url.pathname);
  const network=fetch(e.request,{cache:'no-cache'}).then(async r=>{if(r.ok){try{const c=await caches.open(CACHE);await c.put(key,r.clone());}catch{}}return r;});
  e.waitUntil(network.catch(()=>{}));
- // Online: use fresh HTML, scripts and styles. Saved files are an offline fallback.
+ // A release has its own freshly installed shell. Reuse it for navigation and
+ // versioned assets; refreshing it in the background must not block first paint.
+ // Unversioned asset requests stay network-first for explicit freshness checks.
+ if(e.request.mode==='navigate'||url.searchParams.has('v')){
+  e.respondWith((async()=>{
+   const cache=await caches.open(CACHE),saved=await cache.match(key);
+   return saved||await network;
+  })().catch(async()=>{const cache=await caches.open(CACHE);return (e.request.mode==='navigate'?await cache.match('./index.html'):null)||Response.error();}));
+  return;
+ }
  e.respondWith(network.catch(async()=>{
   const c=await caches.open(CACHE),saved=await c.match(key);
   return saved||(e.request.mode==='navigate'?await c.match('./index.html'):null)||Response.error();
