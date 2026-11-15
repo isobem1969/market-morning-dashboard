@@ -7,6 +7,8 @@ on:
       - 'tests/progress-browser.mjs'
       - 'public/page-ready-alert.*'
       - 'public/page-warm.js'
+      - 'public/stocks-logic.js'
+      - 'tests/stock-date-cache.test.mjs'
       - 'public/sw.js'
       - 'public/fund-panel.*'
       - 'tests/ready-alert.test.js'
@@ -24,7 +26,7 @@ jobs:
           node-version: '22'
       - run: npm install --no-save --ignore-scripts playwright@1.62.1 pngjs@7.0.0
       - run: npx playwright install --with-deps chromium webkit
-      - run: node --test tests/ready-alert.test.js
+      - run: node --test tests/ready-alert.test.js tests/stock-date-cache.test.mjs
       - run: node tests/progress-browser.mjs
       - run: BROWSER=webkit node tests/progress-browser.mjs
         if: always()

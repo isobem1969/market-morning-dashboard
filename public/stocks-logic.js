@@ -6,7 +6,16 @@ export function periodHigh(price,period){
  return {value:peak.high,date:nyDate(peak.time),start:nyDate(points[0].time),end:nyDate(points.at(-1).time)};
 }
 export function validPoints(points){return (Array.isArray(points)?points:[]).filter(p=>Number.isFinite(p.time)&&Number.isFinite(p.value)&&p.value>0).sort((a,b)=>a.time-b.time);}
-export function nyDate(time){return new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(time*1000));}
+// Histories share trading timestamps across symbols and periods. Build the
+// timezone formatter once and reuse exact timestamp results, including DST.
+const nyFormatter=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'});
+const nyDates=new Map();
+export function nyDate(time){
+ if(nyDates.has(time))return nyDates.get(time);
+ const date=nyFormatter.format(new Date(time*1000));
+ if(nyDates.size>=20000)nyDates.clear();
+ nyDates.set(time,date);return date;
+}
 export function selectPoints(price,period){
   let points=validPoints(['1d','1w'].includes(period)?price.intraday:price.daily);
   if(!points.length)return [];

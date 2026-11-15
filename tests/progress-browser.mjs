@@ -10,7 +10,7 @@ await fs.mkdir('screenshots',{recursive:true});
 try{
  for(let attempt=0;attempt<100;attempt++){
   const r=await fetch(base+'sw.js?t='+Date.now());
-  if((await r.text()).includes('native-pages-20261115'))break;
+  if((await r.text()).includes('fast-native-pages-20261115-fast-dates'))break;
   if(attempt===99)throw Error('New release not deployed');
   await new Promise(r=>setTimeout(r,3000));
  }

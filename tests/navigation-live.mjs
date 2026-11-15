@@ -55,7 +55,7 @@ async function scrollControls(label){
 try{
  for(let attempt=0;attempt<110;attempt++){
   const response=await fetch(base+'sw.js?t='+Date.now());
-  if((await response.text()).includes('native-pages-20261115'))break;
+  if((await response.text()).includes('fast-native-pages-20261115-fast-dates'))break;
   if(attempt===109)throw Error('Release not deployed');
   await new Promise(r=>setTimeout(r,3000));
  }
