@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T16:28:26.613704+00:00",
+  "generatedAt": "2026-11-16T21:03:59.100072+00:00",
   "status": "ok",
   "error": null,
   "source": "Yahoo Finance / NASDAQ100 (^NDX)・TQQQ・SOXL",
@@ -23,10 +23,10 @@
   },
   "provisional": {
     "date": "2026-11-16",
-    "value": 27520.63671875,
+    "value": 27197.15234375,
     "week": "2026-11-16",
     "confirmedAt": "2026-11-20T21:00:00+00:00",
-    "rsi": 43.5665201497153
+    "rsi": 42.0451524776369
   },
   "history": [
     {
@@ -4054,35 +4054,35 @@
   },
   "prices": {
     "ndx": {
-      "value": 27520.637,
+      "value": 27197.15234375,
       "previous": 27943.740234375,
       "asOf": "2026-11-16",
-      "marketOpen": true,
+      "marketOpen": false,
       "peak": 31224.470703125,
-      "ratio": 88.13804167141794,
-      "drawdown": -11.861958328582055,
+      "ratio": 87.10204442641862,
+      "drawdown": -12.897955573581388,
       "historyStart": "1985-10-01",
       "peakLabel": "取得期間の最高終値（分割調整済み）"
     },
     "tqqq": {
-      "value": 55.06,
+      "value": 53.029998779296875,
       "previous": 57.68000030517578,
       "asOf": "2026-11-16",
-      "marketOpen": true,
+      "marketOpen": false,
       "peak": 87.22000122070312,
-      "ratio": 63.12772211579675,
-      "drawdown": -36.87227788420325,
+      "ratio": 60.80027291573727,
+      "drawdown": -39.19972708426273,
       "historyStart": "2010-02-11",
       "peakLabel": "取得期間の最高終値（分割調整済み）"
     },
     "soxl": {
-      "value": 52.0,
+      "value": 48.7599983215332,
       "previous": 58.31999969482422,
       "asOf": "2026-11-16",
-      "marketOpen": true,
+      "marketOpen": false,
       "peak": 300.7699890136719,
-      "ratio": 17.288958971779685,
-      "drawdown": -82.71104102822031,
+      "ratio": 16.211723277789115,
+      "drawdown": -83.78827672221088,
       "historyStart": "2010-03-11",
       "peakLabel": "取得期間の最高終値（分割調整済み）"
     }
