@@ -14,7 +14,7 @@ export function rsiState(current,previous){
 function watch(key){
  const buy=key==='buy',record=data[key],run=record.current||record.last,active=!!record.current;
  const thresholds=buy?['40未満：検討開始','35未満：さらに低下','30未満：大幅低下']:['70以上：75に接近','75超：売り検討','80超・85超：高水準'];
- return `<section class="watch ${buy?'':'sell'} ${active&&usable?'active':''}"><h3>${buy?'40近辺｜買い検討':'75近辺｜売り検討'}</h3><strong>${!usable?'判定保留':active?'条件が継続中':'現在は条件外'}</strong><p>${run?`${active?'今回':'直近'}の開始日：<b>${esc(run.start)}</b><br>確定週数：<b>${run.weeks}週</b>${run.end?` ／ 終了：${esc(run.end)}`:''}`:'取得履歴に該当する週はありません。'}</p><div class="bands">${thresholds.map(t=>`<span>${t}</span>`).join('')}</div><p><small>週足確定時の厳密な ${buy?'RSI &lt; 40':'RSI &gt; 75'} で記録。${active?'':'表示履歴は終了済みの条件です。'}</small></p></section>`;
+ return `<section class="watch ${buy?'':'sell'} ${active&&usable?'active':''}"><h3><span class="watch-threshold">${buy?'40':'75'}</span>${buy?'近辺｜買い検討':'近辺｜売り検討'}</h3><strong>${!usable?'判定保留':active?'条件が継続中':'現在は条件外'}</strong><p>${run?`${active?'今回':'直近'}の開始日：<b>${esc(run.start)}</b><br>確定週数：<b>${run.weeks}週</b>${run.end?` ／ 終了：${esc(run.end)}`:''}`:'取得履歴に該当する週はありません。'}</p><div class="bands">${thresholds.map(t=>`<span>${t}</span>`).join('')}</div><p><small>週足確定時の厳密な ${buy?'RSI &lt; 40':'RSI &gt; 75'} で記録。${active?'':'表示履歴は終了済みの条件です。'}</small></p></section>`;
 }
 function price(key,name,symbol){
  const target={ndx:'nasdaq',tqqq:'tqqq',soxl:'soxl'}[key],heading=`<h2><a class="indicator-panel-link" href="./#metric-${target}"><span>${name} <span aria-hidden="true">→</span></span><small>株式指標のパネルへ移動</small></a></h2>`;

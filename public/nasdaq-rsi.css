@@ -19,3 +19,8 @@
 @media(max-width:650px){.price-title{flex-wrap:nowrap}.price-title>a{font-size:12px}.indicator-panel-link{padding:10px 12px}}
 
 .price-grid .panel{scroll-margin-top:20px}.price-grid .panel:target{outline:3px solid #205da2;outline-offset:3px}
+
+/* Emphasize only the buy/sell threshold numbers. */
+.watch h3 .watch-threshold{font-size:52px;font-weight:900;line-height:1.15;color:#e99500;vertical-align:baseline;margin-right:3px;letter-spacing:-1px}
+.watch.sell h3 .watch-threshold{color:#16a36a}
+@media(max-width:650px){.watch h3 .watch-threshold{font-size:46px}}
