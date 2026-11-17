@@ -28,3 +28,8 @@
 .fund-reference-row .fund-minkabu:not(.fund-rsi-link){justify-self:end}
 .fund-reference-row .fund-popup-note{grid-column:2;justify-self:end}
 @media(max-width:650px){.fund-reference-row .fund-minkabu{width:auto;min-width:0;max-width:100%;padding:10px 14px;font-size:18px}.fund-reference-row .fund-rsi-link{font-size:15px}}
+
+/* Approved two-line fund headings and blue fund identifiers. */
+.fund-heading h3 .fund-title-main{display:block;font:inherit;color:inherit}
+.fund-heading h3 .fund-title-description{display:block;margin-top:4px}
+.fund-card:is([data-fund=schd],[data-fund=allcountry_slim],[data-fund=sp500_slim],[data-fund=tqqq],[data-fund=soxl]) .fund-heading>div>span{font-size:16px;font-weight:800;letter-spacing:.4px;color:#005bff;margin-top:10px;overflow-wrap:anywhere}

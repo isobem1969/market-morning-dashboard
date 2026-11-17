@@ -54,6 +54,15 @@ function graph(m,period){
 
 /* Keep the index/ticker prominent while retaining each fund's full name. */
 export function fundTitle(id){
+ const stacked={
+  schd:['SBI・SCHD','（年4回決算型）'],
+  allcountry_slim:['オルカン','eMAXIS Slim 全世界株式'],
+  sp500_slim:['S&P500','eMAXIS Slim 米国株式'],
+  tqqq:['TQQQ','プロシェアーズ・ウルトラプロQQQ'],
+  soxl:['SOXL','Direxion デイリー半導体株ブル3倍ETF']
+ }[id];
+ if(stacked)return '<strong class="fund-title-main">'+esc(stacked[0])+'</strong><small class="title-detail fund-title-description">'+esc(stacked[1])+'</small>';
+
  const names={
   sox:['ニッセイ','SOX',''],
   fang:['iFreeNEXT','FANG＋',''],

@@ -101,3 +101,15 @@
 
 /* Secondary wording in indicator titles. */
 .card-title .title-detail{font-size:.55em;font-weight:400;letter-spacing:0;line-height:1.4}
+
+/* Match the indicator title hierarchy to the fund cards. */
+.vix-card .card-head{display:block}
+.vix-card .card-title{font-size:46px;font-weight:850;line-height:1.25;letter-spacing:-1px}
+.vix-card .indicator-title-main{display:block}
+.vix-card .indicator-title-subtitle{display:block;margin-top:4px;line-height:1.4;letter-spacing:0}
+.vix-card .indicator-title-subtitle .title-detail{font-size:.55em;font-weight:400}
+.vix-card .indicator-title-subtitle .indicator-threshold{font-size:.7em;font-weight:850}
+.vix-card .vix-close{display:block;margin:8px 0 0;max-width:none;text-align:left;white-space:normal}
+@media(max-width:800px){.vix-card .card-title{font-size:38px}}
+@media(max-width:650px){.vix-card .card-title{font-size:42px}}
+@media(max-width:360px){.vix-card .card-title{font-size:36px}}
