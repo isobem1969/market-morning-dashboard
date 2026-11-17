@@ -37,3 +37,12 @@
 @media(max-width:650px){.page-ready-alert{padding:16px;border-radius:15px}.ready-alert-top{gap:12px}.ready-alert-heading{flex-basis:100%}.ready-alert-heading strong{font-size:20px}.ready-alert-summary{width:100%}.ready-alert-summary>strong{font-size:17px}.ready-progress-row{display:block;margin:14px 0}.ready-progress{margin-top:9px;height:14px}.ready-alert-pages{gap:8px}.ready-page{padding:12px 10px}.ready-page h3{font-size:15px}.ready-page-head{display:block}.ready-page-status{margin-top:6px;font-size:11px}.ready-page-steps li{font-size:12px;gap:5px}.ready-page-steps li>span:first-child{flex-basis:16px;font-size:17px}.ready-page-note,.ready-page-actions a{font-size:11px}.ready-alert-bottom button{width:100%}}
 @media(max-width:380px){.ready-alert-pages{grid-template-columns:1fr}.ready-page-head{display:flex}.ready-page-status{margin-top:0}}
 @media(prefers-reduced-motion:no-preference){.page-ready-alert[data-state=loading] #ready-alert-icon{animation:ready-turn 2s linear infinite}.ready-page-steps li[data-state=active]>span:first-child{animation:ready-turn 2s linear infinite}@keyframes ready-turn{to{transform:rotate(360deg)}}}
+
+/* Extend the existing page link across its card, retaining native link behavior. */
+.ready-page{position:relative}
+.ready-page-actions,.ready-page-actions a{position:static}
+.ready-page-actions a::after{content:"";position:absolute;inset:0;z-index:1;border-radius:13px;cursor:pointer}
+.ready-page-actions a:hover::after{box-shadow:inset 0 0 0 2px #205da2}
+.ready-page-actions a:focus-visible{outline:none}
+.ready-page-actions a:focus-visible::after{outline:3px solid #205da2;outline-offset:3px}
+.ready-page-actions button{position:relative;z-index:2}
