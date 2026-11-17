@@ -1,0 +1,38 @@
+/* Shared header for all four dashboard pages. */
+body>main>header.morning-header.unified-header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:24px;height:auto;min-height:128px;padding:20px 22px;background:#fff;border:1px solid #d9e2e5;border-radius:16px;margin:0;color:#132d3c}
+.unified-header .header-brand{min-width:0}
+body>main>header.unified-header .eyebrow{font-size:13px;font-weight:800;line-height:1.4;letter-spacing:.8px;color:#1753c9;margin:0 0 8px;overflow-wrap:anywhere}
+body>main>header.unified-header h1{font-size:48px;font-weight:850;line-height:1.2;letter-spacing:-1px;color:#101d2a;margin:0;overflow-wrap:anywhere}
+body>main>header.unified-header>.header-tools{display:flex;flex-direction:column;align-items:flex-end;align-self:start;gap:10px;width:auto;min-width:0;text-align:right}
+body>main>header.unified-header #today{font-size:17px;font-weight:750;line-height:1.4;color:#000;white-space:nowrap}
+.unified-header .header-weekday{color:#000}
+.unified-header .is-weekday{color:#000}
+.unified-header .is-saturday{color:#005bff}
+.unified-header .is-sunday{color:#f20d2f}
+body>main>header.unified-header .header-refresh{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:132px;min-height:52px;padding:7px 20px;margin:0;background:#ff7900;border:2px solid #ef7100;border-radius:30px;color:#fff;font-size:23px;font-weight:850;line-height:1;box-shadow:0 3px 10px #ff790026;cursor:pointer}
+body>main>header.unified-header .header-refresh:hover{background:#df6200}
+body>main>header.unified-header .header-refresh:focus-visible{outline:3px solid #1753c9;outline-offset:4px}
+body>main>header.unified-header .header-refresh:disabled{opacity:.7;cursor:wait}
+body>main>header.unified-header .refresh-icon{font-size:38px;line-height:1;font-weight:700}
+body>main>.morning-pages{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:14px 0 22px}
+body>main>.morning-pages a{background:#fff;border:1px solid #cdd7df;color:#19313f;min-height:60px;border-radius:11px}
+body>main>.morning-pages a[aria-current=page]{background:#0961ce;border-color:#0961ce;color:#fff}
+@media(max-width:650px){
+ body>main>header.morning-header.unified-header{grid-template-columns:minmax(0,1fr) 102px;grid-template-rows:auto;gap:12px;height:auto;min-height:132px;padding:16px 14px}
+ body>main>header.unified-header .eyebrow{font-size:10px;letter-spacing:.3px;margin-bottom:9px}
+ body>main>header.unified-header h1{font-size:34px;letter-spacing:-.8px}
+ body>main>header.unified-header #today{font-size:11px;line-height:1.5}
+ .unified-header .header-calendar-date,.unified-header .header-weekday{display:block}
+ body>main>header.unified-header>.header-tools{gap:10px}
+ body>main>header.unified-header .header-refresh{min-width:100px;min-height:48px;padding:6px 12px;gap:7px;font-size:20px}
+ body>main>header.unified-header .refresh-icon{font-size:32px}
+ body>main>.morning-pages{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ body>main>.morning-pages a{font-size:clamp(14px,4.25vw,22px);min-height:52px;padding:10px 4px;white-space:nowrap}
+}
+@media(max-width:360px){
+ body>main>header.morning-header.unified-header{padding:14px 10px;gap:8px;grid-template-columns:minmax(0,1fr) 94px}
+ body>main>header.unified-header h1{font-size:30px}
+ body>main>header.unified-header .header-refresh{min-width:94px}
+ body>main>header.unified-header #today{font-size:10px}
+}
+@media(prefers-reduced-motion:no-preference){.unified-header .header-refresh[aria-busy=true] .refresh-icon{animation:header-refresh-turn 1s linear infinite}@keyframes header-refresh-turn{to{transform:rotate(360deg)}}}

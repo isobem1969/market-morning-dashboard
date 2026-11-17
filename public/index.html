@@ -40,13 +40,11 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
 <link rel="stylesheet" href="./page-ready-alert.css?v=staged-progress-20261115">
 <script type="module" src="./page-ready-alert.js?v=native-pages-20261115"></script>
 <style>.fund-card:target{outline:3px solid #205da2;outline-offset:4px}.fund-card[id^="metric-"]:focus{outline:3px solid #205da2;outline-offset:4px}</style>
+<link rel="stylesheet" href="./common-header.css?v=unified-header-20261118">
 </head>
 <body>
   <main>
-    <header class="top morning-header">
-      <div><p class="eyebrow">MARKET MORNING</p><h1>株式指標<span class="sun" aria-hidden="true">◒</span></h1></div>
-      <div class="date-block header-controls"><span id="today" class="header-date"></span><div class="header-actions"><a href="./stocks-reference.html">米国株 ↗</a><button id="refresh" type="button">↻ 更新を確認</button></div></div>
-    </header>
+    <header class="morning-header unified-header"><div class="header-brand"><p class="eyebrow">MARKET MORNING</p><h1>株式指標</h1></div><div class="header-tools"><time id="today" class="header-date"></time><button id="refresh" class="header-refresh" type="button" aria-label="ページを更新" title="最新の保存データを再読み込み"><span class="refresh-icon" aria-hidden="true">↻</span><span>更新</span></button></div></header>
 <nav class="morning-pages" aria-label="株式指標・ページ切り替え"><a href="./" aria-current="page">株式指標</a><a href="./stocks-reference.html">米国株</a><a href="./heatmap.html" class="heatmap-tab">ヒートマップ</a><a href="./nasdaq-rsi.html" class="rsi-tab">NASDAQ100・RSI</a></nav>
 <section id="page-ready-alert" class="page-ready-alert" data-state="loading" role="status" aria-live="polite" aria-atomic="true"><div class="ready-alert-heading"><span id="ready-alert-icon" aria-hidden="true">↻</span><strong id="ready-alert-title">最新情報を更新しています</strong></div><p id="ready-alert-detail">米国株・ヒートマップ・NASDAQ100のRSIも、背面で準備しています。</p><div id="ready-alert-pages" class="ready-alert-pages"><span>◷ 株式指標</span><span>◷ 米国株</span><span>◷ ヒートマップ</span><span>◷ NASDAQ100・RSI</span></div><p id="ready-alert-foot" class="ready-alert-foot">準備が完了すると、緑色の通知に変わります。</p></section>
     <div class="status-line" role="status" aria-live="polite" id="status">データを読み込んでいます…</div>

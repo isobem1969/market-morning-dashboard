@@ -1,3 +1,4 @@
+import {updateHeaderDate} from './common-header.js?v=unified-header-20261118';
 import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=staged-progress-20261115';
 import {stockGraph as graph} from './stock-chart.js?v=daily-axis-20261022';
 import {analystPanel} from './analyst-panel.js?v=analyst-20261022';
@@ -76,7 +77,7 @@ load();
 
 watchValuePairs(container);
 
-function updateToday(){ document.querySelector('#today').textContent=new Intl.DateTimeFormat('ja-JP',{month:'long',day:'numeric',weekday:'short',timeZone:'Asia/Tokyo'}).format(new Date()); }
+function updateToday(){updateHeaderDate();}
 updateToday();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateToday();});
 setInterval(()=>{if(!document.hidden)updateToday();},60000);

@@ -102,10 +102,11 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
 <link rel="modulepreload" href="./stocks-logic.js?v=period-high-20261009">
 <script type="module" src="./page-warm.js?v=native-pages-20261115"></script>
 <link rel="apple-touch-icon" href="./icon-192.png">
-<meta name="apple-mobile-web-app-title" content="株式指標"></head>
+<meta name="apple-mobile-web-app-title" content="株式指標"><link rel="stylesheet" href="./common-header.css?v=unified-header-20261118">
+</head>
 <body>
   <main>
-    <header class="top morning-header"><div><p class="eyebrow">MARKET MORNING / US STOCKS</p><h1>米国株<span aria-hidden="true">◒</span></h1></div><div class="header-controls"><span id="today" class="header-date"></span><div class="header-actions"><a href="./">株式指標 ↗</a><button id="refresh">↻ 更新を確認</button></div></div></header>
+    <header class="morning-header unified-header"><div class="header-brand"><p class="eyebrow">MARKET MORNING / US STOCKS</p><h1>米国株</h1></div><div class="header-tools"><time id="today" class="header-date"></time><button id="refresh" class="header-refresh" type="button" aria-label="ページを更新" title="最新の保存データを再読み込み"><span class="refresh-icon" aria-hidden="true">↻</span><span>更新</span></button></div></header>
 <nav class="morning-pages" aria-label="株式指標・ページ切り替え"><a href="./">株式指標</a><a href="./stocks-reference.html" aria-current="page">米国株</a><a href="./heatmap.html" class="heatmap-tab">ヒートマップ</a><a href="./nasdaq-rsi.html" class="rsi-tab">NASDAQ100・RSI</a></nav>
     <p id="status" class="status" role="status" aria-live="polite">13銘柄を読み込んでいます…</p>
     <section class="intro stock-overview" id="stock-overview" aria-labelledby="watchlist-title">

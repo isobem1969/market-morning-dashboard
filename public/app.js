@@ -1,3 +1,4 @@
+import {updateHeaderDate} from './common-header.js?v=unified-header-20261118';
 import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=staged-progress-20261115';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {changePercent,percentLine} from './change-format.js?v=twoline-20261007';
@@ -113,7 +114,7 @@ async function refresh(){
     if(!data){$('#summary').textContent='データを読み込めません';$('#summary-detail').textContent='「更新を確認」で再試行できます。';$('#coverage').textContent='判定用 0/3 指標';}
   }finally{loading=false;$('#refresh').disabled=false;render();}
 }
-function updateToday(){ $('#today').textContent=new Intl.DateTimeFormat('ja-JP',{month:'long',day:'numeric',weekday:'short',timeZone:'Asia/Tokyo'}).format(new Date()); }
+function updateToday(){updateHeaderDate();}
 updateToday();
 $('#refresh').addEventListener('click',refresh);
 $('#cards').addEventListener('pointermove',e=>{fundHover(e,metrics(),fundRanges);marketHover(e,metrics(),marketRanges);});

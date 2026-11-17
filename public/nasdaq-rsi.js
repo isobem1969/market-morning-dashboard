@@ -1,8 +1,9 @@
+import {updateHeaderDate} from './common-header.js?v=unified-header-20261118';
 import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=staged-progress-20261115';
 const $=id=>document.getElementById(id),fmt=(n,d=1)=>Number.isFinite(n)?n.toLocaleString('ja-JP',{minimumFractionDigits:d,maximumFractionDigits:d}):'—';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let data=null,period=104,usable=false;
-$('today').textContent=new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',year:'numeric',month:'long',day:'numeric',weekday:'long'}).format(new Date());
+updateHeaderDate();
 export function rsiState(current,previous){
  if(current<40)return {label:previous<40&&current<previous?'40未満・低下継続':'40未満・検討開始／継続',kind:'buy'};
  if(previous<40&&current>=40)return {label:'40以上へ回復',kind:'normal'};
@@ -59,9 +60,12 @@ function render(next){
  (window.__morningRenderState||(window.__morningRenderState={})).rsi={generatedAt:data.generatedAt};
  if(!usable)(window.__morningPreloadState||={}).rsi='再確認が必要';
 }
+let headerRefreshing=false;
 async function refresh(){
+ if(headerRefreshing)return;headerRefreshing=true;$('refresh').disabled=true;
  $('rsi-status').textContent='最新の保存データを確認しています…';
  try{render(await updateSnapshot('rsi'));}catch{(window.__morningPreloadState||={}).rsi='再確認が必要';$('rsi-status').textContent='更新を確認できませんでした。保存値がある場合はその日時の値です。';if(data){data={...data,status:'error'};render(data);}}
+ finally{headerRefreshing=false;$('refresh').disabled=false;}
 }
 const saved=readSnapshot('rsi');if(saved)render(saved);else restoreSnapshot('rsi').then(v=>{if(v&&!data)render(v);});
 void refresh();void prefetchOtherPages('rsi');$('refresh').addEventListener('click',refresh);
