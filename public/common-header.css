@@ -36,3 +36,9 @@ body>main>.morning-pages a[aria-current=page]{background:#0961ce;border-color:#0
  body>main>header.unified-header #today{font-size:10px}
 }
 @media(prefers-reduced-motion:no-preference){.unified-header .header-refresh[aria-busy=true] .refresh-icon{animation:header-refresh-turn 1s linear infinite}@keyframes header-refresh-turn{to{transform:rotate(360deg)}}}
+
+/* Keep refresh text on one line and header alignment identical on mobile. */
+body>main:has(>header.unified-header){padding-top:32px}
+body>main>header.unified-header .header-refresh>span{flex:0 0 auto;white-space:nowrap}
+body>main>.morning-pages a.heatmap-tab:not([aria-current]),body>main>.morning-pages a.rsi-tab:not([aria-current]){background:#fff;color:#19313f;border:1px solid #cdd7df}
+@media(max-width:650px){body>main:has(>header.unified-header){padding-top:26px}body>main>header.morning-header.unified-header{min-height:152px}body>main>header.unified-header .header-refresh{padding:6px 10px;gap:6px;white-space:nowrap}}
