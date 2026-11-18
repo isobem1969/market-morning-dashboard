@@ -1,5 +1,5 @@
 import {loadImportedResearch,wireResearchImport} from './research-ui.js?v=import-20261007';
-import {PERIODS,chartPoints,nyDate,sectionOld} from './stocks-logic.js?v=averages-20261007';
+import {PERIODS,chartPoints,nyDate,sectionOld} from './stocks-logic.js?v=six-pages-20261119-v1';
 import {ATTACHMENT_RESEARCH,researchColor} from './stocks-research.js?v=minkabu-20261007';
 const container=document.querySelector('#stocks'),status=document.querySelector('#status'),refresh=document.querySelector('#refresh');
 let importedResearch=loadImportedResearch();

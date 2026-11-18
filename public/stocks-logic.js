@@ -3,24 +3,26 @@ export function periodHigh(price,period){
  const points=selectPoints(price,period);
  if(!points.length||points.some(p=>!Number.isFinite(p.high)||p.high<=0))return {value:null,date:null};
  const peak=points.reduce((a,b)=>b.high>a.high?b:a);
- return {value:peak.high,date:nyDate(peak.time),start:nyDate(points[0].time),end:nyDate(points.at(-1).time)};
+ return {value:peak.high,date:nyDate(peak.time,price.timeZone),start:nyDate(points[0].time,price.timeZone),end:nyDate(points.at(-1).time,price.timeZone)};
 }
 export function validPoints(points){return (Array.isArray(points)?points:[]).filter(p=>Number.isFinite(p.time)&&Number.isFinite(p.value)&&p.value>0).sort((a,b)=>a.time-b.time);}
 // Histories share trading timestamps across symbols and periods. Build the
 // timezone formatter once and reuse exact timestamp results, including DST.
-const nyFormatter=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'});
+const formatters=new Map();
 const nyDates=new Map();
-export function nyDate(time){
- if(nyDates.has(time))return nyDates.get(time);
- const date=nyFormatter.format(new Date(time*1000));
+export function nyDate(time,timeZone='America/New_York'){
+ const key=timeZone+':'+time;
+ if(nyDates.has(key))return nyDates.get(key);
+ if(!formatters.has(timeZone))formatters.set(timeZone,new Intl.DateTimeFormat('en-CA',{timeZone,year:'numeric',month:'2-digit',day:'2-digit'}));
+ const date=formatters.get(timeZone).format(new Date(time*1000));
  if(nyDates.size>=20000)nyDates.clear();
- nyDates.set(time,date);return date;
+ nyDates.set(key,date);return date;
 }
 export function selectPoints(price,period){
   let points=validPoints(['1d','1w'].includes(period)?price.intraday:price.daily);
   if(!points.length)return [];
-  const end=nyDate(points.at(-1).time);
-  if(period==='1d')return points.filter(p=>nyDate(p.time)===end);
+  const dateOf=t=>nyDate(t,price.timeZone),end=dateOf(points.at(-1).time);
+  if(period==='1d')return points.filter(p=>dateOf(p.time)===end);
   const date=new Date(`${end}T12:00:00Z`);
   if(period==='1w')date.setUTCDate(date.getUTCDate()-6);
   else{
@@ -28,7 +30,7 @@ export function selectPoints(price,period){
     const day=date.getUTCDate();date.setUTCDate(1);date.setUTCMonth(date.getUTCMonth()-months);
     const last=new Date(Date.UTC(date.getUTCFullYear(),date.getUTCMonth()+1,0)).getUTCDate();date.setUTCDate(Math.min(day,last));
   }
-  const cutoff=date.toISOString().slice(0,10);return points.filter(p=>nyDate(p.time)>=cutoff);
+  const cutoff=date.toISOString().slice(0,10);return points.filter(p=>dateOf(p.time)>=cutoff);
 }
 export function sectionOld(section,generatedAt,now=Date.now()){
   return Boolean(section.status!=='ok'||!Number.isFinite(Date.parse(section.lastSuccess))||now-Date.parse(section.lastSuccess)>90*60e3||!Number.isFinite(Date.parse(generatedAt))||now-Date.parse(generatedAt)>90*60e3||(section.asOf&&now-Date.parse(section.asOf)>4*86400e3)||(section.marketOpen&&now-Date.parse(section.asOf)>45*60e3));
@@ -44,6 +46,6 @@ export function chartPoints(price,period){
  const averages=dailyAverages(price.daily),visible=selectPoints(price,period);
  if(!['1d','1w'].includes(period)){const byTime=new Map(averages.map(p=>[p.time,p]));return visible.map(p=>byTime.get(p.time));}
  // Intraday points use only completed PRIOR sessions, never today's final close.
- let i=-1;return visible.map(p=>{const date=nyDate(p.time);while(i+1<averages.length&&nyDate(averages[i+1].time)<date)i++;
+ let i=-1;return visible.map(p=>{const date=nyDate(p.time,price.timeZone);while(i+1<averages.length&&nyDate(averages[i+1].time,price.timeZone)<date)i++;
  return {...p,ma25:averages[i]?.ma25??null,ma75:averages[i]?.ma75??null};});
 }

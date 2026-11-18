@@ -79,7 +79,7 @@ def points(result):
                                  'volume': volume if volume is not None and volume >= 0 else None}
     return [clean[t] for t in sorted(clean)]
 
-def price_observation(daily, intraday, now):
+def price_observation(daily, intraday, now, timezone=NY):
     meta = intraday['meta']
     period = meta['currentTradingPeriod']['regular']
     epoch = now.timestamp()
@@ -87,9 +87,9 @@ def price_observation(daily, intraday, now):
     daily_points = points(daily)
     if not daily_points:
         raise ValueError('No daily closes')
-    today = now.astimezone(NY).date()
+    today = now.astimezone(timezone).date()
     completed = [p for p in daily_points
-                 if dt.datetime.fromtimestamp(p['time'], NY).date() < today
+                 if dt.datetime.fromtimestamp(p['time'], timezone).date() < today
                  or (dt.datetime.fromtimestamp(p['time'], NY).date() == today and epoch >= period['end'])]
     if active:
         value = number(meta.get('regularMarketPrice'))
@@ -106,7 +106,7 @@ def price_observation(daily, intraday, now):
     if value is None or value <= 0 or stamp > epoch + 60:
         raise ValueError('Invalid price or timestamp')
     return {'value': value, 'asOf': dt.datetime.fromtimestamp(stamp, UTC).isoformat(),
-            'sessionDate': dt.datetime.fromtimestamp(stamp, NY).date().isoformat(),
+            'sessionDate': dt.datetime.fromtimestamp(stamp, timezone).date().isoformat(),
             'kind': kind, 'marketOpen': active,
             'change': value - previous if previous is not None else None,
             'changePct': (value / previous - 1) * 100 if previous else None}
@@ -117,7 +117,7 @@ def section(operation, previous, now):
     except Exception as exc:
         return {**previous, 'status': 'error', 'error': f'{type(exc).__name__}: {exc}'[:160]}
 
-def high_observation(result, symbol, now):
+def high_observation(result, symbol, now, timezone=NY):
     """Regular-session highs from Yahoo's daily price series, not adjclose."""
     meta = result['meta']
     if meta.get('dataGranularity') != '1d':
@@ -127,11 +127,11 @@ def high_observation(result, symbol, now):
         if 'space' not in str(meta.get('longName', '')).lower():
             raise ValueError('SPCX issuer is not SpaceX')
         first_trade = dt.datetime(2026, 6, 12, tzinfo=NY).timestamp()
-    today = now.astimezone(NY).date()
+    today = now.astimezone(timezone).date()
     rows = []
     for stamp, value in zip(result.get('timestamp', []), result['indicators']['quote'][0].get('high', [])):
         value = number(value)
-        date = dt.datetime.fromtimestamp(stamp, NY).date()
+        date = dt.datetime.fromtimestamp(stamp, timezone).date()
         if value is not None and value > 0 and stamp <= now.timestamp() and date <= today:
             if symbol != 'SPCX' or stamp >= first_trade:
                 rows.append((date, value))
@@ -143,7 +143,7 @@ def high_observation(result, symbol, now):
     def peak(values):
         date, value = max(values, key=lambda r: (r[1], r[0]))
         return {'value': value, 'date': date.isoformat()}
-    expected = dt.datetime.fromtimestamp(first_trade, NY).date() if first_trade is not None else None
+    expected = dt.datetime.fromtimestamp(first_trade, timezone).date() if first_trade is not None else None
     complete = expected is not None and abs((rows[0][0] - expected).days) <= 7
     # For these older issuers, Yahoo's firstTradeDate can be the archive's
     # starting date rather than the original public listing date.
@@ -154,16 +154,16 @@ def high_observation(result, symbol, now):
             'historyStart': rows[0][0].isoformat(), 'asOfDate': end.isoformat(),
             'basis': 'Yahoo Financeの日足高値（通常取引・配当調整なし）'}
 
-def collect_highs(symbol, now):
+def collect_highs(symbol, now, timezone=NY):
     url = (f'https://query1.finance.yahoo.com/v8/finance/chart/{symbol}'
            f'?period1=0&period2={int(now.timestamp())}&interval=1d&includePrePost=false')
     results = json.loads(fetch(url)).get('chart', {}).get('result')
     if not results or results[0]['meta'].get('symbol') != symbol or results[0]['meta'].get('instrumentType') != 'EQUITY':
         raise ValueError('No matching equity history')
-    return high_observation(results[0], symbol, now)
+    return high_observation(results[0], symbol, now, timezone)
 
 
-def parse_research(text, symbol):
+def parse_research(text, symbol, currency='USD'):
     import html
     for attrs, body in re.findall(r'<script\b([^>]*)>(.*?)</script>', text, re.S):
         if 'data-sveltekit-fetched' not in attrs or 'quoteSummary/' not in attrs:
@@ -177,7 +177,7 @@ def parse_research(text, symbol):
         payload = json.loads(envelope['body'])
         for result in payload.get('quoteSummary', {}).get('result') or []:
             price = result.get('price', {})
-            if price.get('symbol') != symbol or price.get('quoteType') != 'EQUITY' or price.get('currency') != 'USD':
+            if price.get('symbol') != symbol or price.get('quoteType') != 'EQUITY' or price.get('currency') != currency:
                 raise ValueError('Analyst data issuer/currency mismatch')
             info = result.get('financialData', {})
             target = number(info.get('targetMeanPrice', {}).get('raw'))
@@ -196,14 +196,14 @@ def parse_research(text, symbol):
                     'publishedAt': None}
     raise ValueError('Published analyst data not found')
 
-def collect_research(symbol, previous, now):
+def collect_research(symbol, previous, now, currency='USD'):
     try:
         age = (now - dt.datetime.fromisoformat(previous['lastSuccess'].replace('Z', '+00:00'))).total_seconds()
         if previous.get('status') == 'ok' and 0 <= age < 6 * 3600:
             return previous
     except (KeyError, TypeError, ValueError):
         pass
-    return section(lambda: parse_research(fetch(f'https://finance.yahoo.com/quote/{symbol}/analysis/'), symbol), previous, now)
+    return section(lambda: parse_research(fetch(f'https://finance.yahoo.com/quote/{symbol}/analysis/'), symbol, currency), previous, now)
 
 def collect(symbol, name, old, now):
     base = {'symbol': symbol, 'name': name,

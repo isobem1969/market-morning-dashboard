@@ -2,6 +2,7 @@
 const definitions={
  market:{key:'market-morning-cache',file:'market.json'},
  drawdowns:{key:'market-morning-drawdowns',file:'fund-drawdowns.json'},
+ japan:{key:'morning-japan-stocks-v1',file:'japan-stocks.json'},
  stocks:{key:'morning-stocks-v1',file:'stocks.json'},
  rsi:{key:'market-morning-rsi-v1',file:'nasdaq-rsi.json'},
  heatmap:{key:'market-morning-heatmap-v1',file:'heatmap.json'}

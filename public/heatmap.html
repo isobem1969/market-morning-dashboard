@@ -3,7 +3,7 @@
 <head>
 <script>
 // Start data transfer while styles and ES modules are still loading.
-(()=>{const configs={market:['market-morning-cache','market.json'],stocks:['morning-stocks-v1','stocks.json'],heatmap:['market-morning-heatmap-v1','heatmap.json'],rsi:['market-morning-rsi-v1','nasdaq-rsi.json']};
+(()=>{const configs={market:['market-morning-cache','market.json'],stocks:['morning-stocks-v1','stocks.json'],japan:['morning-japan-stocks-v1','japan-stocks.json'],heatmap:['market-morning-heatmap-v1','heatmap.json'],rsi:['market-morning-rsi-v1','nasdaq-rsi.json']};
 const requests=window.__morningPrefetch={},states=window.__morningPreloadState={};
 function show(){if(document.querySelector('iframe[data-morning-page]'))return;const el=document.getElementById('page-preload-status');if(el)el.textContent=['stocks','heatmap'].map(k=>(k==='stocks'?'米国株':'ヒートマップ')+'：'+(states[k]||'先読み中')).join(' ／ ');}
 for(const [name,[key,file]]of Object.entries(configs)){states[name]='先読み中';const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);
@@ -49,21 +49,21 @@ dialog .detail-move{font-size:42px;margin:12px 0}
 #detail-status{font-size:12px;color:#617580;line-height:1.8}
 .breadth{flex-wrap:wrap}
 </style><link rel="stylesheet" href="./page-tabs.css?v=aligned-navigation-20261114">
-<link rel="modulepreload" href="./stocks-reference.js?v=staged-progress-20261115">
+<link rel="modulepreload" href="./stocks-reference.js?v=six-pages-20261119-v1">
 <link rel="modulepreload" href="./heatmap.js?v=staged-progress-20261115">
-<link rel="modulepreload" href="./shared-data.js?v=staged-progress-20261115">
-<link rel="modulepreload" href="./stock-chart.js?v=daily-axis-20261022">
-<link rel="modulepreload" href="./analyst-panel.js?v=analyst-20261022">
+<link rel="modulepreload" href="./shared-data.js?v=six-pages-20261119-v1">
+<link rel="modulepreload" href="./stock-chart.js?v=six-pages-20261119-v1">
+<link rel="modulepreload" href="./analyst-panel.js?v=six-pages-20261119-v1">
 <link rel="modulepreload" href="./stock-alerts.js?v=stock-alerts-20261017">
 <link rel="modulepreload" href="./value-pair.js?v=green-arrow-20261008">
-<link rel="modulepreload" href="./stocks-logic.js?v=period-high-20261009">
-<script type="module" src="./page-warm.js?v=native-pages-20261115"></script>
+<link rel="modulepreload" href="./stocks-logic.js?v=six-pages-20261119-v1">
+<script type="module" src="./page-warm.js?v=six-pages-20261119-v1"></script>
 <link rel="apple-touch-icon" href="./icon-192.png">
-<meta name="apple-mobile-web-app-title" content="株式指標"><link rel="stylesheet" href="./common-header.css?v=unified-header-20261118">
+<meta name="apple-mobile-web-app-title" content="株式指標"><link rel="stylesheet" href="./common-header.css?v=six-pages-20261119-v1">
 </head>
 <body><main>
 <header class="morning-header unified-header"><div class="header-brand"><p class="eyebrow">MARKET MORNING / HEATMAP</p><h1>ヒートマップ</h1></div><div class="header-tools"><time id="today" class="header-date"></time><button id="refresh-heatmap" class="header-refresh" type="button" aria-label="ページを更新" title="最新の保存データを再読み込み"><span class="refresh-icon" aria-hidden="true">↻</span><span>更新</span></button></div></header>
-<nav class="morning-pages" aria-label="株式指標・ページ切り替え"><a href="./">株式指標</a><a href="./stocks-reference.html">米国株</a><a href="./heatmap.html" class="heatmap-tab" aria-current="page">ヒートマップ</a><a href="./nasdaq-rsi.html" class="rsi-tab">NASDAQ100・RSI</a></nav>
+<nav class="morning-pages" aria-label="株式指標・ページ切り替え"><a href="./">株式指標</a><a href="./funds.html">投資信託</a><a href="./stocks-reference.html">米国株</a><a href="./japan-stocks.html">日本株</a><a href="./heatmap.html" aria-current="page">ヒートマップ</a><a href="./nasdaq-rsi.html">NASDAQ100・RSI</a></nav>
 <p id="heatmap-status" class="sample-caption" role="status" aria-live="polite">価格データを読み込んでいます…</p>
 <div class="controls"><div class="control-group" id="views" aria-label="表示する指数"><button data-view="both" aria-pressed="true">2指数を表示</button><button data-view="sp" aria-pressed="false">S&P500</button><button data-view="nas" aria-pressed="false">NASDAQ100</button></div><div class="control-group" id="periods" aria-label="騰落率の比較期間"><span>比較期間</span><button data-period="1d" aria-pressed="true">1日</button><button data-period="1w" aria-pressed="false">1週</button><button data-period="1m" aria-pressed="false">1カ月</button></div></div>
 <section class="legend" aria-label="色の意味"><div class="legend-title">下落は赤 ← 変化なし → 上昇は緑</div><div class="scale"><span style="background:#9d2429">−3％以下</span><span style="background:#c13e39">−2％</span><span style="background:#b85b53">−1％</span><span style="background:#617078">0％</span><span style="background:#39834b">＋1％</span><span style="background:#23833b">＋2％</span><span style="background:#116a2d">＋3％以上</span></div><p class="legend-note">矢印と符号も併記。濃い色ほど変化が大きい表示です。欠損値は0％とせず「未取得」と表示します。</p></section>

@@ -12,9 +12,9 @@
 .page-ready-alert>p{font-size:14px;line-height:1.8;margin:12px 0}
 .ready-progress-row{display:flex;align-items:center;gap:18px;margin:16px 0 20px}
 .ready-progress-row>strong{font-size:15px;white-space:nowrap;font-variant-numeric:tabular-nums}
-.ready-progress{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:3px;flex:1;height:16px;min-width:0}
+.ready-progress{display:grid;grid-template-columns:repeat(18,minmax(0,1fr));gap:3px;flex:1;height:16px;min-width:0}
 .ready-progress>span{border-radius:3px;background:#dce2e6}.ready-progress>span.done{background:#429e37}
-.ready-alert-pages{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.ready-alert-pages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .ready-page{min-width:0;padding:16px 13px;border:1px solid #d6e0e7;border-radius:13px;background:#fff;color:#19313f}
 .ready-page[data-stage=complete]{border-color:#95c4a4}.ready-page[data-stage=failed]{border-color:#e3a557}
 .ready-page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap}

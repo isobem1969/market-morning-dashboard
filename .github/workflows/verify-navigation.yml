@@ -19,6 +19,8 @@ jobs:
   browser:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      TEST_BASE_URL: http://127.0.0.1:8773/
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,10 +28,14 @@ jobs:
           node-version: '22'
       - run: npm install --no-save --ignore-scripts playwright@1.62.1 pngjs@7.0.0
       - run: npx playwright install --with-deps chromium webkit
-      - run: node --test tests/ready-alert.test.js tests/stock-date-cache.test.mjs
+      - name: Start local app
+        run: python3 -m http.server 8773 --bind 127.0.0.1 --directory public > /tmp/market-http.log 2>&1 &
+      - run: node --test tests/ready-alert.test.js tests/stock-date-cache.test.mjs tests/six-pages.test.js
       - run: node tests/progress-browser.mjs
       - run: BROWSER=webkit node tests/progress-browser.mjs
         if: always()
+      - run: node tests/six-pages-browser.mjs
+      - run: BROWSER=webkit node tests/six-pages-browser.mjs
       - run: node tests/navigation-live.mjs
       - run: BROWSER=webkit node tests/navigation-live.mjs
         if: always()

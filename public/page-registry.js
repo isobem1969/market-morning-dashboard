@@ -1,0 +1,2 @@
+// Canonical page order and the data snapshot each page renders.
+export const PAGES=[{"key":"market","label":"株式指標","url":"./","dataKey":"market"},{"key":"funds","label":"投資信託","url":"./funds.html","dataKey":"market"},{"key":"stocks","label":"米国株","url":"./stocks-reference.html","dataKey":"stocks"},{"key":"japan","label":"日本株","url":"./japan-stocks.html","dataKey":"japan"},{"key":"heatmap","label":"ヒートマップ","url":"./heatmap.html","dataKey":"heatmap"},{"key":"rsi","label":"NASDAQ100・RSI","url":"./nasdaq-rsi.html","dataKey":"rsi"}];
