@@ -1,18 +1,18 @@
-/* Shared header for all four dashboard pages. */
-body>main>header.morning-header.unified-header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:24px;height:auto;min-height:128px;padding:20px 22px;background:#fff;border:1px solid #d9e2e5;border-radius:16px;margin:0;color:#132d3c}
-.unified-header .header-brand{min-width:0}
-body>main>header.unified-header .eyebrow{font-size:13px;font-weight:800;line-height:1.4;letter-spacing:.8px;color:#1753c9;margin:0 0 8px;overflow-wrap:anywhere}
+/* Shared header for all six dashboard pages. */
+body>main>header.morning-header.unified-header{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto;align-items:start;gap:24px;height:auto;min-height:128px;padding:20px 22px;background:#fff;border:1px solid #d9e2e5;border-radius:16px;margin:0;color:#132d3c;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;font-size:16px;font-weight:400;font-style:normal;line-height:1.5;text-align:left;letter-spacing:normal}
+.unified-header .header-brand{min-width:0;align-self:start;margin:0;padding:0;text-align:left}
+body>main>header.unified-header .eyebrow{font-size:13px;font-weight:800;line-height:1.4;letter-spacing:.8px;color:#1753c9;margin:0 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body>main>header.unified-header h1{font-size:48px;font-weight:850;line-height:1.2;letter-spacing:-1px;color:#101d2a;margin:0;overflow-wrap:anywhere}
-body>main>header.unified-header>.header-tools{display:flex;flex-direction:column;align-items:flex-end;align-self:start;gap:10px;width:auto;min-width:0;text-align:right}
-body>main>header.unified-header #today{font-size:17px;font-weight:750;line-height:1.4;color:#000;white-space:nowrap}
+body>main>header.unified-header>.header-tools{display:flex;flex-direction:column;align-items:flex-end;align-self:start;gap:10px;width:auto;min-width:0;margin:0;padding:0;justify-self:end;text-align:right}
+body>main>header.unified-header #today{font-size:17px;font-weight:750;line-height:1.4;color:#000;white-space:nowrap;display:block;margin:0;padding:0;letter-spacing:normal;font-family:inherit;font-style:normal}
 .unified-header .header-weekday{color:#000}
 .unified-header .is-weekday{color:#000}
 .unified-header .is-saturday{color:#005bff}
 .unified-header .is-sunday{color:#f20d2f}
-body>main>header.unified-header .header-refresh{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:132px;min-height:52px;padding:7px 20px;margin:0;background:#ff7900;border:2px solid #ef7100;border-radius:30px;color:#fff;font-size:23px;font-weight:850;line-height:1;box-shadow:0 3px 10px #ff790026;cursor:pointer}
-body>main>header.unified-header .header-refresh:hover{background:#df6200}
-body>main>header.unified-header .header-refresh:focus-visible{outline:3px solid #1753c9;outline-offset:4px}
-body>main>header.unified-header .header-refresh:disabled{opacity:.7;cursor:wait}
+body>main>header.unified-header :is(#refresh,#refresh-heatmap).header-refresh{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:132px;min-height:52px;padding:7px 20px;margin:0;background:#ff7900;border:2px solid #ef7100;border-radius:30px;color:#fff;font-size:23px;font-weight:850;line-height:1;font-family:inherit;font-style:normal;letter-spacing:normal;box-shadow:0 3px 10px #ff790026;cursor:pointer}
+body>main>header.unified-header :is(#refresh,#refresh-heatmap).header-refresh:hover{background:#df6200}
+body>main>header.unified-header :is(#refresh,#refresh-heatmap).header-refresh:focus-visible{outline:3px solid #1753c9;outline-offset:4px}
+body>main>header.unified-header :is(#refresh,#refresh-heatmap).header-refresh:disabled{opacity:.7;cursor:wait}
 body>main>header.unified-header .refresh-icon{font-size:38px;line-height:1;font-weight:700}
 body>main>.morning-pages{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:14px 0 22px}
 body>main>.morning-pages a{background:#fff;border:1px solid #cdd7df;color:#19313f;min-height:60px;border-radius:11px}
@@ -24,7 +24,7 @@ body>main>.morning-pages a[aria-current=page]{background:#0961ce;border-color:#0
  body>main>header.unified-header #today{font-size:11px;line-height:1.5}
  .unified-header .header-calendar-date,.unified-header .header-weekday{display:block}
  body>main>header.unified-header>.header-tools{gap:10px}
- body>main>header.unified-header .header-refresh{min-width:100px;min-height:48px;padding:6px 12px;gap:7px;font-size:20px}
+ body>main>header.unified-header :is(#refresh,#refresh-heatmap).header-refresh{min-width:100px;min-height:48px;padding:6px 12px;gap:7px;font-size:20px}
  body>main>header.unified-header .refresh-icon{font-size:32px}
  body>main>.morning-pages{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
  body>main>.morning-pages a{font-size:clamp(14px,4.25vw,22px);min-height:52px;padding:10px 4px;white-space:nowrap}
@@ -32,7 +32,7 @@ body>main>.morning-pages a[aria-current=page]{background:#0961ce;border-color:#0
 @media(max-width:360px){
  body>main>header.morning-header.unified-header{padding:14px 10px;gap:8px;grid-template-columns:minmax(0,1fr) 94px}
  body>main>header.unified-header h1{font-size:30px}
- body>main>header.unified-header .header-refresh{min-width:94px}
+ body>main>header.unified-header :is(#refresh,#refresh-heatmap).header-refresh{min-width:94px}
  body>main>header.unified-header #today{font-size:10px}
 }
 @media(prefers-reduced-motion:no-preference){.unified-header .header-refresh[aria-busy=true] .refresh-icon{animation:header-refresh-turn 1s linear infinite}@keyframes header-refresh-turn{to{transform:rotate(360deg)}}}
@@ -41,12 +41,12 @@ body>main>.morning-pages a[aria-current=page]{background:#0961ce;border-color:#0
 body>main:has(>header.unified-header){padding-top:32px}
 body>main>header.unified-header .header-refresh>span{flex:0 0 auto;white-space:nowrap}
 body>main>.morning-pages a.heatmap-tab:not([aria-current]),body>main>.morning-pages a.rsi-tab:not([aria-current]){background:#fff;color:#19313f;border:1px solid #cdd7df}
-@media(max-width:650px){body>main:has(>header.unified-header){padding-top:26px}body>main>header.morning-header.unified-header{min-height:152px}body>main>header.unified-header .header-refresh{padding:6px 10px;gap:6px;white-space:nowrap}}
+@media(max-width:650px){body>main:has(>header.unified-header){padding-top:26px}body>main>header.morning-header.unified-header{min-height:152px}body>main>header.unified-header :is(#refresh,#refresh-heatmap).header-refresh{padding:6px 10px;gap:6px;white-space:nowrap}}
 
 /* Reduce desktop header text by one weight step; preserve touch layouts. */
 @media(min-width:651px) and (hover:hover) and (pointer:fine){
  body>main>header.unified-header h1,
- body>main>header.unified-header .header-refresh{font-weight:750}
+ body>main>header.unified-header :is(#refresh,#refresh-heatmap).header-refresh{font-weight:750}
 }
 
 /* Six pages: one desktop row, two tablet rows, three phone rows. */

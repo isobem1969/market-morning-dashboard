@@ -12,6 +12,8 @@ on:
       - 'public/sw.js'
       - 'public/fund-panel.*'
       - 'tests/ready-alert.test.js'
+      - 'public/common-header.css'
+      - 'tests/header-browser.mjs'
   workflow_dispatch:
 permissions:
   contents: read
@@ -31,6 +33,8 @@ jobs:
       - name: Start local app
         run: python3 -m http.server 8773 --bind 127.0.0.1 --directory public > /tmp/market-http.log 2>&1 &
       - run: node --test tests/ready-alert.test.js tests/stock-date-cache.test.mjs tests/six-pages.test.js
+      - run: node tests/header-browser.mjs
+      - run: BROWSER=webkit node tests/header-browser.mjs
       - run: node tests/progress-browser.mjs
       - run: BROWSER=webkit node tests/progress-browser.mjs
         if: always()
