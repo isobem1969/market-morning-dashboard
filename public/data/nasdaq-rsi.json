@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:08:23.734963+00:00",
+  "generatedAt": "2026-11-18T16:28:25.375576+00:00",
   "status": "ok",
   "error": null,
   "source": "Yahoo Finance / NASDAQ100 (^NDX)・TQQQ・SOXL",
@@ -22,11 +22,11 @@
     "rsi": 39.432744754994836
   },
   "provisional": {
-    "date": "2026-11-17",
-    "value": 27001.779296875,
+    "date": "2026-11-18",
+    "value": 26915.921875,
     "week": "2026-11-16",
     "confirmedAt": "2026-11-20T21:00:00+00:00",
-    "rsi": 41.176703657579345
+    "rsi": 40.806305541918256
   },
   "history": [
     {
@@ -4054,35 +4054,35 @@
   },
   "prices": {
     "ndx": {
-      "value": 27001.779296875,
-      "previous": 27197.150390625,
-      "asOf": "2026-11-17",
-      "marketOpen": false,
+      "value": 26915.922,
+      "previous": 27001.779296875,
+      "asOf": "2026-11-18",
+      "marketOpen": true,
       "peak": 31224.470703125,
-      "ratio": 86.47633951461222,
-      "drawdown": -13.52366048538778,
+      "ratio": 86.2013715329567,
+      "drawdown": -13.798628467043294,
       "historyStart": "1985-10-01",
       "peakLabel": "取得期間の最高終値（分割調整済み）"
     },
     "tqqq": {
-      "value": 51.810001373291016,
-      "previous": 53.029998779296875,
-      "asOf": "2026-11-17",
-      "marketOpen": false,
+      "value": 51.35,
+      "previous": 51.810001373291016,
+      "asOf": "2026-11-18",
+      "marketOpen": true,
       "peak": 87.22000122070312,
-      "ratio": 59.40151415750387,
-      "drawdown": -40.59848584249613,
+      "ratio": 58.874110618346585,
+      "drawdown": -41.125889381653415,
       "historyStart": "2010-02-11",
       "peakLabel": "取得期間の最高終値（分割調整済み）"
     },
     "soxl": {
-      "value": 49.06999969482422,
-      "previous": 48.7599983215332,
-      "asOf": "2026-11-17",
-      "marketOpen": false,
+      "value": 47.268,
+      "previous": 49.06999969482422,
+      "asOf": "2026-11-18",
+      "marketOpen": true,
       "peak": 300.7699890136719,
-      "ratio": 16.31479252825111,
-      "drawdown": -83.6852074717489,
+      "ratio": 15.715663705347735,
+      "drawdown": -84.28433629465226,
       "historyStart": "2010-03-11",
       "peakLabel": "取得期間の最高終値（分割調整済み）"
     }
