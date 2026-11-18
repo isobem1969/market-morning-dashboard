@@ -127,11 +127,11 @@ def high_observation(result, symbol, now, timezone=NY):
         if 'space' not in str(meta.get('longName', '')).lower():
             raise ValueError('SPCX issuer is not SpaceX')
         first_trade = dt.datetime(2026, 6, 12, tzinfo=NY).timestamp()
-    today = now.astimezone(NY).date()
+    today = now.astimezone(timezone).date()
     rows = []
     for stamp, value in zip(result.get('timestamp', []), result['indicators']['quote'][0].get('high', [])):
         value = number(value)
-        date = dt.datetime.fromtimestamp(stamp, NY).date()
+        date = dt.datetime.fromtimestamp(stamp, timezone).date()
         if value is not None and value > 0 and stamp <= now.timestamp() and date <= today:
             if symbol != 'SPCX' or stamp >= first_trade:
                 rows.append((date, value))

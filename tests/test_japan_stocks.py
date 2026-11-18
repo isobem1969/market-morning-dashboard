@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import patch
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / 'scripts'))
 from update_japan_stocks import TOKYO, parse_ratios, collect
-from update_stocks import price_observation, parse_research
+from update_stocks import price_observation, parse_research, high_observation
 
 class JapanStockTests(unittest.TestCase):
     def test_ratios_use_forecast_per_and_actual_pbr_without_vip_placeholder(self):
@@ -29,6 +29,15 @@ class JapanStockTests(unittest.TestCase):
         self.assertEqual(value['sessionDate'], '2026-11-18')
         self.assertEqual(value['change'], 4)
         self.assertTrue(value['marketOpen'])
+
+    def test_full_history_highs_use_tokyo_record_dates(self):
+        stamp = int(dt.datetime(2026, 11, 18, 0, 0, tzinfo=dt.timezone.utc).timestamp())
+        data = {'meta': {'dataGranularity': '1d', 'firstTradeDate': stamp}, 'timestamp': [stamp], 'indicators': {'quote': [{'high': [110]}]}}
+        value = high_observation(data, '285A.T', dt.datetime(2026, 11, 19, tzinfo=dt.timezone.utc), TOKYO)
+        self.assertEqual(value['allTime']['date'], '2026-11-18')
+        self.assertEqual(value['week52']['date'], '2026-11-18')
+        self.assertEqual(value['historyStart'], '2026-11-18')
+        self.assertEqual(value['asOfDate'], '2026-11-18')
 
     def test_source_failure_preserves_japanese_prices_and_original_dates(self):
         old = {'price': {'value': 100, 'lastSuccess': '2026-11-18T06:30:00Z'}}
