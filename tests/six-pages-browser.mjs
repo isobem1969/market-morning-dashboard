@@ -41,7 +41,9 @@ try{
     }
    }else if(item.key==='heatmap')await page.locator('.tile').first().waitFor();
    else await page.locator('#rsi-chart svg').waitFor();
-   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,device+' '+item.key+' overflows');
+   const overflow=await page.evaluate(()=>({bad:document.documentElement.scrollWidth>innerWidth,items:[...document.querySelectorAll('main *')].filter(e=>e.getBoundingClientRect().right>innerWidth+1).slice(0,12).map(e=>({tag:e.tagName,className:e.className,text:e.textContent.slice(0,80),right:e.getBoundingClientRect().right}))}));
+   if(overflow.bad)console.log('OVERFLOW_DIAGNOSTIC',engine,device,item.key,overflow);
+   assert.equal(overflow.bad,false,device+' '+item.key+' overflows');
    await page.screenshot({path:'screenshots/navigation-six-'+engine+'-'+device+'-'+item.key+'.png'});
   }
   await page.goto(base+'nasdaq-rsi.html');

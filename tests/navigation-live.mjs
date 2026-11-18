@@ -44,6 +44,7 @@ async function inspectPaint(selector,label){
  console.log('SCROLLED_PANEL_PAINTED',engine,label,painted/total);
 }
 async function scrollControls(label){
+ if(await page.locator('#page-ready-alert').count())await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.phase==='complete',null,{timeout:60000});
  const down=page.locator('#go-to-bottom'),up=page.locator('#back-to-top');
  if(await down.isEnabled())await down.click();
  await page.waitForFunction(()=>Math.abs(Math.max(document.documentElement.scrollHeight,document.body.scrollHeight)-innerHeight-scrollY)<4&&document.getElementById('go-to-bottom').disabled,null,{timeout:10000});

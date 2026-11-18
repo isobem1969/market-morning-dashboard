@@ -24,3 +24,8 @@
 .watch h3 .watch-threshold{font-size:52px;font-weight:900;line-height:1.15;color:#e99500;vertical-align:baseline;margin-right:3px;letter-spacing:-1px}
 .watch.sell h3 .watch-threshold{color:#16a36a}
 @media(max-width:650px){.watch h3 .watch-threshold{font-size:46px}}
+
+/* Keep narrow Safari layouts within the viewport without clipping figures. */
+.price-details{grid-template-columns:repeat(2,minmax(0,1fr))}
+.indicator-panel-link{min-width:0;max-width:100%;overflow-wrap:anywhere}
+@media(max-width:360px){.value-row,.quote-row{flex-wrap:wrap;white-space:normal}.price-title{flex-wrap:wrap}.value-box{padding:12px}.price-details>div{min-width:0;padding:10px}.price-details strong{font-size:25px;overflow-wrap:anywhere}}
