@@ -5,7 +5,7 @@ import sys
 import unittest
 from unittest.mock import patch
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / 'scripts'))
-from update_japan_stocks import TOKYO, parse_ratios, collect
+from update_japan_stocks import TOKYO, parse_ratios, collect, parse_ifis_research, collect_japan_research
 from update_stocks import price_observation, parse_research, high_observation
 
 class JapanStockTests(unittest.TestCase):
@@ -55,5 +55,47 @@ class JapanStockTests(unittest.TestCase):
         self.assertEqual(parse_research(text, '285A.T', 'JPY')['target'], 5000)
         with self.assertRaises(ValueError): parse_research(text, '285A.T', 'USD')
         with self.assertRaises(ValueError): parse_research(text, '9984.T', 'JPY')
+
+    def ifis_page(self, code='9984', target='8,023円', count='11人'):
+        return f'''<title>ソフトバンクＧ({code}) : 目標株価｜株予報Pro</title>
+        <section class="brnd_targetprice target"><h1>目標株価</h1><th>目標株価の平均</th>
+        <tbody><tr><td><span>{target}</span></td><td>137.15%</td></tr></tbody></section>
+        <section class="brnd_targetprice rating"><p class="rating">★★★★☆&nbsp;やや強気</p>
+        <tr><th><span>レーティングの平均</span></th><td>4.36</td></tr>
+        <tr><th><span>アナリスト数</span></th><td>{count}</td></tr></section>'''
+
+    def test_ifis_target_is_mean_not_theory_or_upside_and_count_is_rating(self):
+        value = parse_ifis_research(self.ifis_page(), '9984.T')
+        self.assertEqual(value['target'], 8023)
+        self.assertEqual(value['recommendationLabel'], 'やや強気')
+        self.assertEqual(value['ratingMean'], 4.36)
+        self.assertEqual(value['analysts'], 11)
+        self.assertEqual(value['analystCountBasis'], 'rating')
+        self.assertIsNone(value['publishedAt'])
+        self.assertIn('kabuyoho.jp', value['sourceUrl'])
+
+    def test_ifis_rejects_wrong_issuer_missing_target_and_missing_coverage(self):
+        for page in [self.ifis_page(code='4755'), self.ifis_page(target='---'), self.ifis_page(count='0人'), '<html>error</html>']:
+            with self.subTest(page=page), self.assertRaises(ValueError):
+                parse_ifis_research(page, '9984.T')
+
+    def test_japan_fallback_recovers_failed_yahoo_and_preserves_old_on_total_failure(self):
+        now = dt.datetime(2026, 11, 19, tzinfo=dt.timezone.utc)
+        old = {'target': 7000, 'lastSuccess': '2026-11-17T00:00:00Z', 'source': 'old'}
+        with patch('update_japan_stocks.collect_research', return_value={'status':'error'}), patch('update_japan_stocks.fetch', return_value=self.ifis_page()):
+            value = collect_japan_research('9984.T', old, now)
+        self.assertEqual(value['status'], 'ok')
+        self.assertEqual(value['target'], 8023)
+        self.assertEqual(value['lastSuccess'], now.isoformat())
+        with patch('update_japan_stocks.collect_research', return_value={'status':'error'}), patch('update_japan_stocks.fetch', side_effect=ValueError('offline')):
+            value = collect_japan_research('9984.T', old, now)
+        self.assertEqual(value['status'], 'error')
+        self.assertEqual(value['target'], old['target'])
+        self.assertEqual(value['lastSuccess'], old['lastSuccess'])
+
+    def test_successful_yahoo_does_not_fetch_fallback(self):
+        with patch('update_japan_stocks.collect_research', return_value={'status':'ok','target':5000}), patch('update_japan_stocks.fetch') as fetcher:
+            self.assertEqual(collect_japan_research('285A.T', {}, dt.datetime.now(dt.timezone.utc))['target'], 5000)
+            fetcher.assert_not_called()
 
 if __name__ == '__main__': unittest.main()

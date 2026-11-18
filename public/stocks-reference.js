@@ -1,7 +1,7 @@
 import {updateHeaderDate} from './common-header.js?v=six-pages-20261119-v1';
 import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=six-pages-20261119-v1';
 import {stockGraph as graph} from './stock-chart.js?v=six-pages-20261119-v1';
-import {analystPanel} from './analyst-panel.js?v=six-pages-20261119-v1';
+import {analystPanel} from './analyst-panel.js?v=japan-ifis-20261119';
 import {stockAlerts} from './stock-alerts.js?v=stock-alerts-20261017';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {PERIODS,chartPoints,nyDate,sectionOld,periodHigh} from './stocks-logic.js?v=six-pages-20261119-v1';

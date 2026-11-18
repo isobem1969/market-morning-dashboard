@@ -38,6 +38,46 @@ def parse_ratios(text, symbol):
         raise ValueError('Japanese PER/PBR page structure changed')
     return {'ratios': ratios, 'sentiment': None}
 
+def parse_ifis_research(text, symbol):
+    code = symbol.removesuffix('.T')
+    title = re.search(r'<title\b[^>]*>(.*?)</title>', text, re.S)
+    if not title or not re.search(r'\(' + re.escape(code) + r'\)', plain(title[1])):
+        raise ValueError('IFIS analyst issuer mismatch')
+    def block(kind):
+        m = re.search(r'<section\b[^>]*class="brnd_targetprice ' + kind + r'"[^>]*>(.*?)</section>', text, re.S)
+        if not m:
+            raise ValueError('IFIS analyst page structure changed')
+        return m[1]
+    target_block, rating_block = block('target'), block('rating')
+    if '目標株価の平均' not in target_block:
+        raise ValueError('IFIS mean target heading missing')
+    body = re.search(r'<tbody\b[^>]*>.*?<td\b[^>]*>(.*?)</td>', target_block, re.S)
+    raw = plain(body[1]) if body else ''
+    if not re.fullmatch(r'[\d,]+(?:\.\d+)?円', raw):
+        raise ValueError('IFIS mean target missing')
+    target = number(raw.removesuffix('円'))
+    def field(label):
+        m = re.search(r'<tr\b[^>]*>\s*<th\b[^>]*>\s*<span[^>]*>' + label + r'</span>\s*</th>\s*<td\b[^>]*>(.*?)</td>', rating_block, re.S)
+        return plain(m[1]) if m else ''
+    rating = number(field('レーティングの平均'))
+    count_text = field('アナリスト数')
+    count = int(count_text[:-1]) if re.fullmatch(r'\d+人', count_text) else 0
+    label_match = re.search(r'<p class="rating">(.*?)</p>', rating_block, re.S)
+    label = re.sub(r'[★☆\s]+', '', plain(label_match[1])) if label_match else ''
+    if not target or target <= 0 or rating is None or not 1 <= rating <= 5 or count <= 0 or label not in ('強気','やや強気','中立','やや弱気','弱気'):
+        raise ValueError('IFIS analyst values unavailable')
+    return {'target': target, 'recommendation': None, 'recommendationLabel': label,
+            'ratingMean': rating, 'analysts': count, 'analystCountBasis': 'rating',
+            'source': 'IFIS 株予報Pro・アナリスト集計',
+            'sourceUrl': f'https://kabuyoho.jp/reportTarget?bcode={code}', 'publishedAt': None}
+
+def collect_japan_research(symbol, previous, now):
+    primary = collect_research(symbol, previous, now, 'JPY')
+    if primary.get('status') == 'ok':
+        return primary
+    url = f'https://kabuyoho.jp/reportTarget?bcode={symbol.removesuffix(".T")}'
+    return section(lambda: parse_ifis_research(fetch(url), symbol), previous, now)
+
 def collect(symbol, name, old, now):
     code = symbol.removesuffix('.T')
     base = {'symbol': symbol, 'code': code, 'name': name, 'currency': 'JPY',
@@ -60,7 +100,7 @@ def collect(symbol, name, old, now):
     return {**base, 'price': section(prices, old.get('price', {}), now),
             'highs': section(highs, old.get('highs', {}), now),
             'japan': section(lambda: parse_ratios(fetch(base['quoteUrl']), symbol), old.get('japan', {}), now),
-            'research': collect_research(symbol, old.get('research', {}), now, 'JPY')}
+            'research': collect_japan_research(symbol, old.get('research', {}), now)}
 
 def main():
     path = ROOT / 'public/data/japan-stocks.json'
