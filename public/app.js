@@ -1,4 +1,4 @@
-import {updateHeaderDate} from './common-header.js?v=six-pages-20261119-v1';
+import {updateHeaderDate,redirectingFundPanel} from './common-header.js?v=six-pages-20261119-v1';
 import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=six-pages-20261119-v1';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {changePercent,percentLine} from './change-format.js?v=twoline-20261007';
@@ -7,6 +7,7 @@ import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=rsi-links-
 import {viCard} from './vi-panel.js?v=names-type-20261114';
 import {fearCard} from './fear-panel.js?v=names-type-20261114';
 import {quality,signal,overall,VIX_BANDS,vixBand,selectVixHistory} from './logic.js?v=vix-20261006';
+if(!redirectingFundPanel){
 const $=s=>document.querySelector(s);
 const isFunds=document.body.dataset.dashboard==='funds',pageKey=isFunds?'funds':'market';
 const FUND_IDS=['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd','tqqq','soxl'];
@@ -160,3 +161,5 @@ watchValuePairs(document.querySelector('#cards'));
 
 
 window.addEventListener('morning-refresh',refresh);window.__morningRefreshReady=true;
+
+}

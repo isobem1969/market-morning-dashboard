@@ -4,7 +4,7 @@
   <meta charset="utf-8">
 <script>
 // Start data transfer while styles and ES modules are still loading.
-(()=>{const configs={market:['market-morning-cache','market.json'],stocks:['morning-stocks-v1','stocks.json'],japan:['morning-japan-stocks-v1','japan-stocks.json'],heatmap:['market-morning-heatmap-v1','heatmap.json'],rsi:['market-morning-rsi-v1','nasdaq-rsi.json']};
+(()=>{if(/\/(?:index\.html)?#metric-(nasdaq|tqqq|soxl)$/.test(location.pathname+location.hash))return;const configs={market:['market-morning-cache','market.json'],stocks:['morning-stocks-v1','stocks.json'],japan:['morning-japan-stocks-v1','japan-stocks.json'],heatmap:['market-morning-heatmap-v1','heatmap.json'],rsi:['market-morning-rsi-v1','nasdaq-rsi.json']};
 const requests=window.__morningPrefetch={},states=window.__morningPreloadState={};
 function show(){if(document.querySelector('iframe[data-morning-page]'))return;const el=document.getElementById('page-preload-status');if(el)el.textContent=['stocks','heatmap'].map(k=>(k==='stocks'?'米国株':'ヒートマップ')+'：'+(states[k]||'先読み中')).join(' ／ ');}
 for(const [name,[key,file]]of Object.entries(configs)){states[name]='先読み中';const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);

@@ -19,6 +19,7 @@ async function navigate(path,selector){
  console.log('REAL_DOCUMENT_VISIBLE',engine,path||'indicators',Date.now()-start);
 }
 async function inspectPaint(selector,label){
+ if(await page.locator('#page-ready-alert').count())await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.phase==='complete',null,{timeout:60000});
  const card=page.locator(selector).first();
  await card.evaluate(e=>window.scrollTo({top:e.getBoundingClientRect().top+scrollY-20,behavior:'instant'}));
  await page.waitForFunction(selector=>{

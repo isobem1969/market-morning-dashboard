@@ -1,10 +1,11 @@
+import {redirectingFundPanel} from './common-header.js?v=six-pages-20261119-v1';
 // Prepare snapshots and page structure off screen. Open links as real documents.
 // A hidden, fixed iframe must never become the visible page or intercept its scroll.
 import {PAGES} from './page-registry.js?v=six-pages-20261119-v1';
 const base=new URL('./',import.meta.url);
 const paths=Object.fromEntries(PAGES.filter(p=>p.key!=='market').map(p=>[p.key,new URL(p.url,base)]));
 const isRoot=location.pathname===base.pathname||location.pathname===new URL('index.html',base).pathname;
-if(window.parent===window&&isRoot){
+if(window.parent===window&&isRoot&&!redirectingFundPanel){
  const frames=new Map();
  for(const [key,url]of Object.entries(paths)){
   const frame=document.createElement('iframe');frame.dataset.morningPage=key;

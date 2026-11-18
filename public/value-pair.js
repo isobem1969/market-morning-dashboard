@@ -11,16 +11,18 @@ export function valuePair(m,format){
  return '<span class="value-pair" aria-label="前取引日 '+escape(before)+'、最新値 '+escape(current)+'"><span class="previous-value" title="前取引日・前公表日の値">'+escape(before)+'</span><span class="value-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="12" fill="#80bf1b"/><path d="M6 12h11M12 7l5 5-5 5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="current-value">'+escape(current)+'</span></span>';
 }
 export function watchValuePairs(root){
- let pending=false;
- const fit=()=>{pending=false;for(const row of root.querySelectorAll('.value-pair')){
+ let pending=false,stopped=false;
+ const fit=()=>{pending=false;if(stopped)return;for(const row of root.querySelectorAll('.value-pair')){
   row.style.fontSize='';
   const base=parseFloat(getComputedStyle(row).fontSize),available=row.clientWidth;
   if(!available)continue;
   const needed=row.scrollWidth;
   if(needed>available)row.style.fontSize=(base*available/needed*.97)+'px';
  }};
- const schedule=()=>{if(!pending){pending=true;requestAnimationFrame(fit);}};
+ const schedule=()=>{if(!stopped&&!pending){pending=true;requestAnimationFrame(fit);}};
  new MutationObserver(schedule).observe(root,{childList:true,subtree:true});
  if(typeof ResizeObserver==='function')new ResizeObserver(schedule).observe(root);
- window.addEventListener('resize',schedule);document.fonts?.ready.then(schedule);schedule();
+ window.addEventListener('resize',schedule);document.fonts?.ready.then(schedule).catch(()=>{});
+ window.addEventListener('pagehide',()=>{stopped=true;pending=false;});
+ window.addEventListener('pageshow',()=>{stopped=false;schedule();});schedule();
 }

@@ -1,3 +1,5 @@
+export const redirectingFundPanel=typeof location!=='undefined'&&/\/(?:index\.html)?#metric-(nasdaq|tqqq|soxl)$/.test(location.pathname+location.hash);
+if(redirectingFundPanel)location.replace('./funds.html'+location.hash);
 export function headerDateMarkup(date=new Date()){
  const parts=new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',weekday:'short'}).formatToParts(date);
  const value=type=>parts.find(p=>p.type===type)?.value||'';
@@ -9,7 +11,7 @@ export function updateHeaderDate(date=new Date()){
  const markup=headerDateMarkup(date);if(el.innerHTML!==markup)el.innerHTML=markup;
  el.setAttribute('datetime',new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit'}).format(date));
 }
-if(typeof document!=='undefined'){
+if(typeof document!=='undefined'&&!redirectingFundPanel){
  updateHeaderDate();
  setInterval(()=>{if(!document.hidden)updateHeaderDate();},60000);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateHeaderDate();});
@@ -20,6 +22,3 @@ if(typeof document!=='undefined'){
   button.addEventListener('click',()=>updateHeaderDate());
  }
 }
-
-// Keep previously saved links working after moving fund panels.
-if(typeof location!=='undefined'&&/\/#metric-(nasdaq|tqqq|soxl)$/.test(location.pathname+location.hash))location.replace('./funds.html'+location.hash);

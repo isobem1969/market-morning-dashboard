@@ -1,3 +1,4 @@
+import {redirectingFundPanel} from './common-header.js?v=six-pages-20261119-v1';
 import {PAGES} from './page-registry.js?v=six-pages-20261119-v1';
 const names=Object.fromEntries(PAGES.map(p=>[p.key,p.label])),links=Object.fromEntries(PAGES.map(p=>[p.key,p.url]));
 export function readiness(pages,elapsed=0){
@@ -9,7 +10,7 @@ export function readiness(pages,elapsed=0){
  return {kind:complete===PAGES.length?'ready':failed||stalled?'partial':'loading',phase:complete===PAGES.length?'complete':failed?'failed':stalled?'stalled':done===0?'starting':'working',items,complete,done,total:PAGES.length*3,failed,stalled};
 }
 export function mountReadyAlert(win=window,doc=document){
- const alert=doc.querySelector('#page-ready-alert');if(!alert)return;
+ const alert=doc.querySelector('#page-ready-alert');if(!alert||redirectingFundPanel)return;
  if(new URL(win.location.href).searchParams.get('ready-alert')==='off'){alert.hidden=true;return;}
  let started=Date.now(),lastAdvance=started,completedAt=null,previousProgress='',previousModel='',wasReady=false;
  const painted=new Map(),scheduled=new Map(),nodes=new Map();

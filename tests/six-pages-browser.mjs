@@ -8,7 +8,7 @@ await fs.mkdir('screenshots',{recursive:true});
 try{
  for(const [device,width,height,mobile]of [['Mac',1440,1000,false],['iPad-mini',744,1133,true],['iPhone',390,844,true],['small-iPhone',320,700,true]]){
   const context=await browser.newContext({viewport:{width,height},isMobile:mobile,hasTouch:mobile,serviceWorkers:'block',reducedMotion:'reduce'});
-  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+  const page=await context.newPage(),errors=[];page.on('pageerror',e=>{console.log('BROWSER_PAGE_ERROR',engine,device,e.stack||e.message);errors.push(e.message);});
   for(const item of PAGES){
    await page.goto(new URL(item.url,base).href,{waitUntil:'domcontentloaded'});
    await page.locator('header h1').waitFor();
