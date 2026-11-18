@@ -42,3 +42,9 @@ body>main:has(>header.unified-header){padding-top:32px}
 body>main>header.unified-header .header-refresh>span{flex:0 0 auto;white-space:nowrap}
 body>main>.morning-pages a.heatmap-tab:not([aria-current]),body>main>.morning-pages a.rsi-tab:not([aria-current]){background:#fff;color:#19313f;border:1px solid #cdd7df}
 @media(max-width:650px){body>main:has(>header.unified-header){padding-top:26px}body>main>header.morning-header.unified-header{min-height:152px}body>main>header.unified-header .header-refresh{padding:6px 10px;gap:6px;white-space:nowrap}}
+
+/* Reduce desktop header text by one weight step; preserve touch layouts. */
+@media(min-width:651px) and (hover:hover) and (pointer:fine){
+ body>main>header.unified-header h1,
+ body>main>header.unified-header .header-refresh{font-weight:750}
+}
