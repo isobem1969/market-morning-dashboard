@@ -1,4 +1,4 @@
-import {PERIODS,periodHigh,sectionOld} from './stocks-logic.js?v=period-high-20261009';
+import {PERIODS,periodHigh,sectionOld} from './stocks-logic.js?v=six-pages-20261119-v1';
 export function belowHigh(value,high){
  if(!Number.isFinite(value)||value<=0||!Number.isFinite(high)||high<=0)return null;
  const threshold=[50,60,70,80].find(t=>value*100<high*t);

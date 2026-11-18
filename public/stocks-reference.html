@@ -3,7 +3,7 @@
 <head>
 <script>
 // Start data transfer while styles and ES modules are still loading.
-(()=>{const configs={market:['market-morning-cache','market.json'],stocks:['morning-stocks-v1','stocks.json'],heatmap:['market-morning-heatmap-v1','heatmap.json'],rsi:['market-morning-rsi-v1','nasdaq-rsi.json']};
+(()=>{const configs={market:['market-morning-cache','market.json'],stocks:['morning-stocks-v1','stocks.json'],japan:['morning-japan-stocks-v1','japan-stocks.json'],heatmap:['market-morning-heatmap-v1','heatmap.json'],rsi:['market-morning-rsi-v1','nasdaq-rsi.json']};
 const requests=window.__morningPrefetch={},states=window.__morningPreloadState={};
 function show(){if(document.querySelector('iframe[data-morning-page]'))return;const el=document.getElementById('page-preload-status');if(el)el.textContent=['stocks','heatmap'].map(k=>(k==='stocks'?'米国株':'ヒートマップ')+'：'+(states[k]||'先読み中')).join(' ／ ');}
 for(const [name,[key,file]]of Object.entries(configs)){states[name]='先読み中';const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);
@@ -17,7 +17,7 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./stocks.css?v=white-alert-fields-20261022">
-  <script type="module" src="./stocks-reference.js?v=staged-progress-20261115"></script>
+  <script type="module" src="./stocks-reference.js?v=six-pages-20261119-v1"></script>
 <style>
 .chart-section{display:flex;flex-direction:column;min-width:0}.reference-action{display:flex;flex-direction:column;align-items:flex-end;margin-top:auto;padding-top:8px}.minkabu-small{display:inline-flex;align-items:center;justify-content:center;min-width:78px;min-height:30px;padding:5px 10px;background:#1764a5;color:#fff;border-radius:6px;font-size:12px;font-weight:800;text-decoration:none;line-height:1.4}.minkabu-small:hover{background:#0c4c86;text-decoration:none}.popup-note{font-size:10px;line-height:1.7;color:#667a83;margin-top:4px;max-width:250px;text-align:right}.popup-note:empty{display:none}@media(pointer:coarse){.minkabu-small{min-width:88px;min-height:44px;font-size:13px}}@media(max-width:600px){.minkabu-small{min-width:88px;min-height:44px;font-size:13px}}
 
@@ -92,22 +92,22 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
 <link rel="stylesheet" href="./float-controls.css?v=rsi-links-scroll-20261114">
 <script defer src="./float-controls.js?v=rsi-links-scroll-20261114"></script>
 <link rel="stylesheet" href="./page-tabs.css?v=aligned-navigation-20261114">
-<link rel="modulepreload" href="./stocks-reference.js?v=staged-progress-20261115">
+<link rel="modulepreload" href="./stocks-reference.js?v=six-pages-20261119-v1">
 <link rel="modulepreload" href="./heatmap.js?v=staged-progress-20261115">
-<link rel="modulepreload" href="./shared-data.js?v=staged-progress-20261115">
-<link rel="modulepreload" href="./stock-chart.js?v=daily-axis-20261022">
-<link rel="modulepreload" href="./analyst-panel.js?v=analyst-20261022">
+<link rel="modulepreload" href="./shared-data.js?v=six-pages-20261119-v1">
+<link rel="modulepreload" href="./stock-chart.js?v=six-pages-20261119-v1">
+<link rel="modulepreload" href="./analyst-panel.js?v=six-pages-20261119-v1">
 <link rel="modulepreload" href="./stock-alerts.js?v=stock-alerts-20261017">
 <link rel="modulepreload" href="./value-pair.js?v=green-arrow-20261008">
-<link rel="modulepreload" href="./stocks-logic.js?v=period-high-20261009">
-<script type="module" src="./page-warm.js?v=native-pages-20261115"></script>
+<link rel="modulepreload" href="./stocks-logic.js?v=six-pages-20261119-v1">
+<script type="module" src="./page-warm.js?v=six-pages-20261119-v1"></script>
 <link rel="apple-touch-icon" href="./icon-192.png">
-<meta name="apple-mobile-web-app-title" content="株式指標"><link rel="stylesheet" href="./common-header.css?v=unified-header-20261118">
+<meta name="apple-mobile-web-app-title" content="株式指標"><link rel="stylesheet" href="./common-header.css?v=six-pages-20261119-v1">
 </head>
 <body>
   <main>
     <header class="morning-header unified-header"><div class="header-brand"><p class="eyebrow">MARKET MORNING / US STOCKS</p><h1>米国株</h1></div><div class="header-tools"><time id="today" class="header-date"></time><button id="refresh" class="header-refresh" type="button" aria-label="ページを更新" title="最新の保存データを再読み込み"><span class="refresh-icon" aria-hidden="true">↻</span><span>更新</span></button></div></header>
-<nav class="morning-pages" aria-label="株式指標・ページ切り替え"><a href="./">株式指標</a><a href="./stocks-reference.html" aria-current="page">米国株</a><a href="./heatmap.html" class="heatmap-tab">ヒートマップ</a><a href="./nasdaq-rsi.html" class="rsi-tab">NASDAQ100・RSI</a></nav>
+<nav class="morning-pages" aria-label="株式指標・ページ切り替え"><a href="./">株式指標</a><a href="./funds.html">投資信託</a><a href="./stocks-reference.html" aria-current="page">米国株</a><a href="./japan-stocks.html">日本株</a><a href="./heatmap.html">ヒートマップ</a><a href="./nasdaq-rsi.html">NASDAQ100・RSI</a></nav>
     <p id="status" class="status" role="status" aria-live="polite">13銘柄を読み込んでいます…</p>
     <section class="intro stock-overview" id="stock-overview" aria-labelledby="watchlist-title">
       <div><span class="eyebrow">YOUR WATCHLIST</span><h2 id="watchlist-title">いつもの13銘柄</h2><p id="stock-alert-title" role="status" aria-live="polite">最高値からの条件を確認しています…</p><p id="stock-alert-detail">上場来と6つの期間の最高値を確認します。</p></div>

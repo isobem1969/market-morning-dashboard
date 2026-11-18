@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<script>
+// Start data transfer while styles and ES modules are still loading.
+(()=>{const configs={market:['market-morning-cache','market.json'],stocks:['morning-stocks-v1','stocks.json'],japan:['morning-japan-stocks-v1','japan-stocks.json'],heatmap:['market-morning-heatmap-v1','heatmap.json'],rsi:['market-morning-rsi-v1','nasdaq-rsi.json']};
+const requests=window.__morningPrefetch={},states=window.__morningPreloadState={};
+function show(){if(document.querySelector('iframe[data-morning-page]'))return;const el=document.getElementById('page-preload-status');if(el)el.textContent=['stocks','heatmap'].map(k=>(k==='stocks'?'米国株':'ヒートマップ')+'：'+(states[k]||'先読み中')).join(' ／ ');}
+for(const [name,[key,file]]of Object.entries(configs)){states[name]='先読み中';const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);
+requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();}).then(next=>{if(next.schemaVersion!==1||!next.generatedAt||!(name==='market'?Array.isArray(next.metrics):name==='rsi'?Number.isFinite(next.confirmed?.rsi):Array.isArray(next.stocks)))throw Error('schema');let value=next;try{const old=JSON.parse(localStorage.getItem(key));if(old&&Date.parse(old.generatedAt)>Date.parse(next.generatedAt))value=old;localStorage.setItem(key,JSON.stringify(value));}catch{}states[name]='準備完了';show();return value;}).catch(error=>{states[name]='再確認が必要';show();throw error;}).finally(()=>clearTimeout(timer));requests[name].catch(()=>{});
+}document.addEventListener('DOMContentLoaded',show);})();
+</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#132d3c">
+  <title>日本株 | Market Morning</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./stocks.css?v=white-alert-fields-20261022">
+  <script type="module" src="./stocks-reference.js?v=six-pages-20261119-v1"></script>
+<style>
+.chart-section{display:flex;flex-direction:column;min-width:0}.reference-action{display:flex;flex-direction:column;align-items:flex-end;margin-top:auto;padding-top:8px}.minkabu-small{display:inline-flex;align-items:center;justify-content:center;min-width:78px;min-height:30px;padding:5px 10px;background:#1764a5;color:#fff;border-radius:6px;font-size:12px;font-weight:800;text-decoration:none;line-height:1.4}.minkabu-small:hover{background:#0c4c86;text-decoration:none}.popup-note{font-size:10px;line-height:1.7;color:#667a83;margin-top:4px;max-width:250px;text-align:right}.popup-note:empty{display:none}@media(pointer:coarse){.minkabu-small{min-width:88px;min-height:44px;font-size:13px}}@media(max-width:600px){.minkabu-small{min-width:88px;min-height:44px;font-size:13px}}
+
+/* Larger quote typography and a prominent reference button. */
+.tile-heading>div:first-child{min-width:0}
+.tile-heading h2,.price{font-size:46px;font-weight:850;letter-spacing:-1px;line-height:1.25}
+.tile-heading h2{color:#000;font-weight:850;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+.price-box.up{border-color:#f20d2f}.price-box.up .price,.change.up{color:#f20d2f}
+.price-box.down{border-color:#005bff}.price-box.down .price,.change.down{color:#005bff}
+.change{font-size:32px;font-weight:850;line-height:1.35;overflow-wrap:anywhere}
+.minkabu-small{width:156px;height:60px;min-width:156px;min-height:60px;padding:10px 20px;font-size:24px;background:#ff7900;box-shadow:0 4px 12px #ff790033}
+.minkabu-small:hover{background:#e86600}
+@media(max-width:800px){.tile-heading h2,.price{font-size:38px}.change{font-size:30px}}
+@media(pointer:coarse){.minkabu-small{width:176px;height:88px;min-width:176px;min-height:88px;font-size:26px}}
+@media(max-width:650px){.tile-heading h2,.price{font-size:42px}.change{font-size:30px}}
+@media(max-width:600px){.minkabu-small{width:176px;height:88px;min-width:176px;min-height:88px;font-size:26px}}
+@media(max-width:360px){.tile-heading h2,.price{font-size:36px}.change{font-size:28px}}
+
+
+.stock-highs{display:grid;gap:12px;margin:18px 0}
+.stock-high{border:2px solid #ffbcc5;border-radius:12px;padding:14px;background:#fff8f8}
+.stock-high h3{margin:0;font-size:22px;font-weight:850;color:#18354a}
+.high-caption{margin:7px 0 0;font-size:13px;color:#526875}
+.high-percent{margin:0;color:#f20d2f;font-size:52px;line-height:1.2;font-weight:900;letter-spacing:-1px}
+.high-percent small{font-size:25px;margin-left:3px}
+.high-meter{height:10px;background:#f2dfe2;border-radius:10px;overflow:hidden;margin:8px 0}
+.high-meter span{display:block;height:100%;background:#f20d2f}
+.high-price{font-size:14px;margin:8px 0}.high-price strong{font-size:25px;font-weight:900;color:#f20d2f}
+.high-drop{font-size:20px;font-weight:850;margin:6px 0;color:#18354a}
+.high-basis{margin:0}.stock-high .source-note{margin:6px 0 0}
+
+
+.chart-details{display:grid;grid-template-columns:minmax(220px,.85fr) minmax(0,1.4fr);gap:20px;align-items:start;margin-top:16px;border-top:1px solid #dde4e6;padding-top:14px}
+.chart-details .ratios{margin:0;min-width:0}
+.chart-details .sentiment{min-width:0}
+.chart-details .sentiment-title{margin:0 0 10px}
+.chart-details .sentiment-labels{flex-wrap:wrap}
+.reference-action{padding-top:14px}
+@media(max-width:1000px){.chart-details{grid-template-columns:1fr;gap:14px}}
+@media(max-width:650px){.reading{display:block}.stock-highs{width:100%}.chart-details .ratios{grid-column:auto}.chart-details .sentiment{grid-column:auto}}
+/* Return panel to the market indicators dashboard. */
+.indicators-entry{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:24px 0 28px;padding:28px 32px;border:3px solid #f28a22;border-radius:22px;background:linear-gradient(115deg,#fff9ed 0%,#ffe1a8 100%);box-shadow:0 7px 18px #d9771520;color:#235b9e;text-decoration:none!important}.indicators-entry-copy{display:flex;flex-direction:column;gap:12px;min-width:0}.indicators-entry-label{align-self:flex-start;background:#e8750a;color:white;font-size:12px;font-weight:850;letter-spacing:1px;padding:5px 12px;border-radius:6px}.indicators-entry-title{font-size:36px;font-weight:900;line-height:1.35;letter-spacing:-.5px}.indicators-entry-detail{color:#705b3f;font-size:14px;line-height:1.7;font-weight:650}.indicators-entry-action{display:flex;align-items:center;justify-content:center;gap:18px;padding:18px 26px;border-radius:14px;min-height:70px;min-width:150px;background:#e8750a;box-shadow:0 5px 0 #b65108;color:white;font-size:22px;font-weight:900;white-space:nowrap}.indicators-entry-action span{font-size:36px;line-height:1}.indicators-entry:hover{border-color:#d96308;box-shadow:0 9px 22px #d9771533}.indicators-entry:focus-visible{outline:4px solid #2563a6;outline-offset:5px}@media(max-width:650px){.indicators-entry{padding:22px 20px;flex-direction:column;align-items:stretch;gap:20px;border-radius:18px}.indicators-entry-title{font-size:29px}.indicators-entry-detail{font-size:12px}.indicators-entry-action{min-height:56px;padding:12px 20px;font-size:20px;justify-content:space-between}.indicators-entry-action span{font-size:30px}}@media(max-width:360px){.indicators-entry{padding:18px 16px}.indicators-entry-title{font-size:25px}}
+
+/* Drawdown conditions: current/all-time hits, and hits in hidden periods. */
+.stock-overview{display:block}
+.stock-overview.is-alert{background:#782c32}
+#stock-alert-title{font-size:24px;font-weight:850;color:#fff;margin-top:14px}
+#stock-alert-detail{font-size:14px;line-height:1.8}
+.stock-alert-list{display:grid;gap:10px;margin-top:16px}
+.stock-alert-list:empty{display:none}
+.stock-alert-summary{display:flex;flex-direction:column;gap:6px;border:3px solid #ffe14a;border-radius:12px;padding:12px 16px;color:#ffe98a;overflow-wrap:anywhere}
+.stock-alert-summary strong{font-size:22px;line-height:1.4}
+.stock-alert-summary span{font-size:14px;line-height:1.8;color:#fff}
+.stock-alert-summary:hover{background:#ffffff12}
+.stock-tile{scroll-margin-top:16px}.stock-tile:target{outline:3px solid #2563a6;outline-offset:3px}
+.stock-tile.stock-alert-active{background:#ffe59a}
+.stock-tile.stock-alert-hidden{background:#fff5d5}
+.stock-tile:is(.stock-alert-active,.stock-alert-hidden) :is(.chart-wrap,.stock-chart,.empty){background:#fff;border-radius:12px}
+.stock-tile:is(.stock-alert-active,.stock-alert-hidden) :is(.ticker,.source-note,.chart-note,.chart-footer,.price-label,.data-date){color:#44545b}
+.stock-alert-notice{border:2px solid #b77c11;border-radius:12px;padding:14px 16px;margin:0 0 20px;color:#42330e}
+.stock-alert-notice>strong{font-size:21px;font-weight:850}
+.stock-alert-notice>p{font-size:13px;line-height:1.7;margin:8px 0}
+.stock-alert-chips{display:flex;flex-wrap:wrap;gap:8px}
+.stock-alert-chips button,.stock-alert-chip{display:inline-flex;align-items:center;border:2px solid #b77c11;background:#fff;border-radius:9px;color:#664410;padding:9px 12px;font-size:14px;font-weight:750;line-height:1.6;overflow-wrap:anywhere;max-width:100%}
+.periods button.period-hit{box-shadow:inset 0 0 0 2px #b77c11;background:#fff0b8;font-weight:850}
+.periods button.period-hit[aria-pressed=true]{box-shadow:inset 0 0 0 3px #b77c11;background:#fff}
+.periods button.period-hit small{display:block;font-size:11px;color:#704400}
+@media(max-width:650px){#stock-alert-title{font-size:22px}.stock-alert-summary strong{font-size:19px}.stock-alert-summary{padding:10px 12px}.stock-alert-notice{padding:12px}.stock-alert-chips button,.stock-alert-chip{font-size:13px}}
+
+</style><link rel="stylesheet" href="./value-pair.css?v=stock-centered-20261008">
+<link rel="stylesheet" href="./header-controls.css?v=links-date-20261008">
+<link rel="stylesheet" href="./float-controls.css?v=rsi-links-scroll-20261114">
+<script defer src="./float-controls.js?v=rsi-links-scroll-20261114"></script>
+<link rel="stylesheet" href="./page-tabs.css?v=aligned-navigation-20261114">
+<link rel="modulepreload" href="./stocks-reference.js?v=six-pages-20261119-v1">
+<link rel="modulepreload" href="./heatmap.js?v=staged-progress-20261115">
+<link rel="modulepreload" href="./shared-data.js?v=six-pages-20261119-v1">
+<link rel="modulepreload" href="./stock-chart.js?v=six-pages-20261119-v1">
+<link rel="modulepreload" href="./analyst-panel.js?v=six-pages-20261119-v1">
+<link rel="modulepreload" href="./stock-alerts.js?v=stock-alerts-20261017">
+<link rel="modulepreload" href="./value-pair.js?v=green-arrow-20261008">
+<link rel="modulepreload" href="./stocks-logic.js?v=six-pages-20261119-v1">
+<script type="module" src="./page-warm.js?v=six-pages-20261119-v1"></script>
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="apple-mobile-web-app-title" content="株式指標"><link rel="stylesheet" href="./common-header.css?v=six-pages-20261119-v1">
+</head>
+<body data-stock-market="japan">
+  <main>
+    <header class="morning-header unified-header"><div class="header-brand"><p class="eyebrow">MARKET MORNING / JAPAN STOCKS</p><h1>日本株</h1></div><div class="header-tools"><time id="today" class="header-date"></time><button id="refresh" class="header-refresh" type="button" aria-label="ページを更新" title="最新の保存データを再読み込み"><span class="refresh-icon" aria-hidden="true">↻</span><span>更新</span></button></div></header>
+<nav class="morning-pages" aria-label="株式指標・ページ切り替え"><a href="./">株式指標</a><a href="./funds.html">投資信託</a><a href="./stocks-reference.html">米国株</a><a href="./japan-stocks.html" aria-current="page">日本株</a><a href="./heatmap.html">ヒートマップ</a><a href="./nasdaq-rsi.html">NASDAQ100・RSI</a></nav>
+    <p id="status" class="status" role="status" aria-live="polite">4銘柄を読み込んでいます…</p>
+    <section class="intro stock-overview" id="stock-overview" aria-labelledby="watchlist-title">
+      <div><span class="eyebrow">YOUR WATCHLIST</span><h2 id="watchlist-title">いつもの4銘柄</h2><p id="stock-alert-title" role="status" aria-live="polite">最高値からの条件を確認しています…</p><p id="stock-alert-detail">上場来と6つの期間の最高値を確認します。</p></div>
+      <div id="stock-alert-list" class="stock-alert-list"></div>
+    </section>
+    <div id="stocks" aria-label="日本株4銘柄"></div>
+    <details class="guide"><summary>データの更新と表示について</summary><p>条件チェック：現在株価が、上場来または1日・1週・1カ月・6カ月・1年・2年の最高値の80％・70％・60％・50％未満かを、グラフで選択していない期間も含めて判定します。該当する最も低い境界を表示し、境界と等しい値はその境界の「未満」に含めません。割合は丸める前の数値で判定します。上場来または表示中の期間が該当すると濃い黄色、別の期間だけが該当すると薄い黄色になります。グラフは白背景です。上場来高値は全履歴を確認できた場合に判定します。取得失敗・古い株価・オフライン時は判定を保留し、上場来高値の取得が4日を超えた場合も上場来の判定を保留します。</p><p>各パネル右下の「みんかぶ」で、その銘柄の評価ページを独立した小窓で開きます。目標株価の文字位置に対応するブラウザーでは、評価欄付近までスクロールして開きます。対応しない場合や文字が見つからない場合はページ上部で開きます。Macでは右下に約520×560ピクセルで開くよう指定します。位置・サイズ・前面表示はブラウザーにより調整されます。iPhone・iPadでは別タブ等で開く場合があります。</p><p>共通の保存データをMac・iPhone・iPadで表示します。自動取得は15分ごとの実行予定で、実行・公開の遅延があります。画面は起動時、5分ごと、画面に戻ったときに保存データを確認します。「更新を確認」は保存データの再読み込みです。リアルタイム配信ではありません。</p><p>株価・チャートはYahoo Financeの東京市場・円建て通常取引データ。取引日は日本時間で扱います。時間外価格は含めません。時間外の「前日終値」は直近で終了した通常取引の終値で、日本の当日取引が終了した直後はその日の終値になります。前日比は、そのひとつ前の取引日の終値との比較です。</p><p>1日は最新の通常取引日、1週は最新取引日を含む7暦日以内の5分足、1カ月以上は日次価格。休場日の値は補間しません。1年・2年に満たない銘柄は取得できた期間を表示します。キオクシアなど、取得履歴が短い銘柄は取得できた期間だけを表示します。</p><p>25日線（赤）・75日線（青）は、表示期間より前のデータを含む25・75取引日の終値の単純平均です。1日は当日の株価だけで縦軸を調整し、25・75日線を省略します。1週の5分足には前取引日までの終値で計算した日足の平均を表示します。1カ月は各営業日の終値を点で示し、全営業日の日付を表示します。土日・休場日の値は作成しません。75本の5分足の平均ではありません。日次チャートの最新取引日は取引中の値を含む場合があります。出来高は各足の取引株数で、未取得部分は棒を表示しません。みんかぶのチャートを埋め込む形式ではなく、Yahoo Financeの取得データで描画しています。</p><p>アナリスト欄はYahoo Financeの平均目標株価・推奨評価です。目標株価との比較は、現在株価が平均目標株価より高いか低いかを示し、みんかぶ独自の株価診断ではありません。分析データは6時間ごとを目安に取得し、取得日時を表示します。将来の株価を保証する情報ではありません。</p><p>PER（会社予想・株価収益率）は利益に対する株価の倍率、PBR（実績・株価純資産倍率）は純資産に対する株価の倍率です。Yahoo!ファイナンスの公表値と公表日時を表示します。赤字などで値が公表されていない場合は「—」になります。</p><p>前日の値 → 最新値の順で一行表示します。休場日は前取引日、投資信託は前公表日の値です。前日の値が取得できない場合は「—」と表示します。</p><p>52週最高値は最新取引日を含む52週間の日足高値の最大値、上場来最高値はYahoo Financeから取得した全日足の高値の最大値です。配当調整後終値は使用しません。上場日付近からの履歴を確認できない場合は「取得期間内最高値」と表示します。上場後52週未満の場合は上場後の取得期間が対象です。「現在株価 / 最高値」は現在株価÷最高値×100、「最高値から」はその割合−100です。記録日と取得期間を併記します。</p><p>取得失敗時は前回の値と日時を残し「前回保存値」と表示します。通信できない場合や古いデータは最新とは表示しません。</p></details>
+    <footer>MARKET MORNING <a href="./">株式指標へ戻る ↗</a></footer>
+  </main>
+
+</body>
+</html>

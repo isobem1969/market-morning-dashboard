@@ -20,7 +20,7 @@ try {
     await page.setViewportSize({width,height});
     await page.goto('http://127.0.0.1:8765');
     await page.waitForSelector('.card');
-    assert.equal(await page.locator('.card').count(),9);
+    assert.equal(await page.locator('.card').count(),5);
     const halfCards=await page.locator('.large-market-card').evaluateAll(cards=>cards.map(c=>{const r=c.getBoundingClientRect();return {width:r.width,top:r.top,left:r.left,titleSize:getComputedStyle(c.querySelector('.card-title')).fontSize,valueSize:getComputedStyle(c.querySelector('.value')).fontSize}}));
     assert.equal(halfCards.length,2);assert.equal(halfCards[0].titleSize,halfCards[0].valueSize);
     for(const id of ['usd','brent']){
@@ -40,7 +40,10 @@ try {
     const gridWidth=await page.locator('#cards').evaluate(e=>e.getBoundingClientRect().width);
     if(width>650){assert.ok(Math.abs(halfCards[0].top-halfCards[1].top)<1);assert.ok(Math.abs(halfCards[0].width*2+14-gridWidth)<2);}else{assert.ok(Math.abs(halfCards[0].width-gridWidth)<2);}
 
-    assert.equal(await page.locator('.fund-card').count(),4);
+    assert.equal(await page.locator('.fund-card').count(),0);
+    await page.goto('http://127.0.0.1:8765/funds.html');
+    await page.locator('.fund-card').first().waitFor();
+    assert.equal(await page.locator('.fund-card').count(),9);
     for(const [id,code] of [['sox','29314233'],['fang','04311181'],['nasdaq','89311265'],['nasdaq_ifree','04317188']]){
       const tile=page.locator(`[data-fund="${id}"]`);
       for(const period of ['1w','1m','6m','1y','2y']){await tile.locator(`[data-fund-period="${period}"]`).click();assert.equal(await tile.locator(`[data-fund-period="${period}"]`).getAttribute('aria-pressed'),'true');assert.equal(await tile.locator('.fund-chart').count(),1);}
@@ -48,6 +51,8 @@ try {
       const button=tile.locator('.fund-minkabu');assert.equal(await button.getAttribute('href'),`https://itf.minkabu.jp/fund/${code}#:~:text=${encodeURIComponent('基準価額')}`);
       const popupPromise=page.waitForEvent('popup');await button.click();const popup=await popupPromise;await popup.waitForURL(new RegExp(`/fund/${code}`));await popup.close();
     }
+    await page.goto('http://127.0.0.1:8765/');
+    await page.locator('.fear-card').waitFor();
     assert.equal(await page.locator('.fear-card .fear-legend li').count(),5);
     assert.equal(await page.locator('.vi-card .vi-legend li').count(),5);
     const positions=await page.evaluate(()=>['.vix-card:not(.fear-card):not(.vi-card)','.fear-card','.vi-card'].map(s=>{const r=document.querySelector(s).getBoundingClientRect();return {top:r.top,bottom:r.bottom}}));
@@ -66,8 +71,8 @@ try {
   const data=JSON.parse(await fs.readFile('public/data/market.json','utf8'));
   const now=new Date().toISOString(),today=now.slice(0,10);
   const fixture={...data,generatedAt:now,metrics:data.metrics.map(m=>({...m,asOf:today,status:'ok',lastSuccess:now,value:({vix:30,fear:20,vi:49.99}[m.id]??m.value??50)}))};
-  await page.route('**/data/market.json?*',route=>route.fulfill({json:fixture}));
-  await page.getByRole('button',{name:'更新を確認'}).click();
+  await page.route('**/data/market.json*',route=>route.fulfill({json:fixture}));
+  await page.getByRole('button',{name:'ページを更新'}).click();
   await page.waitForFunction(()=>document.querySelector('#summary').textContent.includes('指定条件に到達'));
   assert.equal(await page.locator('.vix-card:not(.fear-card):not(.vi-card)').getAttribute('data-band'),'fear');
   assert.equal(await page.locator('.fear-card').getAttribute('data-band'),'extreme-fear');
@@ -75,7 +80,7 @@ try {
   assert.equal((await page.locator('.vix-card:not(.fear-card):not(.vi-card)').getAttribute('class')).includes('alert'),true);
   for(const [value,band]of [[14.99,'calm'],[15,'normal'],[20,'watch'],[30,'fear'],[40,'panic']]){
     fixture.metrics=fixture.metrics.map(m=>m.id==='vix'?{...m,value}:m);
-    await page.getByRole('button',{name:'更新を確認'}).click();
+    await page.getByRole('button',{name:'ページを更新'}).click();
     await page.waitForFunction(b=>document.querySelector('.vix-card:not(.fear-card):not(.vi-card)').dataset.band===b,band);
     assert.equal(await page.locator('.vix-card:not(.fear-card):not(.vi-card) .vix-legend .active').count(),1);
   }
@@ -85,7 +90,7 @@ try {
   assert.equal(await page.locator('[data-vix-months="12"]').getAttribute('aria-pressed'),'true');
   assert.equal((await page.locator('article[aria-label="Fear & Greed"]').getAttribute('class')).includes('alert'),false);
   fixture.metrics=fixture.metrics.map(m=>({...m,status:'error'}));
-  await page.getByRole('button',{name:'更新を確認'}).click();
+  await page.getByRole('button',{name:'ページを更新'}).click();
   await page.waitForFunction(()=>document.querySelector('#summary').textContent.includes('判定保留'));
   assert.equal(await page.locator('.card.alert').count(),0);
   assert.equal(await page.locator('.fear-card').getAttribute('data-band'),'unknown');
@@ -97,7 +102,7 @@ try {
   assert.equal((await page.locator('article[aria-label="Fear & Greed"]').getAttribute('class')).includes('alert'),true);
   await page.unrouteAll();
   await context.setOffline(true);
-  await page.getByRole('button',{name:'更新を確認'}).click();
+  await page.getByRole('button',{name:'ページを更新'}).click();
   await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('通信できません'));
   assert.equal(await page.locator('.card.alert').count(),0);
   assert.deepEqual(errors,[]);

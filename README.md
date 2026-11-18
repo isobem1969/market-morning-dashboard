@@ -1,8 +1,14 @@
 # 毎朝の株式指標 / Market Morning
 
-iPhone・iPad mini向けの8指標ダッシュボード。Safariの「ホーム画面に追加」でアプリのように利用できます。
+Mac・iPhone・iPad mini向けの6ページ構成の株式ダッシュボード。Safariの「ホーム画面に追加」でアプリのように利用できます。
 
 ## 表示
+
+- ページ順：株式指標／投資信託／米国株／日本株／ヒートマップ／NASDAQ100・RSI
+- 投資信託ページ：ニッセイSOX、FANG＋、SBI NASDAQ100、iFreeNEXT NASDAQ100、S&P500、オルカン、SBI・SCHD、TQQQ、SOXL
+- 日本株ページ：ソフトバンクグループ（9984）、楽天グループ（4755）、キオクシア（285A）、東京エレクトロン（8035）。東京市場の円建てデータ・日本時間で表示
+- 日本株は `python scripts/update_japan_stocks.py` で保存。PERは会社予想、PBRは実績。未取得値は公表なしと表示し、失敗時は元の日時付き保存値を維持
+
 
 - ドル円・VIX・CNN Fear & Greed・日経VI・ブレント期近先物
 - ニッセイSOX（29314233）・iFreeNEXT FANG+（04311181）・SBI NASDAQ100（89311265）の基準価額

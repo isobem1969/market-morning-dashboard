@@ -20,3 +20,6 @@ if(typeof document!=='undefined'){
   button.addEventListener('click',()=>updateHeaderDate());
  }
 }
+
+// Keep previously saved links working after moving fund panels.
+if(typeof location!=='undefined'&&/\/#metric-(nasdaq|tqqq|soxl)$/.test(location.pathname+location.hash))location.replace('./funds.html'+location.hash);

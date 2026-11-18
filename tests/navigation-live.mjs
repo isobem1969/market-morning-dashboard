@@ -6,7 +6,7 @@ const engine=process.env.BROWSER||'chromium',browser=await(engine==='webkit'?web
 const context=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce',serviceWorkers:'block'});
 const page=await context.newPage(),errors=[];
 page.on('pageerror',e=>errors.push(e.message));
-const base='https://isobem1969.github.io/market-morning-dashboard/';
+const base=process.env.TEST_BASE_URL||'https://isobem1969.github.io/market-morning-dashboard/';
 const watchdog=setTimeout(()=>{console.error('Navigation test exceeded four minutes');process.exit(1);},240000);watchdog.unref();
 await fs.mkdir('screenshots',{recursive:true});
 async function navigate(path,selector){
@@ -53,9 +53,9 @@ async function scrollControls(label){
  console.log('SCROLL_CONTROLS_OK',engine,label);
 }
 try{
- for(let attempt=0;attempt<110;attempt++){
+ if(!process.env.TEST_BASE_URL)for(let attempt=0;attempt<110;attempt++){
   const response=await fetch(base+'sw.js?t='+Date.now());
-  if((await response.text()).includes('fast-native-pages-20261115-fast-dates'))break;
+  if((await response.text()).includes('six-pages-20261119-v1'))break;
   if(attempt===109)throw Error('Release not deployed');
   await new Promise(r=>setTimeout(r,3000));
  }
@@ -89,7 +89,9 @@ try{
  }
  for(const viewport of [{width:1440,height:1000},{width:744,height:1133},{width:390,height:844}]){
   await page.setViewportSize(viewport);
+  await navigate('','.vi-card');
   await inspectPaint('.vi-card','vi-'+viewport.width);
+  await navigate('funds.html','.fund-card');
   await inspectPaint('[data-fund="soxl"]','soxl-'+viewport.width);
  }
  for(const [fund,target]of [['nasdaq','ndx'],['tqqq','tqqq'],['soxl','soxl']]){
@@ -97,7 +99,7 @@ try{
   await link.click();await page.waitForURL('**/nasdaq-rsi.html#price-'+target,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(id=>{const e=document.getElementById(id),r=e?.querySelector('h2')?.getBoundingClientRect();return r&&r.top>=0&&r.bottom<=innerHeight;},'price-'+target);
   await page.goBack({waitUntil:'domcontentloaded'});await page.locator('[data-fund="'+fund+'"]').waitFor();
-  await inspectPaint('.vi-card','after-back-'+fund);
+  await inspectPaint('.fund-card','after-back-'+fund);
  }
  // Returning from a bottom scrolled page must not leave the root page clipped.
  await page.locator('.morning-pages a[href="./stocks-reference.html"]').click();
