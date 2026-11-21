@@ -1,4 +1,4 @@
-import {signalMarkup} from './high-condition.js?v=thresholds-20261122';
+import {signalMarkup} from './high-condition.js?v=selected-period-20261122-v2';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {changePercent,percentLine} from './change-format.js?v=twoline-20261007';
 import {selectVixHistory} from './logic.js?v=vix-20261006';

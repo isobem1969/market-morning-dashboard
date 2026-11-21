@@ -1,6 +1,6 @@
 import {PERIODS,periodHigh,sectionOld} from './stocks-logic.js?v=six-pages-20261119-v1';
-import {belowHigh} from './high-condition.js?v=thresholds-20261122';
-export {belowHigh} from './high-condition.js?v=thresholds-20261122';
+import {belowHigh} from './high-condition.js?v=selected-period-20261122-v2';
+export {belowHigh} from './high-condition.js?v=selected-period-20261122-v2';
 export function stockAlerts(stock,period,{generatedAt,offline=false,now=Date.now()}={}){
  const price=stock.price||{},highs=stock.highs||{},hits=[],unchecked=[],reasons=[];
  const dated=s=>Number.isFinite(Date.parse(s.lastSuccess))&&Date.parse(s.lastSuccess)<=now+60000;
@@ -14,5 +14,5 @@ export function stockAlerts(stock,period,{generatedAt,offline=false,now=Date.now
  check('allTime',highs.allTime?.complete?'上場来':'取得期間内',highs.allTime?.value,dated(highs));
  if(highs.allTime?.complete!==true){if(!unchecked.includes('allTime'))unchecked.push('allTime');reasons.push('上場来：全履歴が未確認（取得期間内の高値で比較）');}
  for(const [key,label] of PERIODS)check(key,label,periodHigh(price,key).value,true);
- return {hits,unchecked,reasons,reference,active:hits.some(h=>h.key==='allTime'||h.key===period),hidden:hits.filter(h=>h.key!=='allTime'&&h.key!==period)};
+ return {hits,unchecked,reasons,reference,period,active:hits.some(h=>h.key===period),hidden:hits.filter(h=>h.key!==period)};
 }

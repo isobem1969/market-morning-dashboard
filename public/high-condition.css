@@ -7,3 +7,5 @@
 @media(max-width:650px){.high-condition{font-size:12px;padding:6px 8px}}
 
 .stock-tile.stock-alert-active{background:#ffe59a}.stock-tile.stock-alert-hidden{background:#fff5d5}
+
+.fund-fixed-comparison{font-size:12px;margin:8px 0}.fund-fixed-comparison summary{cursor:pointer}.price-periods{margin:10px 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.price-periods button{font-size:12px;padding:8px 4px}.selected-peak-title{font-size:17px;margin:10px 0}

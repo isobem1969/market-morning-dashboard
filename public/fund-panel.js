@@ -1,4 +1,4 @@
-import {highCondition,conditionMarkup} from './high-condition.js?v=thresholds-20261122';
+import {highCondition,conditionMarkup} from './high-condition.js?v=selected-period-20261122-v2';
 import {drawdownPanel} from './drawdown-panel.js?v=soxl-20261113';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 export const FUND_META={
@@ -12,7 +12,7 @@ export const FUND_META={
  tqqq:{name:'TQQQ / プロシェアーズ・ウルトラプロQQQ',code:'TQQQ',currency:'USD',sourceLabel:'Yahoo Finance',referenceUrl:'https://us.minkabu.jp/stocks/TQQQ'},
  soxl:{name:'SOXL / Direxion デイリー半導体株ブル3倍ETF',code:'SOXL',currency:'USD',sourceLabel:'Yahoo Finance',referenceUrl:'https://us.minkabu.jp/stocks/SOXL'}
 };
-export const FUND_PERIODS=[['1w','1週'],['1m','1カ月'],['6m','6カ月'],['1y','1年'],['2y','2年']];
+export const FUND_PERIODS=[['1d','1日'],['1w','1週'],['1m','1カ月'],['6m','6カ月'],['1y','1年'],['2y','2年']];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=(v,d=0)=>Number.isFinite(v)?v.toLocaleString('ja-JP',{minimumFractionDigits:d,maximumFractionDigits:d}):'—';
 export function fundPoints(history,period='6m'){
@@ -86,7 +86,7 @@ export function fundAlertState(m,period,q){
  const check=(high,label)=>highCondition(m.value,high,{available,reference,label});
  const states=FUND_PERIODS.map(([key,label])=>{const points=fundPoints(m.history,key);return {key,label,state:check(points.length?Math.max(...points.map(p=>p.value)):null,label+'最高値')};});
  const all=check(m.peak,'取得履歴最高値'),selected=states.find(s=>s.key===period)?.state;
- return {all,selected,states,active:!!(all.hit||selected?.hit),any:!!(all.hit||states.some(s=>s.state.hit))};
+ return {all,selected,states,active:!!selected?.hit,any:!!(all.hit||states.some(s=>s.state.hit))};
 }
 export function fundCard(m,q,period,{datetime}){
  period=FUND_PERIODS.some(([key])=>key===period)?period:'6m';
@@ -103,7 +103,7 @@ export function fundCard(m,q,period,{datetime}){
  const rsiTarget=({nasdaq:'ndx',tqqq:'tqqq',soxl:'soxl'})[m.id];
  const referenceAction='<div class="fund-reference-action'+(rsiTarget?' fund-reference-row':'')+'">'+(rsiTarget?'<a class="fund-minkabu fund-rsi-link" href="./nasdaq-rsi.html#price-'+rsiTarget+'" target="_top">NASDAQ100・RSI ↗</a>':'')+'<a class="fund-minkabu" data-fund-minkabu="'+m.id+'" href="'+href+'" target="_blank" rel="noopener noreferrer" aria-label="'+meta.name+'のみんかぶを小窓で開く">みんかぶ</a><span class="fund-popup-note" role="status"></span></div>';
  const source=/^https:\/\//.test(m.sourceUrl)?m.sourceUrl:'#';
- return '<article class="card fund-card '+(alerts.active?'peak-alert-active':alerts.any?'peak-alert-other':'')+'" data-fund="'+m.id+'" aria-label="'+esc(m.name)+'"><div class="fund-heading"><div><h3>'+fundTitle(m.id)+'</h3><span>'+meta.code+(etf?' · 米国ETF / USD':' · 投資信託 / 円')+'</span></div><a href="'+esc(source)+'" target="_blank" rel="noopener noreferrer">'+(meta.sourceLabel||'運用会社の公表値')+' ↗</a></div>'+conditionMarkup(alerts.all)+'<div class="fund-body"><div class="fund-reading"><div class="fund-price-box '+dir+'"><span class="fund-price">'+valuePair(m,fmt)+'</span><span>'+unit+'</span></div><p class="fund-change '+dir+'"><span class="change-amount">'+(dir==='up'?'↑':dir==='down'?'↓':'→')+' '+amount+'</span>'+(pct?'<span class="change-pct">'+pct.trim()+'</span>':'')+'</p><p class="fund-date">'+(etf?'米国通常取引の株価 · 1口あたり':'基準価額 · 1万口あたり')+'<br>公表 '+datetime(m.asOf)+' ／ 取得 '+datetime(m.lastSuccess)+'</p><span class="badge">'+(q.usable?'取得成功':esc(q.label))+'</span>'+peak+'</div><div class="fund-plot"><div class="fund-chart-header"><h4>'+priceLabel+'の推移</h4><div class="fund-periods" role="group" aria-label="'+meta.name+'のチャート期間">'+FUND_PERIODS.map(([key,label])=>{const hit=alerts.states.find(s=>s.key===key)?.state.hit;return '<button type="button" class="'+(hit?'period-hit':'')+'" data-fund-id="'+m.id+'" data-fund-period="'+key+'" aria-pressed="'+(key===period)+'">'+label+(hit?'<small>'+hit.threshold+'％未満</small>':'')+'</button>';}).join('')+'</div></div>'+graph(m,period)+drawdownPanel(m)+''+(rsiTarget?'':referenceAction)+'</div></div>'+(rsiTarget?referenceAction:'')+(m.historyNote?'<p class="fund-chart-note">'+esc(m.historyNote)+'</p>':'')+(m.error?'<details class="history-details"><summary>取得エラー</summary>'+esc(m.error)+'</details>':'')+'</article>';
+ return '<article class="card fund-card '+(alerts.active?'peak-alert-active':'')+'" data-fund="'+m.id+'" aria-label="'+esc(m.name)+'"><div class="fund-heading"><div><h3>'+fundTitle(m.id)+'</h3><span>'+meta.code+(etf?' · 米国ETF / USD':' · 投資信託 / 円')+'</span></div><a href="'+esc(source)+'" target="_blank" rel="noopener noreferrer">'+(meta.sourceLabel||'運用会社の公表値')+' ↗</a></div>'+conditionMarkup(alerts.selected)+'<details class="fund-fixed-comparison"><summary>取得履歴全体との比較（期間切替の判定対象外）</summary>'+conditionMarkup(alerts.all)+'</details><div class="fund-body"><div class="fund-reading"><div class="fund-price-box '+dir+'"><span class="fund-price">'+valuePair(m,fmt)+'</span><span>'+unit+'</span></div><p class="fund-change '+dir+'"><span class="change-amount">'+(dir==='up'?'↑':dir==='down'?'↓':'→')+' '+amount+'</span>'+(pct?'<span class="change-pct">'+pct.trim()+'</span>':'')+'</p><p class="fund-date">'+(etf?'米国通常取引の株価 · 1口あたり':'基準価額 · 1万口あたり')+'<br>公表 '+datetime(m.asOf)+' ／ 取得 '+datetime(m.lastSuccess)+'</p><span class="badge">'+(q.usable?'取得成功':esc(q.label))+'</span>'+peak+'</div><div class="fund-plot"><div class="fund-chart-header"><h4>'+priceLabel+'の推移</h4><div class="fund-periods" role="group" aria-label="'+meta.name+'のチャート期間">'+FUND_PERIODS.map(([key,label])=>{const hit=alerts.states.find(s=>s.key===key)?.state.hit;return '<button type="button" class="'+(hit?'period-hit':'')+'" data-fund-id="'+m.id+'" data-fund-period="'+key+'" aria-pressed="'+(key===period)+'">'+label+(hit?'<small>'+hit.threshold+'％未満</small>':'')+'</button>';}).join('')+'</div></div>'+graph(m,period)+drawdownPanel(m)+''+(rsiTarget?'':referenceAction)+'</div></div>'+(rsiTarget?referenceAction:'')+(m.historyNote?'<p class="fund-chart-note">'+esc(m.historyNote)+'</p>':'')+(m.error?'<details class="history-details"><summary>取得エラー</summary>'+esc(m.error)+'</details>':'')+'</article>';
 }
 export function openFundReference(a){
  const s=window.screen,aw=Number(s.availWidth)||1280,ah=Number(s.availHeight)||800;
