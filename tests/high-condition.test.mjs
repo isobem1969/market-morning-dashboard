@@ -34,3 +34,5 @@ test('unavailable or threshold-exact values have an explicit neutral state',()=>
 });
 
 test('all-time hits never override a clear selected period',()=>{const s=stock();s.price.value=99;s.highs.allTime.value=1000;const state=stockAlerts(s,'1d',{generatedAt:stamp,now});assert.equal(state.active,false);assert.ok(state.hits.some(h=>h.key==='allTime'));const m={id:'sox',value:99,peak:1000,lastSuccess:stamp,asOf:'2026-11-20',history:[{date:'2026-11-20',value:99}]};const a=fundAlertState(m,'1d',{usable:true});assert.equal(a.active,false);assert.ok(a.all.hit);assert.equal(a.selected.hit,null);});
+
+test('failed all-time refresh does not make a freshly verified selected period stale',()=>{const s=stock();s.highs.status='error';const state=stockAlerts(s,'6m',{generatedAt:stamp,now});assert.equal(state.reference,false);assert.equal(state.hits.find(h=>h.key==='6m').reference,false);assert.equal(state.hits.find(h=>h.key==='allTime').reference,true);});

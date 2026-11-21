@@ -49,11 +49,11 @@ function renderStockOverview(){
  const overview=document.querySelector('#stock-overview');
  const states=data.stocks.map(s=>({s,state:alertState(s)}));
  const reached=states.filter(({state})=>state.active);
- const pending=states.filter(({state})=>state.unchecked.length).length;
+ const pending=states.filter(({state})=>state.unchecked.includes(state.period)).length;
  const saved=states.filter(({state})=>state.reference).length;
  overview.classList.toggle('is-alert',reached.length>0);
  document.querySelector('#stock-alert-title').textContent=reached.length?(saved?'保存値を含む条件到達 · ':'🔴 指定条件に到達 · ')+reached.length+'銘柄':pending?'判定できた範囲では指定条件への到達なし':'指定条件への到達なし';
- document.querySelector('#stock-alert-detail').textContent='各銘柄で選択中の期間の最高値を基準に、80％・70％・60％・50％未満（同値は含まない）を判定。パネル全体の黄色とこの一覧は選択期間だけに連動します。上場来・別期間の条件は個別の参考表示です。'+(saved?' '+saved+'銘柄は保存値の日時で比較。':'')+(pending?' '+pending+'銘柄に未確認の履歴があります。理由は各パネルに表示。':'');
+ document.querySelector('#stock-alert-detail').textContent='各銘柄で選択中の期間の最高値を基準に、80％・70％・60％・50％未満（同値は含まない）を判定。パネル全体の黄色とこの一覧は選択期間だけに連動します。上場来・別期間の条件は個別の参考表示です。'+(saved?' '+saved+'銘柄は保存値の日時で比較。':'')+(pending?' '+pending+'銘柄は選択期間の履歴が未確認です。理由は各パネルに表示。':'');
  document.querySelector('#stock-alert-list').innerHTML=reached.map(({s,state})=>'<a class="stock-alert-summary" href="#stock-'+esc(s.symbol)+'"><strong>'+esc(s.name)+'（'+esc(s.symbol)+'）</strong><span>'+state.hits.filter(hit=>hit.key===state.period).map(hit=>esc(hitText(hit))).join(' ／ ')+'</span></a>').join('');
 }
 
