@@ -67,6 +67,7 @@ try{
  await page.route('**/data/stocks.json*',route=>route.abort());
  const navigationStarted=Date.now();
  console.log('OPENING_PREPARED_STOCKS',engine);
+ await page.locator('.ready-alert-details>summary').click();
  await page.locator('.ready-page[data-page="stocks"] a').click();
  await page.waitForURL('**/stocks-reference.html',{waitUntil:'domcontentloaded'});
  await page.locator('.stock-tile').first().waitFor({timeout:30000});
@@ -122,6 +123,7 @@ try{
  await warmPage.waitForFunction(()=>!!navigator.serviceWorker.controller,null,{timeout:45000});
  await warmPage.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.phase==='complete',null,{timeout:60000});
  const warmStart=Date.now();
+ await warmPage.locator('.ready-alert-details>summary').click();
  await warmPage.locator('.ready-page[data-page="stocks"] a').click();
  await warmPage.waitForURL('**/stocks-reference.html',{waitUntil:'domcontentloaded'});
  await warmPage.locator('.stock-tile').first().waitFor({timeout:30000});

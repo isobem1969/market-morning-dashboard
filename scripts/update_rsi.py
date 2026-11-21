@@ -97,7 +97,8 @@ def price(meta, rows, now):
     return {'value':current['value'],'previous':previous['value'],'asOf':current['date'],
             'marketOpen':active,'peak':peak,'ratio':current['value']/peak*100,
             'drawdown':(current['value']/peak-1)*100,'historyStart':rows[0]['date'],
-            'peakLabel':'取得期間の最高終値（分割調整済み）'}
+            'peakLabel':'取得期間の最高終値（分割調整済み）',
+            'closeHistory':sorted({p['date']:p for p in completed+[current]}.values(),key=lambda p:p['date'])[-800:]}
 
 def collect(now=None):
     now=now or dt.datetime.now(UTC)

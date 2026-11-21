@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
 import exchange_calendars as xcals
-from update_rsi import wilder, weekly, episodes
+from update_rsi import wilder, weekly, episodes, price
 UTC=dt.timezone.utc
 class RsiTests(unittest.TestCase):
  def test_wilder_published_example(self):
@@ -36,4 +36,14 @@ class RsiTests(unittest.TestCase):
   self.assertEqual(p['current']['start'],'4');self.assertEqual(p['current']['weeks'],1)
   self.assertEqual(p['events'][0]['end'],'3');self.assertEqual(p['events'][0]['weeks'],2)
   self.assertIsNone(episodes([{'date':'x','rsi':75}],lambda v:v>75)['current'])
+ def test_price_range_history_preserves_closes_and_replaces_provisional_session(self):
+  start=dt.datetime(2026,11,20,14,30,tzinfo=UTC).timestamp();end=start+6.5*3600
+  meta={'currentTradingPeriod':{'regular':{'start':start,'end':end}},'regularMarketTime':start+3600,'regularMarketPrice':55}
+  rows=[{'date':'2026-11-18','value':100},{'date':'2026-11-19','value':80},{'date':'2026-11-20','value':60}]
+  p=price(meta,rows,dt.datetime(2026,11,20,22,tzinfo=UTC))
+  self.assertEqual(p['closeHistory'],rows)
+  active=price(meta,rows,dt.datetime(2026,11,20,19,tzinfo=UTC))
+  self.assertEqual(active['closeHistory'][-1],{'date':'2026-11-20','value':55})
+  self.assertEqual(len(active['closeHistory']),3)
+  self.assertEqual(active['value'],55)
 if __name__=='__main__':unittest.main()

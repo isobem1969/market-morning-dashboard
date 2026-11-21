@@ -12,10 +12,10 @@ export function readiness(pages,elapsed=0){
 export function mountReadyAlert(win=window,doc=document){
  const alert=doc.querySelector('#page-ready-alert');if(!alert||redirectingFundPanel)return;
  if(new URL(win.location.href).searchParams.get('ready-alert')==='off'){alert.hidden=true;return;}
- let started=Date.now(),lastAdvance=started,completedAt=null,previousProgress='',previousModel='',wasReady=false;
+ let started=Date.now(),lastAdvance=started,completedAt=null,previousProgress='',previousModel='',wasReady=false,autoOpened=false;
  const painted=new Map(),scheduled=new Map(),nodes=new Map();
  alert.setAttribute('role','region');alert.setAttribute('aria-label','6ページの準備状況');alert.removeAttribute('aria-live');alert.removeAttribute('aria-atomic');
- alert.innerHTML='<div class="ready-alert-top"><div class="ready-alert-heading"><span id="ready-alert-icon" aria-hidden="true">↻</span><strong id="ready-alert-title">6ページの確認を開始しました</strong></div><div class="ready-alert-summary"><strong id="ready-alert-count">0 / 6 ページ完了</strong><span id="ready-alert-elapsed">経過 0秒</span></div></div><p id="ready-alert-detail" role="status" aria-live="polite">最新の保存データを確認しています。</p><div class="ready-progress-row"><strong id="ready-alert-progress-label">確認済み 0 / 18項目</strong><div id="ready-alert-progress" class="ready-progress" role="progressbar" aria-label="準備の確認項目" aria-valuemin="0" aria-valuemax="18" aria-valuenow="0">'+Array.from({length:PAGES.length*3},()=>'<span aria-hidden="true"></span>').join('')+'</div></div><div id="ready-alert-pages" class="ready-alert-pages"></div><div class="ready-alert-bottom"><p id="ready-alert-foot" class="ready-alert-foot">進捗は完了した確認項目の数です。</p><button id="ready-alert-retry" type="button" hidden>未完了のページを再確認</button></div>';
+ alert.innerHTML='<div class="ready-alert-top"><div class="ready-alert-heading"><span id="ready-alert-icon" aria-hidden="true">↻</span><strong id="ready-alert-title">6ページの確認を開始しました</strong></div><div class="ready-alert-summary"><strong id="ready-alert-count">0 / 6 ページ完了</strong><span id="ready-alert-elapsed">経過 0秒</span></div></div><p id="ready-alert-detail" role="status" aria-live="polite">最新の保存データを確認しています。</p><div class="ready-progress-row"><strong id="ready-alert-progress-label">確認済み 0 / 18項目</strong><div id="ready-alert-progress" class="ready-progress" role="progressbar" aria-label="準備の確認項目" aria-valuemin="0" aria-valuemax="18" aria-valuenow="0">'+Array.from({length:PAGES.length*3},()=>'<span aria-hidden="true"></span>').join('')+'</div></div><details class="ready-alert-details"><summary>ページ別の確認状況を開く</summary><div id="ready-alert-pages" class="ready-alert-pages"></div><div class="ready-alert-bottom"><p id="ready-alert-foot" class="ready-alert-foot">進捗は完了した確認項目の数です。</p><button id="ready-alert-retry" type="button" hidden>未完了のページを再確認</button></div></details>';
  const cards=doc.getElementById('ready-alert-pages');
  for(const [key,label]of Object.entries(names)){
   const card=doc.createElement('section');card.className='ready-page';card.dataset.page=key;card.setAttribute('aria-label',label+'の準備状況');
@@ -53,6 +53,9 @@ export function mountReadyAlert(win=window,doc=document){
   doc.getElementById('ready-alert-elapsed').textContent=(completedAt?'完了まで ':'経過 ')+elapsed+'秒';
   const signature=JSON.stringify({model,phase});if(signature===previousModel)return;previousModel=signature;
   alert.dataset.state=model.kind;alert.dataset.phase=phase;alert.hidden=false;
+  const details=alert.querySelector('.ready-alert-details');
+  if(model.kind==='partial'&&!details.open){details.open=true;autoOpened=true;}
+  if(model.kind==='ready'&&autoOpened){details.open=false;autoOpened=false;}
   const titles={starting:'6ページの確認を開始しました',working:'6ページの準備を進めています',complete:'全6ページの準備ができました',stalled:'準備に時間がかかっています',failed:'一部の更新を確認できません'};
   doc.getElementById('ready-alert-title').textContent=titles[phase];
   doc.getElementById('ready-alert-icon').textContent=model.kind==='ready'?'✓':model.kind==='partial'?'!':'↻';

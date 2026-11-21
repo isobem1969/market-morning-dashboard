@@ -13,6 +13,10 @@ on:
       - 'public/fund-panel.*'
       - 'tests/ready-alert.test.js'
       - 'public/common-header.css'
+      - 'public/high-condition.*'
+      - 'public/stock-alerts.js'
+      - 'tests/threshold-browser.mjs'
+      - 'scripts/update_rsi.py'
       - 'tests/header-browser.mjs'
   workflow_dispatch:
 permissions:
@@ -33,6 +37,14 @@ jobs:
       - name: Start local app
         run: python3 -m http.server 8773 --bind 127.0.0.1 --directory public > /tmp/market-http.log 2>&1 &
       - run: node --test tests/ready-alert.test.js tests/stock-date-cache.test.mjs tests/six-pages.test.js
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install exchange-calendars==4.13.2
+      - run: python -m unittest discover -s tests -p 'test_rsi.py'
+      - run: node --test tests/high-condition.test.mjs
+      - run: node tests/threshold-browser.mjs
+      - run: BROWSER=webkit node tests/threshold-browser.mjs
       - run: node tests/header-browser.mjs
       - run: BROWSER=webkit node tests/header-browser.mjs
       - run: node tests/progress-browser.mjs

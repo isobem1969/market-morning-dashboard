@@ -21,6 +21,11 @@ try{
  assert.equal(await page.locator('.ready-page[data-stage="complete"]').count(),6);
  for(const [label,width,height]of [['Mac',1440,1000],['Mac-narrow',1024,900],['iPad-portrait',1024,1366],['iPad-landscape',1366,1024],['mini-portrait',744,1133],['mini-landscape',1133,744],['iPhone-portrait',390,844],['iPhone-landscape',844,390],['iPhone-SE',375,667],['narrow',320,640]]){
   await page.setViewportSize({width,height});
+  await page.locator('.ready-alert-details').evaluate(el=>el.open=false);
+  const compactHeight=await page.locator('#page-ready-alert').evaluate(el=>el.getBoundingClientRect().height);
+  assert.ok(compactHeight<=(width<=650?280:200),label+' compact height: '+compactHeight);
+  await page.screenshot({path:'screenshots/navigation-progress-compact-'+engine+'-'+label+'.png'});
+  await page.locator('.ready-alert-details>summary').click();
   const layout=await page.evaluate(()=>{
    const panel=document.querySelector('#page-ready-alert').getBoundingClientRect(),nav=document.querySelector('.morning-pages').getBoundingClientRect();
    return {left:panel.left,right:panel.right,navLeft:nav.left,navRight:nav.right,overflow:document.querySelector('#page-ready-alert').scrollWidth>document.querySelector('#page-ready-alert').clientWidth,columns:getComputedStyle(document.querySelector('.ready-alert-pages')).gridTemplateColumns.split(' ').length,cards:[...document.querySelectorAll('.ready-page')].map(c=>({left:c.getBoundingClientRect().left,right:c.getBoundingClientRect().right,overflow:c.scrollWidth>c.clientWidth}))};

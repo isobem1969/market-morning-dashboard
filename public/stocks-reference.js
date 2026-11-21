@@ -1,8 +1,9 @@
+import {highCondition,conditionMarkup} from './high-condition.js?v=selected-period-20261122-v2';
 import {updateHeaderDate} from './common-header.js?v=six-pages-20261119-v1';
 import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=six-pages-20261119-v1';
 import {stockGraph as graph} from './stock-chart.js?v=six-pages-20261119-v1';
 import {analystPanel} from './analyst-panel.js?v=japan-ifis-20261119';
-import {stockAlerts} from './stock-alerts.js?v=stock-alerts-20261017';
+import {stockAlerts} from './stock-alerts.js?v=selected-period-20261122-v2';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {PERIODS,chartPoints,nyDate,sectionOld,periodHigh} from './stocks-logic.js?v=six-pages-20261119-v1';
 const japanese=document.body.dataset.stockMarket==='japan',snapshotName=japanese?'japan':'stocks',moneyUnit=japanese?'円':'USD',exchangeTimeZone=japanese?'Asia/Tokyo':'America/New_York';
@@ -25,32 +26,35 @@ function highPanels(s,period){
  const h=s.highs||{},p=s.price||{},price=p.value,selected=periodHigh(p,period),label=PERIODS.find(([key])=>key===period)?.[1]||'6カ月';
  return '<div class="stock-highs">'+[['period',label+'最高値'],['allTime',h.allTime?.complete?'上場来最高値':'取得期間内最高値']].map(([key,title])=>{
   const item=key==='period'?selected:h[key]||{},source=key==='period'?p:h;
+  const validDate=[p,source].every(s=>Number.isFinite(Date.parse(s.lastSuccess))&&Date.parse(s.lastSuccess)<=Date.now()+60000);
+  const condition=highCondition(price,item.value,{reference:stale(p)||stale(source),label:title,available:validDate});
   const ratio=Number.isFinite(price)&&Number.isFinite(item.value)&&item.value>0?price/item.value*100:null,drop=ratio===null?null:ratio-100;
   const basis=key==='period'?(item.value==null?'期間内の高値データを取得待ち':(['1d','1w'].includes(period)?'通常取引の5分足高値':'通常取引の日足高値')+'<br>表示期間 '+esc(item.start)+'〜'+esc(item.end)):'通常取引の日足高値'+(!item.complete?'<br>上場時からの全履歴は未確認':'');
-  return `<section class="stock-high" data-high-kind="${key}" ${key==='period'?`data-high-period="${period}"`:''}><h3>${title}</h3><p class="high-caption">現在株価 / 最高値</p><p class="high-percent">${num(ratio,1)}<small>%</small></p><div class="high-meter" aria-hidden="true"><span style="width:${ratio===null?0:Math.max(0,Math.min(100,ratio))}%"></span></div><p class="high-price">最高値 <strong>${num(item.value)}</strong> ${moneyUnit}</p><p class="high-drop">最高値から ${signed(drop)}%</p><p class="source-note">記録日 ${esc(item.date||'—')}<br>${item.value==null?'':stale(source)?'前回保存値 · ':''}${item.value!=null?'取得 '+stamp(source.lastSuccess)+'<br>':''}${basis}</p></section>`;
+  return `<section class="stock-high ${condition.hit?'high-reached':''}" data-high-kind="${key}" ${key==='period'?`data-high-period="${period}"`:''}><h3>${title}</h3>${conditionMarkup(condition)}<p class="high-caption">現在株価 / 最高値</p><p class="high-percent">${num(ratio,1)}<small>%</small></p><div class="high-meter" aria-hidden="true"><span style="width:${ratio===null?0:Math.max(0,Math.min(100,ratio))}%"></span></div><p class="high-price">最高値 <strong>${num(item.value)}</strong> ${moneyUnit}</p><p class="high-drop">最高値から ${signed(drop)}%</p><p class="source-note">記録日 ${esc(item.date||'—')}<br>${item.value==null?'':stale(source)?'前回保存値 · ':''}${item.value!=null?'取得 '+stamp(source.lastSuccess)+'<br>':''}${basis}</p></section>`;
  }).join('')+'<p class="source-note high-basis">Yahoo Finance · 上段はグラフの期間切り替えと連動<br>上場来高値の取得期間 '+esc(h.historyStart||'—')+'〜'+esc(h.asOfDate||'—')+'</p></div>';
 }
 
 function alertState(s,period=ranges.get(s.symbol)||'6m'){
  return stockAlerts(s,period,{generatedAt:data.generatedAt,offline});
 }
-function hitText(hit){return hit.label+'最高値の'+hit.threshold+'％未満（現在'+num(hit.ratio,1)+'％）';}
+function hitText(hit){return (hit.reference?'保存値 · ':'')+hit.label+'最高値の'+hit.threshold+'％未満（表示値'+num(hit.ratio,1)+'％）';}
 function alertNotice(s,state){
- if(!state.hits.length)return '';
+ if(!state.hits.length)return state.reasons.length?'<p class="high-condition is-unknown">未確認：'+esc(state.reasons.join(' ／ '))+'</p>':'';
  const details=state.hits.map(hit=>hit.key==='allTime'
   ?'<span class="stock-alert-chip">'+esc(hitText(hit))+'</span>'
   :'<button type="button" data-symbol="'+esc(s.symbol)+'" data-alert-period="'+hit.key+'" aria-label="'+esc(hitText(hit))+'のグラフを表示">'+esc(hitText(hit))+' ↗</button>').join('');
- return '<div class="stock-alert-notice"><strong>'+ (state.active?'指定条件に到達':'別の期間で指定条件に到達')+'</strong><p>'+(state.active?'上場来または表示中の期間が条件に該当しています。':'該当する期間のグラフが隠れています。下の期間ボタンで表示できます。')+'</p><div class="stock-alert-chips">'+details+'</div></div>';
+ return '<div class="stock-alert-notice"><strong>'+ (state.reference?'保存値の比較 · ': '')+(state.active?'選択期間の指定条件に到達':state.unchecked.includes(state.period)?'選択期間は判定不可 · 他の比較は参考表示':'選択期間は条件外 · 他の比較は参考表示')+'</strong><p>'+(state.active?(state.reference?'表示中の取得日時の値を比較しています。現在の到達を保証するものではありません。':'選択中の期間の最高値が条件に該当しています。'):'上場来・取得期間内の高値は固定の比較です。別の期間のボタンを押すと、その期間の最高値・下落率・パネル色・一覧判定が一緒に切り替わります。')+'</p><div class="stock-alert-chips">'+details+'</div>'+(state.reasons.length?'<p>未確認：'+esc(state.reasons.join(' ／ '))+'</p>':'')+'</div>';
 }
 function renderStockOverview(){
  const overview=document.querySelector('#stock-overview');
  const states=data.stocks.map(s=>({s,state:alertState(s)}));
- const reached=states.filter(({state})=>state.hits.length);
- const pending=states.filter(({state})=>state.unchecked.length).length;
+ const reached=states.filter(({state})=>state.active);
+ const pending=states.filter(({state})=>state.unchecked.includes(state.period)).length;
+ const saved=states.filter(({state})=>state.reference).length;
  overview.classList.toggle('is-alert',reached.length>0);
- document.querySelector('#stock-alert-title').textContent=reached.length?'🔴 指定条件に到達 · '+reached.length+'銘柄':pending?'判定できた範囲では指定条件への到達なし':'指定条件への到達なし';
- document.querySelector('#stock-alert-detail').textContent='最高値の80％・70％・60％・50％未満を判定。濃い黄色＝上場来または表示中の期間、薄い黄色＝別の期間に到達。'+(pending?' '+pending+'銘柄は一部または全条件の判定を保留しています。':'');
- document.querySelector('#stock-alert-list').innerHTML=reached.map(({s,state})=>'<a class="stock-alert-summary" href="#stock-'+esc(s.symbol)+'"><strong>'+esc(s.name)+'（'+esc(s.symbol)+'）</strong><span>'+state.hits.map(hit=>esc(hitText(hit))).join(' ／ ')+'</span></a>').join('');
+ document.querySelector('#stock-alert-title').textContent=reached.length?(saved?'保存値を含む条件到達 · ':'🔴 指定条件に到達 · ')+reached.length+'銘柄':pending?'判定できた範囲では指定条件への到達なし':'指定条件への到達なし';
+ document.querySelector('#stock-alert-detail').textContent='各銘柄で選択中の期間の最高値を基準に、80％・70％・60％・50％未満（同値は含まない）を判定。パネル全体の黄色とこの一覧は選択期間だけに連動します。上場来・別期間の条件は個別の参考表示です。'+(saved?' '+saved+'銘柄は保存値の日時で比較。':'')+(pending?' '+pending+'銘柄は選択期間の履歴が未確認です。理由は各パネルに表示。':'');
+ document.querySelector('#stock-alert-list').innerHTML=reached.map(({s,state})=>'<a class="stock-alert-summary" href="#stock-'+esc(s.symbol)+'"><strong>'+esc(s.name)+'（'+esc(s.symbol)+'）</strong><span>'+state.hits.filter(hit=>hit.key===state.period).map(hit=>esc(hitText(hit))).join(' ／ ')+'</span></a>').join('');
 }
 
 function tile(s){
@@ -58,9 +62,9 @@ function tile(s){
   const alerts=alertState(s,period);
   const dir=Number.isFinite(p.change)?p.change>0?'up':p.change<0?'down':'neutral':'neutral';
   const ratios=['per','pbr'].map(k=>{const r=j.ratios?.[k]||{};return `<div class="ratio"><dt>${k.toUpperCase()}（${k==='per'&&japanese?'会社予想':'実績'}）</dt><dd>${num(r.value)}<small>${Number.isFinite(r.value)?'倍':'公表値なし'}</small></dd><small>${jold?'前回保存値 · ':''}公表 ${esc(r.sourceDate||'—')}</small></div>`;}).join('');
-  return `<article id="stock-${s.symbol}" class="stock-tile ${alerts.active?'stock-alert-active':alerts.hits.length?'stock-alert-hidden':''}" data-symbol="${s.symbol}" aria-label="${esc(s.name)}"><div class="tile-heading"><div><h2>${esc(s.name)}</h2><span class="ticker">${s.code||s.symbol} · ${japanese?'日本株 / 円':'米国株 / USD'}</span></div><div class="tile-links"><a href="${esc(s.quoteUrl)}" target="_blank" rel="noopener noreferrer">Yahoo! 株価 ↗</a></div></div>${alertNotice(s,alerts)}<div class="tile-body"><div class="reading"><div class="price-section"><div class="price-box ${dir}"><span class="price">${valuePair(p,num)}</span><span class="currency">${moneyUnit}</span></div><p class="change ${dir}"><span class="change-amount">${dir==='up'?'↑':dir==='down'?'↓':'→'} ${signed(p.change)}</span><span class="change-pct">(${signed(p.changePct)}%)</span></p><p class="price-label">${p.marketOpen?'通常取引中（遅延あり）':'前日終値（直近通常取引）'}${p.value==null?' · 未取得':''}</p><p class="data-date">${japanese?'日本取引日':'米国取引日'} ${esc(p.sessionDate||'—')} ／ 取得 ${stamp(p.lastSuccess)}</p><span class="badge ${old?'warning':''}">${old?'前回保存値・更新確認が必要':'取得成功'}${offline?' · 通信できません':''}</span></div>${highPanels(s,period)}</div><div class="chart-section"><div class="chart-header"><h3>株価の推移</h3><div class="periods" role="group" aria-label="${s.symbol}のチャート期間">${PERIODS.map(([key,label])=>{const hit=alerts.hits.find(h=>h.key===key);return `<button data-symbol="${s.symbol}" data-period="${key}" class="${hit?'period-hit':''}" aria-pressed="${key===period}" ${hit?`title="${esc(hitText(hit))}"`:''}>${label}${hit?`<small>${hit.threshold}％未満</small>`:''}</button>`;}).join('')}</div></div>${graph(s,period)}${old?'<p class="chart-note">取得失敗または古い保存データです。日時を確認してください。</p>':''}<div class="chart-details" aria-label="PER・PBRと目標株価・アナリスト評価"><dl class="ratios">${ratios}</dl><div class="analysis-container">${analystPanel(s,stamp,offline)}</div></div>${researchPanel(s)}</div></div></article>`;
+  return `<article id="stock-${s.symbol}" class="stock-tile ${alerts.active?'stock-alert-active':''}" data-symbol="${s.symbol}" aria-label="${esc(s.name)}"><div class="tile-heading"><div><h2>${esc(s.name)}</h2><span class="ticker">${s.code||s.symbol} · ${japanese?'日本株 / 円':'米国株 / USD'}</span></div><div class="tile-links"><a href="${esc(s.quoteUrl)}" target="_blank" rel="noopener noreferrer">Yahoo! 株価 ↗</a></div></div>${alertNotice(s,alerts)}<div class="tile-body"><div class="reading"><div class="price-section"><div class="price-box ${dir}"><span class="price">${valuePair(p,num)}</span><span class="currency">${moneyUnit}</span></div><p class="change ${dir}"><span class="change-amount">${dir==='up'?'↑':dir==='down'?'↓':'→'} ${signed(p.change)}</span><span class="change-pct">(${signed(p.changePct)}%)</span></p><p class="price-label">${p.marketOpen?'通常取引中（遅延あり）':'前日終値（直近通常取引）'}${p.value==null?' · 未取得':''}</p><p class="data-date">${japanese?'日本取引日':'米国取引日'} ${esc(p.sessionDate||'—')} ／ 取得 ${stamp(p.lastSuccess)}</p><span class="badge ${old?'warning':''}">${old?'前回保存値・更新確認が必要':'取得成功'}${offline?' · 通信できません':''}</span></div>${highPanels(s,period)}</div><div class="chart-section"><div class="chart-header"><h3>株価の推移</h3><div class="periods" role="group" aria-label="${s.symbol}のチャート期間">${PERIODS.map(([key,label])=>{const hit=alerts.hits.find(h=>h.key===key);return `<button data-symbol="${s.symbol}" data-period="${key}" class="${hit?'period-hit':''}" aria-pressed="${key===period}" ${hit?`title="${esc(hitText(hit))}"`:''}>${label}${hit?`<small>${hit.threshold}％未満</small>`:''}</button>`;}).join('')}</div></div>${graph(s,period)}${old?'<p class="chart-note">取得失敗または古い保存データです。日時を確認してください。</p>':''}<div class="chart-details" aria-label="PER・PBRと目標株価・アナリスト評価"><dl class="ratios">${ratios}</dl><div class="analysis-container">${analystPanel(s,stamp,offline)}</div></div>${researchPanel(s)}</div></div></article>`;
 }
-function render(){if(!data)return;document.querySelector('#watchlist-title').textContent='いつもの'+data.stocks.length+'銘柄';container.innerHTML=data.stocks.map(tile).join('');renderStockOverview();const good=data.stocks.filter(s=>!stale(s.price)).length;status.textContent=`${offline?'通信できません · ':''}取得処理 ${stamp(data.generatedAt)} · 株価 ${good}/${data.stocks.length} 銘柄 · 自動取得15分ごとの予定（遅延あり）`;(window.__morningRenderState||(window.__morningRenderState={}))[snapshotName]={generatedAt:data.generatedAt};}
+function render(){if(!data)return;document.querySelector('#watchlist-title').textContent='いつもの'+data.stocks.length+'銘柄';container.innerHTML=data.stocks.map(tile).join('');renderStockOverview();const good=data.stocks.filter(s=>!stale(s.price)).length;status.textContent=`${offline?'通信できません · ':''}取得処理 ${stamp(data.generatedAt)} · 株価 ${good}/${data.stocks.length} 銘柄 · 定期取得（実行遅延あり）`;(window.__morningRenderState||(window.__morningRenderState={}))[snapshotName]={generatedAt:data.generatedAt};}
 async function load(){
   if(loading)return;loading=true;refresh.disabled=true;
   void prefetchOtherPages(snapshotName);

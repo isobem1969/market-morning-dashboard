@@ -1,19 +1,18 @@
 import {PERIODS,periodHigh,sectionOld} from './stocks-logic.js?v=six-pages-20261119-v1';
-export function belowHigh(value,high){
- if(!Number.isFinite(value)||value<=0||!Number.isFinite(high)||high<=0)return null;
- const threshold=[50,60,70,80].find(t=>value*100<high*t);
- return threshold?{threshold,ratio:value/high*100}:null;
-}
+import {belowHigh} from './high-condition.js?v=selected-period-20261122-v2';
+export {belowHigh} from './high-condition.js?v=selected-period-20261122-v2';
 export function stockAlerts(stock,period,{generatedAt,offline=false,now=Date.now()}={}){
- const price=stock.price||{},highs=stock.highs||{},hits=[],unchecked=[];
- const priceUsable=!offline&&!sectionOld(price,generatedAt,now)&&Number.isFinite(price.value)&&price.value>0;
+ const price=stock.price||{},highs=stock.highs||{},hits=[],unchecked=[],reasons=[];
+ const dated=s=>Number.isFinite(Date.parse(s.lastSuccess))&&Date.parse(s.lastSuccess)<=now+60000;
+ const priceUsable=dated(price)&&Number.isFinite(price.value)&&price.value>0;
+ const reference=offline||sectionOld(price,generatedAt,now);
  const check=(key,label,high,usable)=>{
-  if(!priceUsable||!usable||!Number.isFinite(high)||high<=0){unchecked.push(key);return;}
+  if(!priceUsable||!usable||!Number.isFinite(high)||high<=0){unchecked.push(key);reasons.push(label+'：'+(!priceUsable?'価格または取得日時が未確認':'高値データが未取得'));return;}
   const hit=belowHigh(price.value,high);
-  if(hit)hits.push({key,label,...hit});
+  if(hit)hits.push({key,label,...hit,reference:reference||(key==='allTime'&&sectionOld(highs,generatedAt,now))});
  };
- const highTime=Date.parse(highs.lastSuccess);
- check('allTime','上場来',highs.allTime?.value,highs.allTime?.complete===true&&highs.status==='ok'&&Number.isFinite(highTime)&&highTime<=now+86400000&&now-highTime<=4*86400000);
+ check('allTime',highs.allTime?.complete?'上場来':'取得期間内',highs.allTime?.value,dated(highs));
+ if(highs.allTime?.complete!==true){if(!unchecked.includes('allTime'))unchecked.push('allTime');reasons.push('上場来：全履歴が未確認（取得期間内の高値で比較）');}
  for(const [key,label] of PERIODS)check(key,label,periodHigh(price,key).value,true);
- return {hits,unchecked,active:hits.some(h=>h.key==='allTime'||h.key===period),hidden:hits.filter(h=>h.key!=='allTime'&&h.key!==period)};
+ return {hits,unchecked,reasons,reference,period,active:hits.some(h=>h.key===period),hidden:hits.filter(h=>h.key!==period)};
 }
