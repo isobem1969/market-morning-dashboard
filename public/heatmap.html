@@ -48,17 +48,18 @@ dialog .detail-move{font-size:42px;margin:12px 0}
 #detail-status{font-size:12px;color:#617580;line-height:1.8}
 .breadth{flex-wrap:wrap}
 </style><link rel="stylesheet" href="./page-tabs.css?v=aligned-navigation-20261114">
-<link rel="modulepreload" href="./stocks-reference.js?v=japan-ifis-20261119">
-<link rel="modulepreload" href="./heatmap.js?v=staged-progress-20261115">
+<link rel="modulepreload" href="./stocks-reference.js?v=thresholds-compact-20261122-v1">
+<link rel="modulepreload" href="./heatmap.js?v=thresholds-compact-20261122-v1">
 <link rel="modulepreload" href="./shared-data.js?v=six-pages-20261119-v1">
 <link rel="modulepreload" href="./stock-chart.js?v=six-pages-20261119-v1">
 <link rel="modulepreload" href="./analyst-panel.js?v=japan-ifis-20261119">
-<link rel="modulepreload" href="./stock-alerts.js?v=stock-alerts-20261017">
+<link rel="modulepreload" href="./stock-alerts.js?v=thresholds-compact-20261122-v1">
 <link rel="modulepreload" href="./value-pair.js?v=green-arrow-20261008">
 <link rel="modulepreload" href="./stocks-logic.js?v=six-pages-20261119-v1">
 <script type="module" src="./page-warm.js?v=six-pages-20261119-v1"></script>
 <link rel="apple-touch-icon" href="./icon-192.png">
 <meta name="apple-mobile-web-app-title" content="株式指標"><link rel="stylesheet" href="./common-header.css?v=header-analyst-20261119-v2">
+<link rel="stylesheet" href="./high-condition.css?v=thresholds-20261122">
 </head>
 <body><main>
 <header class="morning-header unified-header"><div class="header-brand"><p class="eyebrow">MARKET MORNING / HEATMAP</p><h1>ヒートマップ</h1></div><div class="header-tools"><time id="today" class="header-date"></time><button id="refresh-heatmap" class="header-refresh" type="button" aria-label="ページを更新" title="最新の保存データを再読み込み"><span class="refresh-icon" aria-hidden="true">↻</span><span>更新</span></button></div></header>
@@ -69,6 +70,6 @@ dialog .detail-move{font-size:42px;margin:12px 0}
 <div id="panels"></div>
 <section class="reading-guide" aria-label="見方"><div><strong>① 色で強弱を見る</strong><p>プラスは緑、マイナスは赤。日本の証券アプリとは配色が異なるため、矢印と＋−も表示します。</p></div><div><strong>② 日本語で銘柄を探す</strong><p>業種名と銘柄名を日本語で表示。ティッカーも残し、いつもの銘柄を見つけやすくしています。</p></div><div><strong>③ 銘柄を押して詳細を見る</strong><p>銘柄を見つけやすい固定レイアウトです。面積は時価総額や指数構成比ではありません。価格・騰落率は実際の取得値を表示します。</p></div></section>
 <footer>MARKET MORNING · HEATMAP</footer>
-</main>
-<dialog id="detail" aria-labelledby="detail-name"><button type="button" class="close">閉じる ×</button><h2 id="detail-name"></h2><div class="detail-ticker" id="detail-symbol"></div><p class="detail-price-label" id="detail-price-label"></p><div class="detail-price" id="detail-price"></div><div class="detail-move" id="detail-move"></div><p id="detail-sector"></p><dl id="detail-facts"></dl><p id="detail-status"></p><a id="detail-link" target="_blank" rel="noopener noreferrer">Yahoo!ファイナンスで確認 ↗</a></dialog>
-<script type="module" src="./heatmap.js?v=staged-progress-20261115"></script></body></html>
+<p class="legend-note">タイルの色は選択期間の騰落率です。黄色い枠とラベルは52週高値の80％・70％・60％・50％未満を示します（上場来高値との比較ではありません）。</p></main>
+<dialog id="detail" aria-labelledby="detail-name"><button type="button" class="close">閉じる ×</button><h2 id="detail-name"></h2><div class="detail-ticker" id="detail-symbol"></div><p class="detail-price-label" id="detail-price-label"></p><div class="detail-price" id="detail-price"></div><div class="detail-move" id="detail-move"></div><p id="detail-sector"></p><dl id="detail-facts"></dl><div id="detail-high-condition"></div><p id="detail-status"></p><a id="detail-link" target="_blank" rel="noopener noreferrer">Yahoo!ファイナンスで確認 ↗</a></dialog>
+<script type="module" src="./heatmap.js?v=thresholds-compact-20261122-v1"></script></body></html>

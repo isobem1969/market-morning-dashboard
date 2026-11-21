@@ -1,0 +1,9 @@
+.high-condition{display:block;margin:8px 0;padding:8px 10px;border:1px solid #b7c6ce;border-radius:8px;background:#f2f5f6;color:#334c59;font-size:13px;font-weight:700;line-height:1.5;overflow-wrap:anywhere}
+.high-condition.is-hit{background:#ffe59a;border:2px solid #a97006;color:#513500}.high-condition.is-clear{background:#f2f6f7;color:#3a5360}.high-condition.is-unknown{background:#f0f2f4;color:#5b6870;font-weight:500}
+.card.fund-card.peak-alert-active,.price-grid .panel.peak-alert-active{background:#ffe59a;border-color:#b77c11}.card.fund-card.peak-alert-other{background:#fff5d5}
+.stock-tile .stock-high.high-reached,.fund-card .fund-high.high-reached{background:#fff0b8;border:2px solid #b77c11}
+.fund-periods button.period-hit{background:#fff0b8;box-shadow:inset 0 0 0 2px #b77c11}.fund-periods button small{display:block;font-size:10px;line-height:1.3}
+.tile.heatmap-high-hit{box-shadow:inset 0 0 0 3px #ffe075}.heatmap-peak-flag{max-width:100%;padding:2px 4px;border-radius:4px;background:#ffe075;color:#423000;font-size:10px;line-height:1.2;text-shadow:none}
+@media(max-width:650px){.high-condition{font-size:12px;padding:6px 8px}}
+
+.stock-tile.stock-alert-active{background:#ffe59a}.stock-tile.stock-alert-hidden{background:#fff5d5}

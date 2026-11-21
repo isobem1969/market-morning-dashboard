@@ -1,3 +1,4 @@
+import {highCondition,conditionMarkup} from './high-condition.js?v=thresholds-20261122';
 import {updateHeaderDate} from './common-header.js?v=six-pages-20261119-v1';
 import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=six-pages-20261119-v1';
 const $=id=>document.getElementById(id),fmt=(n,d=1)=>Number.isFinite(n)?n.toLocaleString('ja-JP',{minimumFractionDigits:d,maximumFractionDigits:d}):'—';
@@ -19,8 +20,8 @@ function watch(key){
 }
 function price(key,name,symbol){
  const target={ndx:'nasdaq',tqqq:'tqqq',soxl:'soxl'}[key],heading=`<h2><a class="indicator-panel-link" href="./funds.html#metric-${target}"><span>${name} <span aria-hidden="true">→</span></span><small>投資信託のパネルへ移動</small></a></h2>`;
- const p=data.prices[key];if(!p)return `<section id="price-${key}" class="panel">${heading}<p>最新データを確認しています。「更新を確認」で再取得できます。</p></section>`;const change=p.value-p.previous,cls=change>0?'positive':change<0?'negative':'';
- return `<section id="price-${key}" class="panel"><div class="price-title">${heading}<a href="https://finance.yahoo.com/quote/${symbol}/" target="_blank" rel="noopener">取得元 ↗</a></div><div class="quote-row"><span class="previous">${fmt(p.previous,2)}</span><span class="arrow">→</span><strong class="quote ${cls}">${fmt(p.value,2)}</strong></div><p class="caption">${esc(p.asOf)} 米国日付 ／ ${p.marketOpen?'通常取引中・遅延あり':'直近通常取引の終値'} ／ ${key==='ndx'?'ポイント':'USD'}</p><div class="price-details"><div><small>最高終値に対する割合</small><strong>${fmt(p.ratio)}%</strong></div><div><small>最高終値からの下落率</small><strong class="negative">${fmt(p.drawdown)}%</strong></div></div><div class="peak">最高終値 ${fmt(p.peak,2)}</div><p class="caption">取得期間：${esc(p.historyStart)}〜${esc(p.asOf)}<br>日中高値ではなく、取得期間の最高終値が基準です。</p></section>`;
+ const p=data.prices[key];if(!p)return `<section id="price-${key}" class="panel">${heading}<p>最新データを確認しています。「更新を確認」で再取得できます。</p></section>`;const condition=highCondition(p.value,p.peak,{reference:!usable,label:'取得期間の最高終値',available:Number.isFinite(Date.parse(p.asOf))});const change=p.value-p.previous,cls=change>0?'positive':change<0?'negative':'';
+ return `<section id="price-${key}" class="panel ${condition.hit?'peak-alert-active':''}"><div class="price-title">${heading}<a href="https://finance.yahoo.com/quote/${symbol}/" target="_blank" rel="noopener">取得元 ↗</a></div><div class="quote-row"><span class="previous">${fmt(p.previous,2)}</span><span class="arrow">→</span><strong class="quote ${cls}">${fmt(p.value,2)}</strong></div><p class="caption">${esc(p.asOf)} 米国日付 ／ ${p.marketOpen?'通常取引中・遅延あり':'直近通常取引の終値'} ／ ${key==='ndx'?'ポイント':'USD'}</p>${conditionMarkup(condition)}<div class="price-details"><div><small>最高終値に対する割合</small><strong>${fmt(p.ratio)}%</strong></div><div><small>最高終値からの下落率</small><strong class="negative">${fmt(p.drawdown)}%</strong></div></div><div class="peak">最高終値 ${fmt(p.peak,2)}</div><p class="caption">取得期間：${esc(p.historyStart)}〜${esc(p.asOf)}<br>日中高値ではなく、取得期間の最高終値が基準です。</p></section>`;
 }
 function drawChart(){
  const rows=data.history.slice(-period),provisional=data.provisional;
