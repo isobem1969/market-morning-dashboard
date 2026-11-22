@@ -23,7 +23,8 @@ try{
   await page.setViewportSize({width,height});
   await page.locator('.ready-alert-details').evaluate(el=>el.open=false);
   const compactHeight=await page.locator('#page-ready-alert').evaluate(el=>el.getBoundingClientRect().height);
-  assert.ok(compactHeight<=(width<=650?280:200),label+' compact height: '+compactHeight);
+  const healthError=await page.locator('#page-ready-alert').getAttribute('data-state')==='error';
+  assert.ok(compactHeight<=(healthError?(width<=650?430:330):(width<=650?310:230)),label+' compact height: '+compactHeight);
   await page.screenshot({path:'screenshots/navigation-progress-compact-'+engine+'-'+label+'.png'});
   await page.locator('.ready-alert-details>summary').click();
   const layout=await page.evaluate(()=>{

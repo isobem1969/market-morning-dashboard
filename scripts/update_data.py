@@ -8,6 +8,7 @@ import math
 import pathlib
 import re
 import urllib.request
+from source_support import choose_sources, expected_date, yahoo_fetch
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 UTC = dt.timezone.utc
@@ -59,11 +60,86 @@ def series_result(points, kind, peak=False, history_limit=90):
         result['peakLabel'] = '取得した設定来データの最高値'
     return result
 
-def parse_fund_csv(text, fund):
+def parse_fund_csv(text, fund, history_limit=800):
     rows = csv.DictReader(io.StringIO(text))
     if fund in ('fang', 'nasdaq_ifree'):
-        return series_result([(iso_date(r['基準日']), r['基準価額']) for r in rows], '基準価額', True, history_limit=800)
-    return series_result([(iso_date(r['日付']), r['基準価額']) for r in rows], '基準価額', True, history_limit=800)
+        return series_result([(iso_date(r['基準日']), r['基準価額']) for r in rows], '基準価額', True, history_limit=history_limit)
+    return series_result([(iso_date(r['日付']), r['基準価額']) for r in rows], '基準価額', True, history_limit=history_limit)
+
+
+FUND_BACKUPS = {
+    'fang': ('04311181', ('iFreeNEXT', 'FANG+'), '2018-01-31'),
+    'nasdaq_ifree': ('04317188', ('iFreeNEXT', 'NASDAQ100'), '2018-08-31'),
+    'sox': ('29314233', ('ニッセイ', 'SOX'), '2023-03-31'),
+    'nasdaq': ('89311265', ('SBI', 'NASDAQ100'), '2026-05-21'),
+    'schd': ('8931224C', ('SBI', 'S・米国高配当株式ファンド', '年4回決算型'), '2024-12-20'),
+    'sp500_slim': ('03311187', ('eMAXIS', 'S&P500'), '2018-07-03'),
+    'allcountry_slim': ('0331418A', ('eMAXIS', 'オール・カントリー'), '2018-10-31'),
+}
+
+
+def parse_sbi_history(text, key, history_limit=800):
+    import unicodedata
+    normalize = lambda s: re.sub(r'\s+', '', unicodedata.normalize('NFKC', s)).upper()
+    rows = list(csv.reader(io.StringIO(text)))
+    name = next((r[1] for r in rows if len(r)>1 and r[0]=='ファンド名'), '')
+    if not all(normalize(word) in normalize(name) for word in FUND_BACKUPS[key][1]):
+        raise ValueError('SBI CSV fund identity mismatch')
+    if key in ('fang', 'nasdaq_ifree') and ('毎月' in name or '予想分配' in name):
+        raise ValueError('Different distribution class')
+    heading = next((i for i,r in enumerate(rows) if r[:2]==['年月日', '基準価額（円）']), None)
+    if heading is None:
+        raise ValueError('SBI CSV NAV header missing')
+    points = []
+    seen = set()
+    for row in rows[heading+1:]:
+        if not row or not any(row):
+            continue
+        date = dt.datetime.strptime(row[0], '%Y/%m/%d').date().isoformat()
+        value = float(row[1].replace(',', ''))
+        if date in seen or not math.isfinite(value) or value<=0:
+            raise ValueError('Duplicate date or invalid SBI NAV')
+        seen.add(date); points.append((date, value))
+    result = series_result(points, '基準価額', True, history_limit=history_limit)
+    result['historyStart'] = min(seen)
+    return result
+
+
+def sbi_history(key, history_limit=800):
+    from urllib.parse import urlencode
+    code, _, start = FUND_BACKUPS[key]
+    end = dt.datetime.now(UTC).astimezone(__import__('zoneinfo').ZoneInfo('Asia/Tokyo')).date().isoformat()
+    query = {'fund_sec_code':code}
+    for prefix, date in [('from', start), ('to', end)]:
+        for part, value in zip(('yyyy','mm','dd'), date.split('-')):
+            query[f'in_term_{prefix}_{part}'] = value
+    url = 'https://site0.sbisec.co.jp/marble/fund/history/standardprice/standardPriceHistoryCsvAction.do?'+urlencode(query)
+    return parse_sbi_history(fetch(url, 'cp932'), key, history_limit)
+
+
+def fund_history(key, history_limit=800):
+    """The same complete price series feeds the chart and the drawdown comparison."""
+    def official():
+        if key in ('fang', 'nasdaq_ifree'):
+            code = '3346' if key=='fang' else '3373'
+            return parse_fund_csv(fetch(f'https://www.daiwa-am.co.jp/funds/detail/csv_out.php?code={code}&type=1','cp932'),key,history_limit)
+        if key=='sox':
+            return parse_fund_csv(fetch('https://www.nam.co.jp/fundinfo/data/csv.php?fund_code=122309','cp932'),key,history_limit)
+        if key in ('sp500_slim','allcountry_slim'):
+            code = 'm00355320' if key=='sp500_slim' else 'm00355920'
+            return parse_mufg_csv(fetch(f'https://fs.bk.mufg.jp/webasp/mufg/fund/detail/chart/csv/{code}.csv','cp932'),history_limit)
+        code = '2026052101' if key=='nasdaq' else '2024122003'
+        nav = parse_wealthadvisor_xml(fetch(f'https://apl.wealthadvisor.jp/xml/chart/funddata/{code}.xml','cp932'),history_limit)
+        latest = nasdaq_page(key)
+        points = {p['date']:p['value'] for p in nav['history']}
+        if latest['asOf'] >= nav['asOf']:
+            points[latest['asOf']] = latest['value']
+        return series_result(list(points.items()),'基準価額',True,history_limit)
+    code = FUND_BACKUPS[key][0]
+    return choose_sources([
+        (SOURCES[key][2], SOURCES[key][3], official),
+        ('SBI証券・公表基準価額CSV',f'https://site0.sbisec.co.jp/marble/fund/history/standardprice.do?fund_sec_code={code}',lambda:sbi_history(key,history_limit))
+    ], minimum_date=expected_date())
 
 
 def parse_mufg_csv(text, history_limit=800):
@@ -88,7 +164,7 @@ def parse_mufg_csv(text, history_limit=800):
 
 def yahoo(symbol):
     from urllib.parse import quote
-    obj = json.loads(fetch('https://query1.finance.yahoo.com/v8/finance/chart/' + quote(symbol, safe='') + '?range=2y&interval=1d'))['chart']['result'][0]
+    obj = json.loads(yahoo_fetch(fetch,'https://query1.finance.yahoo.com/v8/finance/chart/' + quote(symbol, safe='') + '?range=2y&interval=1d'))['chart']['result'][0]
     meta = obj['meta']
     from zoneinfo import ZoneInfo
     tz = ZoneInfo(meta['exchangeTimezoneName'])
@@ -99,6 +175,7 @@ def yahoo(symbol):
     points.append((date, meta['regularMarketPrice']))
     result = series_result(points, '市場値（遅延の可能性）', history_limit=800)
     result['asOf'] = dt.datetime.fromtimestamp(t, UTC).isoformat()
+    result['timeZone'] = meta['exchangeTimezoneName']
     # A daily series can include today's partial bar. Compare with the last prior day.
     prev = next((v for d, v in reversed(sorted(dict(points).items())) if d < date), None)
     result['change'] = result['value'] - prev if prev is not None else None
@@ -249,7 +326,7 @@ def leveraged_etf_history(symbol):
         raise ValueError('Unsupported leveraged ETF')
     from zoneinfo import ZoneInfo
     end = int(dt.datetime.now(UTC).timestamp()) + 86400
-    data = json.loads(fetch(f'https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?period1=0&period2={end}&interval=1d'))
+    data = json.loads(yahoo_fetch(fetch,f'https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?period1=0&period2={end}&interval=1d'))
     obj = data['chart']['result'][0]
     if obj['meta'].get('symbol') != symbol or obj['meta'].get('currency') != 'USD':
         raise ValueError('Unexpected '+symbol+' symbol or currency')
@@ -264,6 +341,7 @@ def leveraged_etf_history(symbol):
     result['peakLabel'] = '取得した上場来最高終値（分割調整済み）'
     if obj['meta'].get('regularMarketTime'):
         result['asOf'] = dt.datetime.fromtimestamp(obj['meta']['regularMarketTime'], UTC).isoformat()
+    result['timeZone'] = obj['meta']['exchangeTimezoneName']
     result['historyNote'] = ('TQQQはNASDAQ100' if symbol=='TQQQ' else 'SOXLは半導体株指数')+'の日次騰落率の3倍を目標とする米国ETFです。長期間の騰落率が3倍になるわけではありません。価格・下落率は米ドル建てで、分配金再投資・為替変動は含みません。'
     return result
 
@@ -287,6 +365,11 @@ ADAPTERS = {
     'tqqq': tqqq_history,
     'soxl': soxl_history,
 }
+ADAPTERS.update({key:(lambda key=key:fund_history(key)) for key in FUND_BACKUPS})
+ADAPTERS['vix'] = lambda: choose_sources([
+    ('Cboe', SOURCES['vix'][3], cboe),
+    ('Yahoo Finance・VIX', 'https://finance.yahoo.com/quote/%5EVIX/', lambda:yahoo('^VIX'))
+], minimum_date=expected_date('XNYS','daily'))
 
 def merge_observation(key, observation, previous, now):
     as_of = dt.datetime.fromisoformat(observation['asOf'].replace('Z', '+00:00'))
@@ -310,6 +393,8 @@ def collect_one(key, previous, now):
         # Keep the previous observation AND its original dates. Never mark it current.
         result = {**previous, 'status': 'error', 'attemptedAt': now.isoformat(),
                   'error': f'{type(exc).__name__}: {exc}'[:200]}
+        if hasattr(exc, 'attempts'):
+            result['sourceAttempts'] = exc.attempts
     return {**result, **base, 'source': result.get('source', source), 'sourceUrl': result.get('sourceUrl', url)}
 
 def main():

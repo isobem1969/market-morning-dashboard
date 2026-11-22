@@ -1,8 +1,10 @@
 import datetime as dt
 import importlib.util
 import pathlib
+import sys
 import unittest
 from unittest.mock import patch
+sys.path.insert(0,str(pathlib.Path(__file__).resolve().parents[1]/'scripts'))
 spec=importlib.util.spec_from_file_location('collector',pathlib.Path(__file__).resolve().parents[1]/'scripts/update_data.py')
 c=importlib.util.module_from_spec(spec);spec.loader.exec_module(c)
 
@@ -12,6 +14,7 @@ class CollectorTest(unittest.TestCase):
         times=[int((first+dt.timedelta(days=i)).timestamp()) for i in range(730)]
         obj={'chart':{'result':[{'meta':{'exchangeTimezoneName':'UTC','regularMarketTime':times[-1],'regularMarketPrice':160},'timestamp':times,'indicators':{'quote':[{'close':[100+i*.01 for i in range(730)]}]}}]}}
         for key,symbol in [('usd','JPY=X'),('brent','BZ=F')]:
+            obj['chart']['result'][0]['meta']['symbol']=symbol
             with patch.object(c,'fetch',return_value=c.json.dumps(obj)) as fetch:
                 result=c.yahoo(symbol)
             self.assertIn('?range=2y&interval=1d',fetch.call_args[0][0])

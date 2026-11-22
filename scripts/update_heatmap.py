@@ -4,6 +4,7 @@ import datetime as dt
 import json
 from pathlib import Path
 from update_data import fetch
+from source_support import yahoo_fetch
 from update_stocks import NY, UTC, number, points, price_observation
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -52,7 +53,7 @@ def observation(result, symbol, now):
 def collect(symbol, name, previous, now):
     base = {'symbol': symbol, 'name': name}
     try:
-        payload = json.loads(fetch(f'https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range=3mo&interval=1d&includePrePost=false'))
+        payload = json.loads(yahoo_fetch(fetch,f'https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range=3mo&interval=1d&includePrePost=false'))
         results = payload.get('chart', {}).get('result')
         if not results:
             raise ValueError('No public price data')

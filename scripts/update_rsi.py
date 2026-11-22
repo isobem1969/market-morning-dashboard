@@ -12,6 +12,7 @@ from urllib.parse import quote
 from zoneinfo import ZoneInfo
 import exchange_calendars as xcals
 from update_data import fetch
+from source_support import yahoo_fetch
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 UTC = dt.timezone.utc
@@ -34,7 +35,7 @@ def wilder(values, period=14):
     return result
 
 def daily(symbol):
-    obj = json.loads(fetch('https://query1.finance.yahoo.com/v8/finance/chart/'+quote(symbol,safe='')+'?period1=0&period2='+str(int(dt.datetime.now(UTC).timestamp()))+'&interval=1d&includePrePost=false'))
+    obj = json.loads(yahoo_fetch(fetch,'https://query1.finance.yahoo.com/v8/finance/chart/'+quote(symbol,safe='')+'?period1=0&period2='+str(int(dt.datetime.now(UTC).timestamp()))+'&interval=1d&includePrePost=false'))
     r = obj['chart']['result'][0]
     if r['meta']['symbol'] != symbol or r['meta']['dataGranularity'] != '1d':
         raise ValueError('Unexpected symbol or non-daily series')

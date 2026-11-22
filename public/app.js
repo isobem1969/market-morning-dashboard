@@ -1,10 +1,11 @@
+import {fundsOverviewState,renderFundsOverview} from './funds-overview.js?v=resilient-20261122-v1';
 import {signalMarkup} from './high-condition.js?v=selected-period-20261122-v2';
 import {updateHeaderDate,redirectingFundPanel} from './common-header.js?v=six-pages-20261119-v1';
 import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=six-pages-20261119-v1';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {changePercent,percentLine} from './change-format.js?v=twoline-20261007';
 import {marketChart,marketHover,selectMarketHistory} from './market-panel.js?v=ranges-20261007';
-import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=selected-period-20261122-v2';
+import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=resilient-20261122-v1';
 import {viCard} from './vi-panel.js?v=selected-period-20261122-v2';
 import {fearCard} from './fear-panel.js?v=selected-period-20261122-v2';
 import {quality,signal,overall,VIX_BANDS,vixBand,selectVixHistory} from './logic.js?v=vix-20261006';
@@ -56,7 +57,7 @@ function vixCard(m,q,sig,change){
 }
 let pendingPanelHash=location.hash;
 function jumpToPanel(hash){
-  if(!/^#metric-(nasdaq|tqqq|soxl)$/.test(hash))return;
+  if(!hash.startsWith('#metric-')||![...FUND_IDS,'usd','vix','fear','vi','brent'].includes(hash.slice(8)))return;
   const panel=document.getElementById(hash.slice(1));
   if(!panel){pendingPanelHash=hash;return;}
   pendingPanelHash='';
@@ -66,10 +67,14 @@ function jumpToPanel(hash){
   });
 }
 window.addEventListener('hashchange',()=>jumpToPanel(location.hash));
+window.addEventListener('morning-data-health',()=>{if(data)render();});
 window.addEventListener('morning-panel-jump',e=>jumpToPanel(e.detail));
 function render(){
   if(!data)return;
+  const reading=scrollY>0?[...document.querySelectorAll('#cards>.card')].find(el=>{const r=el.getBoundingClientRect();return el.id&&r.bottom>0&&r.top<innerHeight;}):null;
+  const readingId=reading?.id,readingTop=reading?.getBoundingClientRect().top;
   const ms=metrics(),now=Date.now(),ov=overall(ms,now,data.generatedAt,offline);
+  const checkedQuality=m=>{const q=quality(m,now,data.generatedAt,offline);const issue=window.__morningHealthState?.issues?.find(i=>i.page==='funds'&&i.label===m.name&&i.item==='価格・グラフ');return issue?{usable:false,label:issue.reason}:q;};
   if(!isFunds){
   $('.overview').className='overview '+ov.tone;
   $('#summary').textContent=ov.title;$('#summary-detail').textContent=ov.detail;
@@ -83,9 +88,9 @@ function render(){
   });
   }
   const visible=ms.filter(m=>isFunds?FUND_IDS.includes(m.id):!FUND_IDS.includes(m.id));
-  if(isFunds)visible.sort((a,b)=>FUND_IDS.indexOf(a.id)-FUND_IDS.indexOf(b.id));
+  if(isFunds){visible.sort((a,b)=>FUND_IDS.indexOf(a.id)-FUND_IDS.indexOf(b.id));renderFundsOverview($('#funds-overview'),fundsOverviewState(visible,fundRanges,checkedQuality));}
   $('#cards').innerHTML=visible.map(m=>{
-    const q=quality(m,now,data.generatedAt,offline),sig=q.usable||['vix','fear','vi'].includes(m.id)?signal(m.id,m.value):{tone:'',text:'判定対象外'};
+    const q=checkedQuality(m),sig=q.usable||['vix','fear','vi'].includes(m.id)?signal(m.id,m.value):{tone:'',text:'判定対象外'};
     const isFund=['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd','tqqq','soxl'].includes(m.id);
     if(isFund)return fundCard(m,q,fundRanges.get(m.id)||'6m',{datetime});
     const amount=Number.isFinite(m.change)?`${m.change>0?'↑ +':m.change<0?'↓ −':'→ '}${format(Math.abs(m.change),m.id)}`:'前日比 —';
@@ -99,11 +104,12 @@ function render(){
     const url=/^https:\/\//.test(m.sourceUrl)?m.sourceUrl:'#';
     return `<article class="card large-market-card ${sig.tone}" data-metric="${m.id}" aria-label="${escape(m.name)}"><div class="card-head"><h3 class="card-title">${escape(m.name)}</h3><span class="icon" aria-hidden="true">${icons[m.id]||'•'}</span></div><div class="value ${m.change>0?'up':m.change<0?'down':''}">${valuePair(m,v=>format(v,m.id))}</div><div class="unit">${escape(m.unit)}</div><div class="change${isFund?' fund-change':''} ${m.change>0?'up':m.change<0?'down':''}">${change}</div><span class="badge">${escape(sig.text)}</span>${peak}${marketChart(m,marketPeriod)}<div class="meta"><p class="quality">${q.usable?'●':'⚠'} ${escape(q.label)}</p><div>${escape(descriptions[m.id])}</div><div>${escape(m.kind||'未取得')} · ${datetime(m.asOf)}</div><div>取得成功 ${datetime(m.lastSuccess)}</div><a href="${escape(url)}" target="_blank" rel="noopener noreferrer">${escape(m.source)} ↗</a>${m.error?`<details><summary>取得エラー</summary>${escape(m.error)}</details>`:''}</div><details class="history-details"><summary>数値の推移を見る</summary><table aria-label="${escape(m.name)}の日次推移"><tbody>${history.length?history.slice().reverse().map(p=>`<tr><td>${escape(p.date)}</td><td>${format(p.value,m.id)}</td></tr>`).join(''):'<tr><td>未取得</td></tr>'}</tbody></table></details></article>`;
   }).join('');
-  for(const id of ['nasdaq','tqqq','soxl']){
-    const panel=document.querySelector(`[data-fund="${id}"]`);
+  for(const id of [...FUND_IDS,'usd','vix','fear','vi','brent']){
+    const panel=document.querySelector(`[data-fund="${id}"],[data-metric="${id}"]`);
     if(panel){panel.id='metric-'+id;panel.tabIndex=-1;panel.style.scrollMarginTop='20px';}
   }
   if(pendingPanelHash)jumpToPanel(pendingPanelHash);
+  if(readingId){const panel=document.getElementById(readingId);if(panel)scrollBy({top:panel.getBoundingClientRect().top-readingTop,behavior:'instant'});}
   (window.__morningRenderState||(window.__morningRenderState={}))[pageKey]={generatedAt:data.generatedAt};
 }
 async function refresh(){
