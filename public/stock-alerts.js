@@ -1,4 +1,4 @@
-import {historyComparison} from './high-history.js?v=bounded-history-20261122-v1';
+import {historyComparison} from './high-history.js?v=bounded-history-20261122-v2';
 import {PERIODS,periodHigh,sectionOld} from './stocks-logic.js?v=six-pages-20261119-v1';
 import {belowHigh} from './high-condition.js?v=selected-period-20261122-v2';
 export {belowHigh} from './high-condition.js?v=selected-period-20261122-v2';

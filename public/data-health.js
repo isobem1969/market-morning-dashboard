@@ -1,4 +1,4 @@
-import {historyComparison,historyCalculationMarkup} from './high-history.js?v=bounded-history-20261122-v1';
+import {historyComparison,historyCalculationMarkup} from './high-history.js?v=bounded-history-20261122-v2';
 import {readSnapshot,updateSnapshot} from './shared-data.js?v=six-pages-20261119-v1';
 import {PAGES} from './page-registry.js?v=six-pages-20261119-v1';
 const fundIds=['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd','tqqq','soxl'];

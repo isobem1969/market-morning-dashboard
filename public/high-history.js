@@ -14,7 +14,7 @@ export function historyComparison(stock){
 }
 export function historyCoverageMarkup(h){
  const range=h.rangeValid?h.start+'〜'+h.end:(h.start||'開始日未確認')+'〜'+(h.end||'終了日未確認');
- return '<p class="high-history-coverage"><strong>取得済み期間</strong><span>'+esc(range)+'</span><small>'+(h.complete?'取得した履歴の範囲です。':'この取得済み期間内の最高値を基準に計算しています。')+'</small></p>';
+ return '<p class="high-history-coverage"><strong>取得済み期間</strong><span>'+esc(range)+'</span><small>'+(h.complete?'取得した履歴の範囲です。':h.valid?'この取得済み期間内の最高値を基準に計算しています。':'取得済み期間や高値が未確認のため、計算を保留しています。')+'</small></p>';
 }
 export function historyCalculationMarkup(h){
  if(!h)return '';
