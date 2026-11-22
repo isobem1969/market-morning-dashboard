@@ -21,14 +21,15 @@ try{
     await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.phase==='complete',null,{timeout:60000});
     assert.equal(await page.locator('#ready-alert-progress').getAttribute('aria-valuenow'),'18');
    }else if(item.key==='funds'){
-    await page.locator('[data-fund=soxl]').waitFor();assert.equal(await page.locator('.fund-card').count(),9);
-    assert.deepEqual(await page.locator('.fund-card').evaluateAll(a=>a.map(e=>e.dataset.fund)),['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd','tqqq','soxl']);
-    for(const id of ['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd','tqqq','soxl']){
+    await page.locator('[data-fund=schd]').waitFor();assert.equal(await page.locator('.fund-card').count(),7);
+    assert.deepEqual(await page.locator('.fund-card').evaluateAll(a=>a.map(e=>e.dataset.fund)),['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd']);
+    for(const id of ['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd']){
      const tile=page.locator('[data-fund="'+id+'"]');await tile.locator('[data-fund-period="1m"]').click();
      assert.equal(await tile.locator('[data-fund-period="1m"]').getAttribute('aria-pressed'),'true');assert.equal(await tile.locator('.fund-chart').count(),1);
     }
    }else if(['japan','stocks'].includes(item.key)){
     await page.locator('.stock-tile').first().waitFor();assert.equal(await page.locator('.stock-tile').count(),item.key==='japan'?4:13);
+    if(item.key==='stocks'){await page.locator('#us-etfs [data-fund=soxl]').waitFor();assert.deepEqual(await page.locator('#us-etfs .fund-card').evaluateAll(a=>a.map(e=>e.dataset.fund)),['tqqq','soxl']);}
     if(item.key==='japan'){
      assert.deepEqual(await page.locator('.stock-tile h2').allTextContents(),['ソフトバンクグループ','楽天グループ','キオクシア','東京エレクトロン']);
      assert.deepEqual(await page.locator('.currency').allTextContents(),['円','円','円','円']);
@@ -47,8 +48,8 @@ try{
    await page.screenshot({path:'screenshots/navigation-six-'+engine+'-'+device+'-'+item.key+'.png'});
   }
   await page.goto(base+'nasdaq-rsi.html');
-  for(const id of ['ndx','tqqq','soxl'])assert.ok((await page.locator('#price-'+id+' .indicator-panel-link').getAttribute('href')).startsWith('./funds.html#metric-'));
-  await page.goto(base+'#metric-soxl');await page.waitForURL('**/funds.html#metric-soxl');await page.locator('#metric-soxl').waitFor();
+  for(const id of ['ndx','tqqq','soxl'])assert.ok((await page.locator('#price-'+id+' .indicator-panel-link').getAttribute('href')).startsWith(id==='ndx'?'./funds.html#metric-':'./stocks-reference.html#metric-'));
+  await page.goto(base+'#metric-soxl');await page.waitForURL('**/stocks-reference.html#metric-soxl');await page.locator('#metric-soxl').waitFor();
   assert.deepEqual(errors,[]);console.log('SIX_PAGES_OK',engine,device);await context.close();
  }
 }finally{await browser.close();}

@@ -43,7 +43,7 @@ try {
     assert.equal(await page.locator('.fund-card').count(),0);
     await page.goto('http://127.0.0.1:8765/funds.html');
     await page.locator('.fund-card').first().waitFor();
-    assert.equal(await page.locator('.fund-card').count(),9);
+    assert.equal(await page.locator('.fund-card').count(),7);
     for(const [id,code] of [['sox','29314233'],['fang','04311181'],['nasdaq','89311265'],['nasdaq_ifree','04317188']]){
       const tile=page.locator(`[data-fund="${id}"]`);
       for(const period of ['1w','1m','6m','1y','2y']){await tile.locator(`[data-fund-period="${period}"]`).click();assert.equal(await tile.locator(`[data-fund-period="${period}"]`).getAttribute('aria-pressed'),'true');assert.equal(await tile.locator('.fund-chart').count(),1);}

@@ -1,5 +1,8 @@
-export const redirectingFundPanel=typeof location!=='undefined'&&/\/(?:index\.html)?#metric-(nasdaq|tqqq|soxl)$/.test(location.pathname+location.hash);
-if(redirectingFundPanel)location.replace('./funds.html'+location.hash);
+import {legacyPanelDestination} from './asset-pages.js?v=us-etf-20261123-v1';
+const destination=typeof location!=='undefined'?legacyPanelDestination(location.pathname,location.hash):null;
+export const redirectingFundPanel=!!destination;
+if(destination)location.replace(destination);
+if(typeof window!=='undefined')window.addEventListener('hashchange',()=>{const next=legacyPanelDestination(location.pathname,location.hash);if(next)location.replace(next);});
 export function headerDateMarkup(date=new Date()){
  const parts=new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',weekday:'short'}).formatToParts(date);
  const value=type=>parts.find(p=>p.type===type)?.value||'';

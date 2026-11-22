@@ -1,11 +1,13 @@
-import {fundAlertState} from './fund-panel.js?v=bounded-history-20261122-v2';
+import {FUND_IDS} from './asset-pages.js?v=us-etf-20261123-v1';
+import {fundAlertState} from './fund-panel.js?v=us-etf-20261123-v1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export function fundsOverviewState(metrics,ranges,quality){
+export function rangeOverviewState(metrics,ranges,quality){
  const items=metrics.map(m=>{const period=ranges.get(m.id)||'6m',q=quality(m),state=fundAlertState(m,period,q);return {m,period,q,state};});
  return {items,reached:items.filter(i=>i.q.usable&&i.state.selected?.hit),
          pending:items.filter(i=>!i.q.usable||!i.state.selected?.valid),
          references:items.filter(i=>!i.q.usable&&i.state.selected?.hit)};
 }
+export function fundsOverviewState(metrics,ranges,quality){return rangeOverviewState(metrics.filter(m=>FUND_IDS.includes(m.id)),ranges,quality);}
 export function renderFundsOverview(host,model){
  if(!host)return;
  const {reached,pending,references}=model;

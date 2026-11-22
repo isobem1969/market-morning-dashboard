@@ -22,7 +22,7 @@ async function inspectPaint(selector,label){
  if(await page.locator('#page-ready-alert').count())await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.phase==='complete',null,{timeout:60000});
  // A restored WebKit document can expose its cached DOM before its refresh
  // and native history scroll restoration finish. Inspect the settled document.
- if(await page.locator('body[data-dashboard="funds"]').count())await page.waitForFunction(()=>!document.querySelector('#refresh')?.disabled&&window.__morningPreloadState?.market==='準備完了'&&window.__morningPreloadState?.drawdowns==='準備完了');
+ if(await page.locator('body[data-dashboard="funds"],#us-etfs').count())await page.waitForFunction(()=>!document.querySelector('#refresh')?.disabled&&window.__morningPreloadState?.market==='準備完了'&&window.__morningPreloadState?.drawdowns==='準備完了');
  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
  const card=page.locator(selector).first();
  await card.evaluate(e=>window.scrollTo({top:e.getBoundingClientRect().top+scrollY-20,behavior:'instant'}));
@@ -82,7 +82,7 @@ try{
  const alerts=page.locator('#stock-alert-list a'),count=await alerts.count();
  for(let i=0;i<count;i++){
   const href=await alerts.nth(i).getAttribute('href');await alerts.nth(i).click();
-  await page.waitForFunction(id=>Math.abs(document.querySelector(id)?.getBoundingClientRect().top-16)<4,href);
+  await page.waitForFunction(id=>Math.abs(document.querySelector(id)?.getBoundingClientRect().top-(id.startsWith('#metric-')?20:16))<4,href);
  }
  console.log('ALERT_PANEL_LINKS_OK',engine,count);
  await scrollControls('stocks');
@@ -98,10 +98,11 @@ try{
   await page.setViewportSize(viewport);
   await navigate('','.vi-card');
   await inspectPaint('.vi-card','vi-'+viewport.width);
-  await navigate('funds.html','.fund-card');
+  await navigate('stocks-reference.html','.fund-card');
   await inspectPaint('[data-fund="soxl"]','soxl-'+viewport.width);
  }
  for(const [fund,target]of [['nasdaq','ndx'],['tqqq','tqqq'],['soxl','soxl']]){
+  await navigate(fund==='nasdaq'?'funds.html':'stocks-reference.html','.fund-card');
   const link=page.locator('[data-fund="'+fund+'"] .fund-rsi-link');assert.equal(await link.getAttribute('href'),'./nasdaq-rsi.html#price-'+target);
   await link.click();await page.waitForURL('**/nasdaq-rsi.html#price-'+target,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(id=>{const e=document.getElementById(id),r=e?.querySelector('h2')?.getBoundingClientRect();return r&&r.top>=0&&r.bottom<=innerHeight;},'price-'+target);

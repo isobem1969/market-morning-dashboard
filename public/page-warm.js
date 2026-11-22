@@ -1,4 +1,4 @@
-import {redirectingFundPanel} from './common-header.js?v=six-pages-20261119-v1';
+import {redirectingFundPanel} from './common-header.js?v=us-etf-20261123-v1';
 // Prepare snapshots and page structure off screen. Open links as real documents.
 // A hidden, fixed iframe must never become the visible page or intercept its scroll.
 import {PAGES} from './page-registry.js?v=six-pages-20261119-v1';
@@ -19,7 +19,7 @@ if(window.parent===window&&isRoot&&!redirectingFundPanel){
   const el=document.getElementById('page-preload-status');if(!el)return;
   el.textContent=[...frames].map(([key,frame])=>{
    let complete=false;
-   try{const state=frame.contentWindow;complete=state.__morningPreloadState?.[PAGES.find(p=>p.key===key).dataKey]==='準備完了'&&!!state.__morningRenderState?.[key];}catch{}
+   try{const state=frame.contentWindow;complete=state.__morningPreloadState?.[PAGES.find(p=>p.key===key).dataKey]==='準備完了'&&!!state.__morningRenderState?.[key]&&(key!=='stocks'||state.__morningRenderState.stocks.etfsReady);}catch{}
    return PAGES.find(p=>p.key===key).label+'：'+(complete?'準備完了':'画面を先読み中');
   }).join(' ／ ');
  }
