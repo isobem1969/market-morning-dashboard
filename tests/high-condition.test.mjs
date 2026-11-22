@@ -18,7 +18,8 @@ test('six-hour-old, failed-refresh and offline prices retain explicitly saved-va
 });
 test('incomplete listing history is labeled acquired-period, while valid period hits continue',()=>{
  const s=stock();s.highs.allTime.complete=false;const state=stockAlerts(s,'6m',{generatedAt:stamp,now});
- assert.equal(state.active,true);assert.equal(state.hits.find(h=>h.key==='allTime').label,'取得期間内');assert.ok(state.unchecked.includes('allTime'));assert.match(state.reasons.join(),/全履歴が未確認/);
+ assert.equal(state.active,true);assert.equal(state.hits.find(h=>h.key==='allTime').label,'取得期間内');assert.equal(state.unchecked.includes('allTime'),false);assert.deepEqual(state.reasons,[]);
+ const bad=structuredClone(s);bad.highs.historyStart=null;assert.ok(stockAlerts(bad,'6m',{generatedAt:stamp,now}).unchecked.includes('allTime'));
  s.price.lastSuccess='invalid';assert.equal(stockAlerts(s,'6m',{generatedAt:stamp,now}).hits.length,0);
  s.price.lastSuccess=new Date(now+86400000).toISOString();assert.equal(stockAlerts(s,'6m',{generatedAt:stamp,now}).hits.length,0);
 });

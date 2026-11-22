@@ -1,10 +1,10 @@
-import {historyComparison,historyCoverageMarkup} from './high-history.js?v=history-range-20261122-v1';
+import {historyComparison,historyCoverageMarkup} from './high-history.js?v=bounded-history-20261122-v1';
 import {highCondition,conditionMarkup} from './high-condition.js?v=selected-period-20261122-v2';
 import {updateHeaderDate} from './common-header.js?v=six-pages-20261119-v1';
 import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=six-pages-20261119-v1';
 import {stockGraph as graph} from './stock-chart.js?v=six-pages-20261119-v1';
-import {analystPanel} from './analyst-panel.js?v=history-range-20261122-v1';
-import {stockAlerts} from './stock-alerts.js?v=history-range-20261122-v1';
+import {analystPanel} from './analyst-panel.js?v=bounded-history-20261122-v1';
+import {stockAlerts} from './stock-alerts.js?v=bounded-history-20261122-v1';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {PERIODS,chartPoints,nyDate,sectionOld,periodHigh} from './stocks-logic.js?v=six-pages-20261119-v1';
 const japanese=document.body.dataset.stockMarket==='japan',snapshotName=japanese?'japan':'stocks',moneyUnit=japanese?'円':'USD',exchangeTimeZone=japanese?'Asia/Tokyo':'America/New_York';
@@ -30,7 +30,7 @@ function highPanels(s,period){
   const validDate=[p,source].every(s=>Number.isFinite(Date.parse(s.lastSuccess))&&Date.parse(s.lastSuccess)<=Date.now()+60000);
   const condition=highCondition(price,item.value,{reference:stale(p)||stale(source),label:title,available:validDate&&(key==='period'||history.valid)});
   const ratio=key==='allTime'?history.ratio:Number.isFinite(price)&&Number.isFinite(item.value)&&item.value>0?price/item.value*100:null,drop=ratio===null?null:ratio-100;
-  const basis=key==='period'?(item.value==null?'期間内の高値データを取得待ち':(['1d','1w'].includes(period)?'通常取引の5分足高値':'通常取引の日足高値')+'<br>表示期間 '+esc(item.start)+'〜'+esc(item.end)):'通常取引の日足高値'+(!item.complete?'<br>上場時からの全履歴は未確認':'');
+  const basis=key==='period'?(item.value==null?'期間内の高値データを取得待ち':(['1d','1w'].includes(period)?'通常取引の5分足高値':'通常取引の日足高値')+'<br>表示期間 '+esc(item.start)+'〜'+esc(item.end)):'通常取引の日足高値'+(!item.complete?'<br>取得済み期間内で比較':'');
   return `<section class="stock-high ${condition.hit?'high-reached':''}" data-high-kind="${key}" ${key==='period'?`data-high-period="${period}"`:''}><h3>${title}</h3>${key==='allTime'?historyCoverageMarkup(history):''}${conditionMarkup(condition)}<p class="high-caption">現在株価 / 最高値</p><p class="high-percent">${num(ratio,1)}<small>%</small></p><div class="high-meter" aria-hidden="true"><span style="width:${ratio===null?0:Math.max(0,Math.min(100,ratio))}%"></span></div><p class="high-price">最高値 <strong>${num(item.value)}</strong> ${moneyUnit}</p><p class="high-drop">最高値から ${signed(drop)}%</p><p class="source-note">記録日 ${esc(item.date||'—')}<br>${item.value==null?'':stale(source)?'前回保存値 · ':''}${item.value!=null?'取得 '+stamp(source.lastSuccess)+'<br>':''}${basis}</p></section>`;
  }).join('')+'<p class="source-note high-basis">Yahoo Finance · 上段はグラフの期間切り替えと連動<br>履歴の取得範囲 '+esc(h.historyStart||'—')+'〜'+esc(h.asOfDate||'—')+'</p></div>';
 }

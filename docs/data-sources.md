@@ -15,10 +15,12 @@ An alternate is accepted only after its issuer, currency/price basis, publicatio
 
 SBI's CSV date range is requested from the fund's actual inception. Historical prices are not reconstructed from percentages or filled over holidays. The main NAV chart and drawdown comparison use the same validated source series, including its inception peak.
 
-`health-calendar.json` contains actual XTKS/XNYS sessions, holidays, early closes and publication deadlines. The browser compares the raw sections (not just JSON download success) with these deadlines. Failed fields, stale dates, incomplete graphs, failed refreshes, unknown all-time coverage and an unavailable calendar remain red. A published `---` is represented as `availability: unpublished`, not a retrieval error. Closed markets do not demand fictitious weekend observations.
+`health-calendar.json` contains actual XTKS/XNYS sessions, holidays, early closes and publication deadlines. The browser compares the raw sections (not just JSON download success) with these deadlines. Failed fields, stale dates, incomplete graphs, failed refreshes, missing or invalid acquired-history ranges and an unavailable calendar remain red. A published `---` is represented as `availability: unpublished`, not a retrieval error. Closed markets do not demand fictitious weekend observations.
 
 The six-page rendering progress remains a separate measure. `6/6 表示準備` never overrides an item-level data-health failure.
 
 ## Restore the previous source
 
 The pre-change branch is `backup/before-resilient-data-health-20261122` (commit `3a362006d5dee6ba801c7796fa8d1c0279eb1337`). Prefer reverting the feature commit, preserving later market observations, rather than resetting the public branch and losing collected data.
+
+Unknown original listing coverage alone is accepted as an acquired-period maximum when the displayed start/end dates, peak record date, peak and comparison price are valid. It does not make the global health banner red or create an unchecked all-time error. Collection errors and stale timestamps still do. The original listing-complete flag is retained, and the UI uses the acquired-period label.
