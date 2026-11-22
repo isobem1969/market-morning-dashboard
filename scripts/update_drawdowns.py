@@ -4,7 +4,7 @@ import datetime as dt
 import io
 import json
 from pathlib import Path
-from update_data import fetch, iso_date, parse_mufg_csv, parse_wealthadvisor_xml, nasdaq_page, tqqq_history, soxl_history
+from update_data import fetch, iso_date, parse_mufg_csv, parse_wealthadvisor_xml, nasdaq_page, tqqq_history, soxl_history, fund_history
 
 ROOT = Path(__file__).resolve().parents[1]
 FUNDS = {
@@ -72,7 +72,18 @@ def main():
         try:
             if key in FUNDS:
                 code, name = FUNDS[key]
-                result = comparison(fetch(f'https://www.daiwa-am.co.jp/funds/detail/csv_out.php?code={code}&type=1', 'cp932'), name, code)
+                nav = fund_history('nasdaq_ifree' if key=='nasdaq' else key, history_limit=100000)
+                result = comparison_points([(p['date'],p['value']) for p in nav['history']], name,
+                                           nav['sourceUrl'], nav['source'])
+                result['sourceAttempts'] = nav.get('sourceAttempts', [])
+            elif key in (*EXTRA_FUNDS, 'schd'):
+                nav = fund_history(key, history_limit=100000)
+                name = 'SBI・SCHD（年4回決算型）' if key=='schd' else EXTRA_FUNDS[key][0]
+                result = comparison_points([(p['date'],p['value']) for p in nav['history']], name,
+                                           nav['sourceUrl'], nav['source'])
+                result['sourceAttempts'] = nav.get('sourceAttempts', [])
+                if key=='schd':
+                    result['distributionNote'] = '年4回決算型の公表基準価額。分配金再投資・受取分配金込みの損益ではありません。'
             else:
                 result = extra_comparison(key)
             if output.get(key, {}).get('asOf', '') > result['asOf']:

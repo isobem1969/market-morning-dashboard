@@ -7,7 +7,8 @@ import re
 from zoneinfo import ZoneInfo
 from update_data import fetch
 from update_stocks import (ROOT, UTC, chart, points, price_observation, collect_highs,
-                           collect_research, number, section)
+                           collect_research, collect_ratios, ratio_as_of, number, section)
+from source_support import choose_sources, expected_date
 
 TOKYO = ZoneInfo('Asia/Tokyo')
 STOCKS = [('9984.T', 'ソフトバンクグループ'), ('4755.T', '楽天グループ'),
@@ -29,14 +30,17 @@ def parse_ratios(text, symbol):
             value = re.search(r'<span\b[^>]*class="[^"]*StyledNumber__value[^\"]*"[^>]*>(.*?)</span>', dd[1] if dd else '', re.S)
             date = re.search(r'<span\b[^>]*class="[^"]*DataListItem__date[^\"]*"[^>]*>(.*?)</span>', dd[1] if dd else '', re.S)
             label = plain(date[1]).strip('()（）') if date else None
+            if not value:
+                raise ValueError('Japanese ratio value field missing')
             if label and re.fullmatch(r'\d{1,2}:\d{2}', label):
                 label += '（配信元表示・日付未掲載）'
             ratios[key] = {'value': number(plain(value[1])) if value else None,
-                           'sourceDate': label, 'basis': basis}
+                           'sourceDate': label, 'basis': basis,
+                           'availability':'published' if number(plain(value[1])) is not None else 'unpublished'}
             break
     if len(ratios) != 2:
         raise ValueError('Japanese PER/PBR page structure changed')
-    return {'ratios': ratios, 'sentiment': None}
+    return {'ratios': ratios, 'sentiment': None, 'asOf':ratio_as_of(ratios)}
 
 def parse_ifis_research(text, symbol):
     code = symbol.removesuffix('.T')
@@ -78,6 +82,12 @@ def collect_japan_research(symbol, previous, now):
     url = f'https://kabuyoho.jp/reportTarget?bcode={symbol.removesuffix(".T")}'
     return section(lambda: parse_ifis_research(fetch(url), symbol), previous, now)
 
+def collect_japan_ratios(symbol):
+    url = f'https://finance.yahoo.co.jp/quote/{symbol}'
+    return choose_sources([
+        ('Yahoo!ファイナンス・日本株指標',url,lambda:parse_ratios(fetch(url),symbol)),
+        ('Yahoo Finance・実績指標',f'https://finance.yahoo.com/quote/{symbol}/key-statistics/',lambda:collect_ratios(symbol,'JPY'))],minimum_date=expected_date('XTKS','daily'))
+
 def collect(symbol, name, old, now):
     code = symbol.removesuffix('.T')
     base = {'symbol': symbol, 'code': code, 'name': name, 'currency': 'JPY',
@@ -99,7 +109,7 @@ def collect(symbol, name, old, now):
         return result
     return {**base, 'price': section(prices, old.get('price', {}), now),
             'highs': section(highs, old.get('highs', {}), now),
-            'japan': section(lambda: parse_ratios(fetch(base['quoteUrl']), symbol), old.get('japan', {}), now),
+            'japan': section(lambda: collect_japan_ratios(symbol), old.get('japan', {}), now),
             'research': collect_japan_research(symbol, old.get('research', {}), now)}
 
 def main():

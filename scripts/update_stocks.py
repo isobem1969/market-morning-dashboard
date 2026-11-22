@@ -7,6 +7,7 @@ import pathlib
 import re
 from zoneinfo import ZoneInfo
 from update_data import fetch
+from source_support import choose_sources, yahoo_fetch, expected_date
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 UTC = dt.timezone.utc
@@ -31,7 +32,7 @@ def number(value):
 def parse_japan(text, symbol):
     marker = 'window.__PRELOADED_STATE__ = '
     if marker not in text:
-        raise ValueError('Yahoo! Japan page structure changed')
+        return parse_current_japan(text, symbol)
     state = json.JSONDecoder().raw_decode(text.split(marker, 1)[1])[0]
     board = state.get('mainUsStocksPriceBoard', {})
     if board.get('code') != symbol:
@@ -56,8 +57,99 @@ def parse_japan(text, symbol):
                          'sell': values['weak'] + values['weakest']}
     return {'ratios': ratios, 'sentiment': sentiment}
 
+
+def parse_current_japan(text, symbol):
+    import html
+    canonical = re.search(r'<link\b(?=[^>]*\brel="canonical")[^>]*\bhref="([^"]+)"', text)
+    if not canonical or canonical[1].rstrip('/') != f'https://finance.yahoo.co.jp/quote/{symbol}':
+        raise ValueError('Yahoo Japan issuer mismatch')
+    clean = lambda s: html.unescape(re.sub('<[^>]+>', '', re.sub(r'<!--.*?-->', '', s, flags=re.S))).strip()
+    ratios = {}
+    for key in ('per','pbr'):
+        for block in re.findall(r'<dl\b[^>]*>(.*?)</dl>', text, re.S):
+            if not re.search(r'<span[^>]*DataListItem__name[^>]*>\s*'+key.upper()+r'\s*</span>', block):
+                continue
+            term = re.search(r'<dt[^>]*>(.*?)</dt>', block, re.S)
+            if not term or '実績' not in clean(term[1]):
+                raise ValueError('PER/PBR valuation basis changed')
+            dd = re.search(r'<dd\b[^>]*>(.*?)</dd>', block, re.S)
+            value = re.search(r'<span[^>]*StyledNumber__value[^>]*>(.*?)</span>', dd[1] if dd else '', re.S)
+            date = re.search(r'<span[^>]*DataListItem__date[^>]*>(.*?)</span>', dd[1] if dd else '', re.S)
+            if not value:
+                raise ValueError('Public ratio value field missing')
+            raw = clean(value[1])
+            if raw == '000.00':
+                raise ValueError('Masked ratio cannot be used')
+            n = number(raw)
+            if n is None and raw not in ('---','--','—','－','-','N/A',''):
+                raise ValueError('Unrecognized ratio value')
+            ratios[key] = {'value':n,'sourceDate':clean(date[1]).strip('()（）') if date else None,
+                           'basis':'実績','availability':'published' if n is not None else 'unpublished'}
+            break
+    if len(ratios)!=2:
+        raise ValueError('Yahoo Japan PER/PBR fields missing')
+    return {'ratios':ratios,'sentiment':None,'asOf':ratio_as_of(ratios)}
+
+
+def ratio_as_of(ratios, now=None):
+    now=now or dt.datetime.now(UTC)
+    dates=[]
+    for ratio in ratios.values():
+        if ratio.get('value') is None:
+            continue
+        match=re.search(r'(?:(\d{4})/)?(\d{1,2})/(\d{1,2})',str(ratio.get('sourceDate','')))
+        if not match:
+            return None
+        year=int(match[1]) if match[1] else now.year
+        date=dt.date(year,int(match[2]),int(match[3]))
+        if date>now.date()+dt.timedelta(days=1):
+            if match[1]:raise ValueError('Ratio publication date is in the future')
+            date=dt.date(year-1,int(match[2]),int(match[3]))
+        dates.append(date.isoformat())
+    return min(dates) if dates else None
+
+
+def parse_statistics(text, symbol, currency='USD'):
+    import html
+    for attrs, body in re.findall(r'<script\b([^>]*)>(.*?)</script>', text, re.S):
+        url = re.search(r'data-url="([^"]+)"',attrs)
+        if 'data-sveltekit-fetched' not in attrs or not url or f'/quoteSummary/{symbol}?' not in html.unescape(url[1]):
+            continue
+        envelope = json.loads(body)
+        if envelope.get('status')!=200:
+            continue
+        payload = json.loads(envelope['body'])
+        for result in payload.get('quoteSummary',{}).get('result') or []:
+            price = result.get('price',{})
+            if price.get('symbol')!=symbol or price.get('currency')!=currency or price.get('quoteType')!='EQUITY':
+                raise ValueError('Statistics issuer/currency mismatch')
+            if not isinstance(result.get('summaryDetail'),dict) or not isinstance(result.get('defaultKeyStatistics'),dict):
+                raise ValueError('Statistics modules missing')
+            values = {'per':result['summaryDetail'].get('trailingPE',{}),
+                      'pbr':result['defaultKeyStatistics'].get('priceToBook',{})}
+            timestamp=price.get('regularMarketTime',{})
+            timestamp=timestamp.get('raw') if isinstance(timestamp,dict) else timestamp
+            as_of=dt.datetime.fromtimestamp(timestamp,NY).date().isoformat() if number(timestamp) else None
+            return {'ratios':{key:{'value':number(v.get('raw')),'basis':'実績','sourceDate':as_of,
+                                   'availability':'published' if number(v.get('raw')) is not None else 'unpublished'}
+                              for key,v in values.items()},'sentiment':None,'asOf':as_of}
+    raise ValueError('Published valuation statistics not found')
+
+
+def collect_ratios(symbol, currency='USD'):
+    jp = f'https://finance.yahoo.co.jp/quote/{symbol}'
+    us = f'https://finance.yahoo.com/quote/{symbol}/key-statistics/'
+    candidates = []
+    if currency=='USD':
+        candidates.append(('Yahoo!ファイナンス・実績指標',jp,lambda:parse_japan(fetch(jp),symbol)))
+    candidates.extend([
+        ('Yahoo Finance・実績指標',us,lambda:parse_statistics(fetch(us),symbol,currency)),
+        ('Yahoo Finance・実績指標',f'https://finance.yahoo.com/quote/{symbol}/',
+         lambda:parse_statistics(fetch(f'https://finance.yahoo.com/quote/{symbol}/'),symbol,currency))])
+    return choose_sources(candidates, minimum_date=expected_date('XNYS' if currency=='USD' else 'XTKS','daily'))
+
 def chart(symbol, interval, span):
-    data = json.loads(fetch(f'https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range={span}&interval={interval}&includePrePost=false'))
+    data = json.loads(yahoo_fetch(fetch,f'https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range={span}&interval={interval}&includePrePost=false'))
     results = data.get('chart', {}).get('result')
     if not results or results[0]['meta'].get('symbol') != symbol or results[0]['meta'].get('instrumentType') != 'EQUITY':
         raise ValueError('No matching equity chart')
@@ -113,9 +205,11 @@ def price_observation(daily, intraday, now, timezone=NY):
 
 def section(operation, previous, now):
     try:
-        return {**operation(), 'status': 'ok', 'lastSuccess': now.isoformat(), 'error': None}
+        return {**operation(), 'status': 'ok', 'lastSuccess': now.isoformat(), 'attemptedAt':now.isoformat(), 'error': None}
     except Exception as exc:
-        return {**previous, 'status': 'error', 'error': f'{type(exc).__name__}: {exc}'[:160]}
+        return {**previous, 'status': 'error', 'attemptedAt':now.isoformat(),
+                **({'sourceAttempts':exc.attempts} if hasattr(exc,'attempts') else {}),
+                'error': f'{type(exc).__name__}: {exc}'[:160]}
 
 def high_observation(result, symbol, now, timezone=NY):
     """Regular-session highs from Yahoo's daily price series, not adjclose."""
@@ -157,7 +251,7 @@ def high_observation(result, symbol, now, timezone=NY):
 def collect_highs(symbol, now, timezone=NY):
     url = (f'https://query1.finance.yahoo.com/v8/finance/chart/{symbol}'
            f'?period1=0&period2={int(now.timestamp())}&interval=1d&includePrePost=false')
-    results = json.loads(fetch(url)).get('chart', {}).get('result')
+    results = json.loads(yahoo_fetch(fetch,url)).get('chart', {}).get('result')
     if not results or results[0]['meta'].get('symbol') != symbol or results[0]['meta'].get('instrumentType') != 'EQUITY':
         raise ValueError('No matching equity history')
     return high_observation(results[0], symbol, now, timezone)
@@ -203,7 +297,11 @@ def collect_research(symbol, previous, now, currency='USD'):
             return previous
     except (KeyError, TypeError, ValueError):
         pass
-    return section(lambda: parse_research(fetch(f'https://finance.yahoo.com/quote/{symbol}/analysis/'), symbol, currency), previous, now)
+    def operation():
+        return choose_sources([('Yahoo Finance・アナリスト集計',f'https://finance.yahoo.com/quote/{symbol}/{page}',
+                                lambda page=page:parse_research(fetch(f'https://finance.yahoo.com/quote/{symbol}/{page}'),symbol,currency))
+                               for page in ('analysis/','key-statistics/','')])
+    return section(operation, previous, now)
 
 def collect(symbol, name, old, now):
     base = {'symbol': symbol, 'name': name,
@@ -228,7 +326,7 @@ def collect(symbol, name, old, now):
                 'daily': points(daily), 'intraday': points(intraday)}
     return {**base, 'price': section(prices, old.get('price', {}), now),
             'highs': section(lambda: collect_highs(symbol, now), old.get('highs', {}), now),
-            'japan': section(lambda: parse_japan(fetch(base['quoteUrl']), symbol), old.get('japan', {}), now),
+            'japan': section(lambda: collect_ratios(symbol), old.get('japan', {}), now),
             'research': collect_research(symbol, old.get('research', {}), now)}
 
 def main():
