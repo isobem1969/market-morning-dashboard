@@ -76,7 +76,12 @@ export function mountReadyAlert(win=window,doc=document){
   doc.getElementById('ready-alert-detail').textContent=health?.kind==='error'?'画面は表示できますが、最新値や履歴を確認できていない項目があります。対象と公表日を確認してください。':detail;
   let healthHost=doc.getElementById('ready-alert-health');
   if(!healthHost){healthHost=doc.createElement('div');healthHost.id='ready-alert-health';doc.getElementById('ready-alert-detail').after(healthHost);}
-  healthHost.innerHTML=healthMarkup(health);
+  const healthContent=healthMarkup(health);
+  if(healthHost.dataset.markup!==healthContent){
+   const wasOpen=!!healthHost.querySelector('.health-issues')?.open;
+   healthHost.innerHTML=healthContent;healthHost.dataset.markup=healthContent;
+   if(wasOpen&&healthHost.querySelector('.health-issues'))healthHost.querySelector('.health-issues').open=true;
+  }
   doc.getElementById('ready-alert-foot').textContent=model.kind==='ready'?'保存済みデータを利用して各ページを開けます。数値の公表日時は各パネルで確認できます。':'進捗は完了した確認項目の数です。通信量の割合ではありません。';
   doc.getElementById('ready-alert-retry').hidden=model.kind!=='partial';
   for(const p of model.items){

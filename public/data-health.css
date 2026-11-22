@@ -7,3 +7,4 @@
 @media(max-width:650px){:root{--panel-gap:16px}.data-health-alert{padding:10px 12px}.data-health-alert>strong{font-size:16px}.funds-alert-link strong{font-size:18px}.funds-alert-link{padding:10px 12px}.health-issues{font-size:11px}}
 
 .ready-page[data-health=error] .ready-page-status{background:#ffe1e6;color:#9c1830}.page-ready-alert [data-health-retry]{font:inherit;font-size:12px;padding:7px 10px;border:1px solid currentColor;color:inherit;background:white;border-radius:8px;cursor:pointer}
+.health-lead{font-size:12px;line-height:1.5;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin:6px 0}

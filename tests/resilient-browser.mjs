@@ -29,7 +29,11 @@ try{
   await page.locator('#metric-sox [data-fund-period="6m"]').click();await page.locator('#funds-overview a[href="#metric-sox"]').waitFor();
   await page.locator('#funds-overview a[href="#metric-sox"]').click();assert.ok((await page.locator('#metric-sox').boundingBox()).y<80,'fund overview native panel link');
   await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:'screenshots/navigation-resilient-'+engine+'-'+width+'-funds.png'});
-  fail=true;await page.goto(base+'?failure-test=1');
+  const readingTop=(await page.locator('#metric-sox').boundingBox()).y;
+  fail=true;await page.evaluate(()=>document.querySelector('[data-health-retry]').click());
+  await page.waitForFunction(()=>window.__morningHealthState?.kind==='error');
+  assert.ok(Math.abs((await page.locator('#metric-sox').boundingBox()).y-readingTop)<2,'alert update preserves the reading position '+width);
+  await page.goto(base+'?failure-test=1');
   await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.state==='error');
   assert.match(await page.locator('#ready-alert-health').innerText(),/FANG|fang/);
   assert.equal(await page.locator('#page-ready-alert').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(255, 240, 241)');

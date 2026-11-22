@@ -92,9 +92,17 @@ export function mountDataHealth(win=window,doc=document){
   else model=dataHealth(snapshots(),calendar,Date.now(),win.__morningPreloadState||{});
   if(Date.now()-started>=20000&&model.pending.length){model={...model,kind:'error',issues:[...model.issues,...model.pending.map(page=>({page,label:PAGES.find(p=>p.key===page)?.label||page,item:'データ確認',reason:'取得・保存データの確認が完了していません',href:PAGES.find(p=>p.key===page)?.url||'./'}))]};}
   const signature=JSON.stringify([model.kind,model.issues,model.pending,model.unpublished]);
-  if(signature===lastSignature)return;lastSignature=signature;win.__morningHealthState=model;
+  if(signature===lastSignature)return;
+  // WebKit does not keep a reading panel in place when an alert above it grows.
+  // Capture the panel ID because a health listener can rebuild its DOM node.
+  const reading=win.scrollY>0?[...doc.querySelectorAll('#cards>.card,.stock-tile,.index-panel')].find(el=>{
+   const r=el.getBoundingClientRect();return el.id&&r.bottom>0&&r.top<win.innerHeight;
+  }):null;
+  const readingId=reading?.id,readingTop=reading?.getBoundingClientRect().top;
+  lastSignature=signature;win.__morningHealthState=model;
   win.dispatchEvent(new Event('morning-data-health'));
-  if(host){host.dataset.state=model.kind;host.innerHTML='<strong>'+(model.kind==='error'?'⚠ 取得・履歴を確認できない項目があります':model.kind==='ready'?'✓ 全6ページの更新確認が完了しました':'↻ 全6ページの更新状況を確認しています')+'</strong>'+healthMarkup(model)+'<button type="button" data-health-retry>再確認</button>';}
+  if(host){const wasOpen=!!host.querySelector('.health-issues')?.open;host.dataset.state=model.kind;host.innerHTML='<strong>'+(model.kind==='error'?'⚠ 取得・履歴を確認できない項目があります':model.kind==='ready'?'✓ 全6ページの更新確認が完了しました':'↻ 全6ページの更新状況を確認しています')+'</strong>'+healthMarkup(model)+(model.issues.length?'':'<button type="button" data-health-retry>再確認</button>');if(wasOpen&&host.querySelector('.health-issues'))host.querySelector('.health-issues').open=true;}
+  if(readingId){const panel=doc.getElementById(readingId);if(panel)win.scrollBy({top:panel.getBoundingClientRect().top-readingTop,behavior:'instant'});}
  }
  doc.addEventListener('click',e=>{if(!e.target.closest('[data-health-retry]'))return;started=Date.now();void load();for(const key of ['market','stocks','japan','heatmap','rsi','drawdowns'])void updateSnapshot(key).catch(()=>{});});
  void load();render();let timer=win.setInterval(render,1000);
