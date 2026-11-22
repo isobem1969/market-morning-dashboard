@@ -41,7 +41,7 @@ try{
   await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.state==='error');
   assert.match(await page.locator('#ready-alert-health').innerText(),/FANG|fang/);
   assert.equal(await page.locator('#page-ready-alert').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(255, 240, 241)');
-  await page.locator('#ready-alert-health .health-issues>summary').click();assert.match(await page.locator('#ready-alert-health').innerText(),/403/);assert.match(await page.locator('#ready-alert-health').innerText(),/2026-10-29/);
+  assert.equal(await page.locator('#ready-alert-health .health-issues').evaluate(el=>el.open),true);assert.equal(await page.locator('#ready-alert-health .health-issues>ul').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(255, 255, 255)');assert.match(await page.locator('#ready-alert-health').innerText(),/403/);assert.match(await page.locator('#ready-alert-health').innerText(),/2026-10-29/);
   await page.screenshot({path:'screenshots/navigation-resilient-'+engine+'-'+width+'-failure.png'});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,'no overflow '+width);
   assert.deepEqual(errors,[]);await context.close();console.log('FAILOVER_HEALTH_ALERT_SPACING_AND_FUND_OVERVIEW_OK',engine,width);

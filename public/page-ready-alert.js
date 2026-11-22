@@ -1,6 +1,6 @@
 import {redirectingFundPanel} from './common-header.js?v=six-pages-20261119-v1';
 import {PAGES} from './page-registry.js?v=six-pages-20261119-v1';
-import {healthMarkup} from './data-health.js?v=resilient-20261122-v1';
+import {healthMarkup} from './data-health.js?v=history-range-20261122-v1';
 const names=Object.fromEntries(PAGES.map(p=>[p.key,p.label])),links=Object.fromEntries(PAGES.map(p=>[p.key,p.url]));
 export function readiness(pages,elapsed=0){
  const items=Object.keys(names).map(key=>{
@@ -78,9 +78,9 @@ export function mountReadyAlert(win=window,doc=document){
   if(!healthHost){healthHost=doc.createElement('div');healthHost.id='ready-alert-health';doc.getElementById('ready-alert-detail').after(healthHost);}
   const healthContent=healthMarkup(health);
   if(healthHost.dataset.markup!==healthContent){
-   const wasOpen=!!healthHost.querySelector('.health-issues')?.open;
+   const wasOpen=healthHost.querySelector('.health-issues')?.open;
    healthHost.innerHTML=healthContent;healthHost.dataset.markup=healthContent;
-   if(wasOpen&&healthHost.querySelector('.health-issues'))healthHost.querySelector('.health-issues').open=true;
+   if(typeof wasOpen==='boolean'&&healthHost.querySelector('.health-issues'))healthHost.querySelector('.health-issues').open=wasOpen;
   }
   doc.getElementById('ready-alert-foot').textContent=model.kind==='ready'?'保存済みデータを利用して各ページを開けます。数値の公表日時は各パネルで確認できます。':'進捗は完了した確認項目の数です。通信量の割合ではありません。';
   doc.getElementById('ready-alert-retry').hidden=model.kind!=='partial';

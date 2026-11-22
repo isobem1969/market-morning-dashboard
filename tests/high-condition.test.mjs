@@ -5,7 +5,7 @@ import {stockAlerts} from '../public/stock-alerts.js';
 import {fundAlertState,fundCard} from '../public/fund-panel.js';
 const now=Date.parse('2026-11-22T00:00:00Z'),stamp=new Date(now).toISOString();
 const point=(date,high=100)=>({time:Date.parse(date+'T18:00:00Z')/1000,value:high,high});
-function stock(){return {price:{value:69,status:'ok',lastSuccess:stamp,daily:[point('2026-10-01'),point('2026-11-20')],intraday:[point('2026-11-20')]},highs:{status:'ok',lastSuccess:stamp,allTime:{value:100,complete:true}}};}
+function stock(){return {price:{value:69,status:'ok',lastSuccess:stamp,daily:[point('2026-10-01'),point('2026-11-20')],intraday:[point('2026-11-20')]},highs:{status:'ok',lastSuccess:stamp,historyStart:'2020-01-02',asOfDate:'2026-11-20',allTime:{value:100,date:'2026-10-01',complete:true}}};}
 test('strict 80/70/60/50 boundaries use raw values, never rounded display',()=>{
  for(const [value,threshold] of [[80,null],[79.999,80],[70,80],[69.999,70],[60,70],[59.999,60],[50,60],[49.999,50]])assert.equal(belowHigh(value,100)?.threshold??null,threshold);
  for(const value of [null,undefined,NaN,0,-1,Infinity])assert.equal(belowHigh(value,100),null);

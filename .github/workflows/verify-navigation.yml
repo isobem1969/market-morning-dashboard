@@ -15,6 +15,9 @@ on:
       - 'public/common-header.css'
       - 'public/high-condition.*'
       - 'public/data-health.*'
+      - 'public/high-history.js'
+      - 'public/stocks-reference.js'
+      - 'tests/high-history*'
       - 'public/funds-overview.js'
       - 'scripts/source_support.py'
       - 'scripts/update_health_calendar.py'
@@ -49,7 +52,9 @@ jobs:
       - run: python -m pip install exchange-calendars==4.13.2
       - run: python -m unittest discover -s tests -p 'test_*.py'
       - run: python scripts/update_health_calendar.py
-      - run: node --test tests/data-health.test.mjs
+      - run: node --test tests/data-health.test.mjs tests/high-history.test.mjs
+      - run: node tests/high-history-browser.mjs
+      - run: BROWSER=webkit node tests/high-history-browser.mjs
       - run: node tests/resilient-browser.mjs
       - run: BROWSER=webkit node tests/resilient-browser.mjs
       - run: node --test tests/high-condition.test.mjs
