@@ -29,6 +29,7 @@ try{
   await page.locator('#metric-sox [data-fund-period="6m"]').click();await page.locator('#funds-overview a[href="#metric-sox"]').waitFor();
   await page.locator('#funds-overview a[href="#metric-sox"]').click();assert.ok((await page.locator('#metric-sox').boundingBox()).y<80,'fund overview native panel link');
   await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:'screenshots/navigation-resilient-'+engine+'-'+width+'-funds.png'});
+  await page.locator('#metric-sox').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));
   const readingTop=(await page.locator('#metric-sox').boundingBox()).y;
   fail=true;await page.evaluate(()=>document.querySelector('[data-health-retry]').click());
   await page.waitForFunction(()=>window.__morningHealthState?.kind==='error');
