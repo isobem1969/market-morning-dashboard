@@ -8,7 +8,7 @@ await fs.mkdir('screenshots',{recursive:true});
 try{
  for(const width of [1440,744,390,320]){
   const files=structuredClone(original),stamp=new Date().toISOString(),day=files.market.metrics[0].history.at(-1).date;
-  for(const key of ['stocks','japan-stocks'])for(const s of files[key].stocks){s.highs.allTime.complete=true;for(const kind of ['price','highs','japan','research']){s[kind].lastSuccess=stamp;s[kind].status='ok';s[kind].error=null;}s.japan.asOf=day;for(const ratio of Object.values(s.japan.ratios))ratio.availability=ratio.value===null?'unpublished':'published';}
+  for(const key of ['stocks','japan-stocks'])for(const s of files[key].stocks){for(const kind of ['price','highs','japan','research']){s[kind].lastSuccess=stamp;s[kind].status='ok';s[kind].error=null;}s.japan.asOf=day;for(const ratio of Object.values(s.japan.ratios))ratio.availability=ratio.value===null?'unpublished':'published';}
   for(const m of files.market.metrics){m.lastSuccess=stamp;m.status='ok';m.error=null;if(m.asOf.slice(0,10)<day){m.asOf=day;m.history.at(-1).date=day;}}
   for(const d of Object.values(files['fund-drawdowns'])){d.lastSuccess=stamp;d.error=null;d.asOf=day;d.years[d.currentYear].at(-1).date=day;}
   files['nasdaq-rsi'].generatedAt=stamp;for(const s of files.heatmap.stocks)s.lastSuccess=stamp;

@@ -1,4 +1,4 @@
-import {historyComparison,historyCalculationMarkup} from './high-history.js?v=history-range-20261122-v1';
+import {historyComparison,historyCalculationMarkup} from './high-history.js?v=bounded-history-20261122-v1';
 import {readSnapshot,updateSnapshot} from './shared-data.js?v=six-pages-20261119-v1';
 import {PAGES} from './page-registry.js?v=six-pages-20261119-v1';
 const fundIds=['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd','tqqq','soxl'];
@@ -57,7 +57,7 @@ export function dataHealth(snapshots,calendar,now=Date.now(),states={}){
    for(const key of ['daily','intraday']){const last=p[key]?.at(-1);if(!last||date(new Date(last.time*1000).toISOString(),tz)!==p.sessionDate)extra.push((key==='daily'?'日足':'日中')+'グラフが株価の取引日まで揃っていません');}
    check(page,label,'株価・グラフ',p,page==='japan'?'jpPrice':'usPrice',anchor,extra);
    const history=historyComparison(s),beforeHigh=issues.length;
-   check(page,label,'最高値',s.highs,null,anchor,!finite(s.highs?.allTime?.value)?['高値データが未取得です']:s.highs?.allTime?.complete!==true?['上場来の全履歴は未確認です。'+(history.rangeValid?history.start+'〜'+history.end+'の取得済み履歴'+(history.valid?'内の最高値で計算しています。':'です。価格・高値の記録が未確認のため計算を保留しています。'):'取得済み履歴の範囲も確認できていません。')]:[]);
+   check(page,label,'最高値',s.highs,null,anchor,!finite(s.highs?.allTime?.value)||s.highs.allTime.value<=0?['高値データが未取得です']:!history.valid?['取得済み期間・高値記録日・株価を確認できないため、期間内最高値の計算を保留しています。']:[]);
    if(issues.length>beforeHigh)issues.at(-1).history=history;
    const ratios=s.japan||{},missingRatios=[];
    for(const key of ['per','pbr']){const value=ratios.ratios?.[key];if(value?.availability==='unpublished')unpublished.push({page,label,item:key.toUpperCase()});else if(!finite(value?.value))missingRatios.push(key.toUpperCase()+'が未取得です');}
