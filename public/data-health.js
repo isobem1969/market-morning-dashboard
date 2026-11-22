@@ -80,7 +80,7 @@ export function healthMarkup(state){
  if(state.kind==='loading')return '<p>全6ページの公表日・価格・履歴を確認しています。</p>';
  if(!state.issues.length)return '<p>各項目の取得状況と直近の取引日を確認しました。'+(state.unpublished.length?'配信元が未公表とする項目 '+state.unpublished.length+'件は区別しています。':'')+'</p>';
  const lead=state.issues.slice(0,3).map(i=>i.label+'：'+i.item).join(' ／ ');
- return '<p class="health-lead">未取得・未確認 '+state.issues.length+'項目 · '+esc(lead)+(state.issues.length>3?' ほか':'')+'</p><details class="health-issues"><summary>未取得・未確認の項目と理由を確認（'+state.issues.length+'件）</summary><ul>'+state.issues.map(i=>'<li><a href="'+esc(i.href)+'">'+esc(PAGES.find(p=>p.key===i.page)?.label||i.page)+' ／ '+esc(i.label)+' ／ '+esc(i.item)+'</a><p>'+esc(i.reason)+'</p>'+historyCalculationMarkup(i.history)+'<small>公表 '+esc(i.asOf||'日時未確認')+' ／ 最終取得成功 '+esc(i.lastSuccess||'なし')+'</small></li>').join('')+'</ul></details><button type="button" data-health-retry>未確認項目を再確認</button>';
+ return '<p class="health-lead">未取得・未確認 '+state.issues.length+'項目 · '+esc(lead)+(state.issues.length>3?' ほか':'')+'</p><details class="health-issues" open><summary>未取得・未確認の項目と理由を確認（'+state.issues.length+'件）</summary><ul>'+state.issues.map(i=>'<li><a href="'+esc(i.href)+'">'+esc(PAGES.find(p=>p.key===i.page)?.label||i.page)+' ／ '+esc(i.label)+' ／ '+esc(i.item)+'</a><p>'+esc(i.reason)+'</p>'+historyCalculationMarkup(i.history)+'<small>公表 '+esc(i.asOf||'日時未確認')+' ／ 最終取得成功 '+esc(i.lastSuccess||'なし')+'</small></li>').join('')+'</ul></details><button type="button" data-health-retry>未確認項目を再確認</button>';
 }
 export function mountDataHealth(win=window,doc=document){
  if(new URL(win.location.href).searchParams.get('ready-alert')==='off'||win.parent!==win)return;
@@ -104,7 +104,7 @@ export function mountDataHealth(win=window,doc=document){
   const readingId=reading?.id,readingTop=reading?.getBoundingClientRect().top;
   lastSignature=signature;win.__morningHealthState=model;
   win.dispatchEvent(new Event('morning-data-health'));
-  if(host){const wasOpen=!!host.querySelector('.health-issues')?.open;host.dataset.state=model.kind;host.innerHTML='<strong>'+(model.kind==='error'?'⚠ 取得・履歴を確認できない項目があります':model.kind==='ready'?'✓ 全6ページの更新確認が完了しました':'↻ 全6ページの更新状況を確認しています')+'</strong>'+healthMarkup(model)+(model.issues.length?'':'<button type="button" data-health-retry>再確認</button>');if(wasOpen&&host.querySelector('.health-issues'))host.querySelector('.health-issues').open=true;}
+  if(host){const wasOpen=host.querySelector('.health-issues')?.open;host.dataset.state=model.kind;host.innerHTML='<strong>'+(model.kind==='error'?'⚠ 取得・履歴を確認できない項目があります':model.kind==='ready'?'✓ 全6ページの更新確認が完了しました':'↻ 全6ページの更新状況を確認しています')+'</strong>'+healthMarkup(model)+(model.issues.length?'':'<button type="button" data-health-retry>再確認</button>');if(typeof wasOpen==='boolean'&&host.querySelector('.health-issues'))host.querySelector('.health-issues').open=wasOpen;}
   if(readingId){const panel=doc.getElementById(readingId);if(panel)win.scrollBy({top:panel.getBoundingClientRect().top-readingTop,behavior:'instant'});}
  }
  doc.addEventListener('click',e=>{if(!e.target.closest('[data-health-retry]'))return;started=Date.now();void load();for(const key of ['market','stocks','japan','heatmap','rsi','drawdowns'])void updateSnapshot(key).catch(()=>{});});

@@ -22,7 +22,7 @@ on:
       - 'scripts/source_support.py'
       - 'scripts/update_health_calendar.py'
       - 'tests/resilient-browser.mjs'
-      - 'tests/data-health.test.mjs tests/high-history.test.mjs'
+      - 'tests/data-health.test.mjs'
       - 'public/stock-alerts.js'
       - 'tests/threshold-browser.mjs'
       - 'scripts/update_rsi.py'

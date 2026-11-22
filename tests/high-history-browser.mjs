@@ -8,11 +8,16 @@ await fs.mkdir('screenshots',{recursive:true});
 try{
  for(const width of [1440,744,390,320]){
   const context=await browser.newContext({viewport:{width,height:1000},serviceWorkers:'block'}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto(base,{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>document.querySelector('#ready-alert-health .health-issues')?.open);
+  assert.equal(await page.locator('#ready-alert-health .health-issues>ul').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(255, 255, 255)');
+  await page.screenshot({path:'screenshots/navigation-history-'+engine+'-'+width+'-expanded-white-alert.png'});
   for(const [file,path]of [['stocks','stocks-reference.html'],['japan-stocks','japan-stocks.html']]){
    const snapshot=JSON.parse(await fs.readFile('public/data/'+file+'.json','utf8'));
    await page.goto(base+path,{waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>window.__morningHealthState?.issues.some(i=>i.history));
-   await page.locator('#data-health-alert .health-issues>summary').click();
+   assert.equal(await page.locator('#data-health-alert .health-issues').evaluate(el=>el.open),true);
+   assert.equal(await page.locator('#data-health-alert .health-issues>ul').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(255, 255, 255)');
    for(const s of snapshot.stocks.filter(s=>s.highs.allTime.complete!==true)){
     const h=historyComparison(s),card=page.locator('[data-symbol="'+s.symbol+'"].stock-tile [data-high-kind="allTime"]');
     await card.waitFor();assert.equal(await card.locator('h3').innerText(),'取得期間内最高値');

@@ -22,6 +22,8 @@ try{
  for(const [label,width,height]of [['Mac',1440,1000],['Mac-narrow',1024,900],['iPad-portrait',1024,1366],['iPad-landscape',1366,1024],['mini-portrait',744,1133],['mini-landscape',1133,744],['iPhone-portrait',390,844],['iPhone-landscape',844,390],['iPhone-SE',375,667],['narrow',320,640]]){
   await page.setViewportSize({width,height});
   await page.locator('.ready-alert-details').evaluate(el=>el.open=false);
+  // The user-facing default is expanded; measure the optional compact mode.
+  await page.locator('#ready-alert-health .health-issues').evaluateAll(els=>els.forEach(el=>el.open=false));
   const compactHeight=await page.locator('#page-ready-alert').evaluate(el=>el.getBoundingClientRect().height);
   const healthError=await page.locator('#page-ready-alert').getAttribute('data-state')==='error';
   assert.ok(compactHeight<=(healthError?(width<=650?430:330):(width<=650?310:230)),label+' compact height: '+compactHeight);
