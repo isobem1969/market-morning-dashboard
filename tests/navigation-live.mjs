@@ -20,12 +20,16 @@ async function navigate(path,selector){
 }
 async function inspectPaint(selector,label){
  if(await page.locator('#page-ready-alert').count())await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.phase==='complete',null,{timeout:60000});
+ // A restored WebKit document can expose its cached DOM before its refresh
+ // and native history scroll restoration finish. Inspect the settled document.
+ if(await page.locator('body[data-dashboard="funds"]').count())await page.waitForFunction(()=>!document.querySelector('#refresh')?.disabled&&window.__morningPreloadState?.market==='準備完了'&&window.__morningPreloadState?.drawdowns==='準備完了');
+ await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
  const card=page.locator(selector).first();
  await card.evaluate(e=>window.scrollTo({top:e.getBoundingClientRect().top+scrollY-20,behavior:'instant'}));
- await page.waitForFunction(selector=>{
+ try{await page.waitForFunction(selector=>{
   const e=document.querySelector(selector),r=e?.getBoundingClientRect();
   return r&&r.top>=-1&&r.top<80;
- },selector);
+ },selector);}catch(error){console.log('PAINT_POSITION_DIAGNOSTIC',label,await page.evaluate(selector=>({url:location.href,scrollY,top:document.querySelector(selector)?.getBoundingClientRect().top,refresh:document.querySelector('#refresh')?.disabled,preload:window.__morningPreloadState,health:window.__morningHealthState?.kind}),selector));throw error;}
  const box=await card.boundingBox();
  const shot=await page.screenshot({path:'screenshots/navigation-native-'+engine+'-'+label+'.png'});
  const png=PNG.sync.read(shot);
