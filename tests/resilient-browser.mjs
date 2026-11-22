@@ -25,8 +25,11 @@ try{
   await page.screenshot({path:'screenshots/navigation-resilient-'+engine+'-'+width+'-healthy.png'});
   await page.goto(base+'funds.html');await page.waitForFunction(()=>window.__morningHealthState?.kind==='ready');
   await page.locator('#funds-overview a[href="#metric-sox"]').waitFor();assert.equal(await page.locator('#metric-sox').count(),1);
-  await page.locator('#metric-sox [data-fund-period="1d"]').click();assert.equal(await page.locator('#funds-overview a[href="#metric-sox"]').count(),0);
-  await page.locator('#metric-sox [data-fund-period="6m"]').click();await page.locator('#funds-overview a[href="#metric-sox"]').waitFor();
+  await page.locator('#metric-sox').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));
+  const periodTop=(await page.locator('#metric-sox').boundingBox()).y;
+  await page.locator('#metric-sox [data-fund-period="1d"]').evaluate(el=>el.click());assert.equal(await page.locator('#funds-overview a[href="#metric-sox"]').count(),0);
+  assert.ok(Math.abs((await page.locator('#metric-sox').boundingBox()).y-periodTop)<2,'period update preserves the reading position '+width);
+  await page.locator('#metric-sox [data-fund-period="6m"]').evaluate(el=>el.click());await page.locator('#funds-overview a[href="#metric-sox"]').waitFor();
   await page.locator('#funds-overview a[href="#metric-sox"]').click();assert.ok((await page.locator('#metric-sox').boundingBox()).y<80,'fund overview native panel link');
   await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:'screenshots/navigation-resilient-'+engine+'-'+width+'-funds.png'});
   await page.locator('#metric-sox').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));

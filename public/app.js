@@ -71,6 +71,8 @@ window.addEventListener('morning-data-health',()=>{if(data)render();});
 window.addEventListener('morning-panel-jump',e=>jumpToPanel(e.detail));
 function render(){
   if(!data)return;
+  const reading=scrollY>0?[...document.querySelectorAll('#cards>.card')].find(el=>{const r=el.getBoundingClientRect();return el.id&&r.bottom>0&&r.top<innerHeight;}):null;
+  const readingId=reading?.id,readingTop=reading?.getBoundingClientRect().top;
   const ms=metrics(),now=Date.now(),ov=overall(ms,now,data.generatedAt,offline);
   const checkedQuality=m=>{const q=quality(m,now,data.generatedAt,offline);const issue=window.__morningHealthState?.issues?.find(i=>i.page==='funds'&&i.label===m.name&&i.item==='価格・グラフ');return issue?{usable:false,label:issue.reason}:q;};
   if(!isFunds){
@@ -107,6 +109,7 @@ function render(){
     if(panel){panel.id='metric-'+id;panel.tabIndex=-1;panel.style.scrollMarginTop='20px';}
   }
   if(pendingPanelHash)jumpToPanel(pendingPanelHash);
+  if(readingId){const panel=document.getElementById(readingId);if(panel)scrollBy({top:panel.getBoundingClientRect().top-readingTop,behavior:'instant'});}
   (window.__morningRenderState||(window.__morningRenderState={}))[pageKey]={generatedAt:data.generatedAt};
 }
 async function refresh(){
