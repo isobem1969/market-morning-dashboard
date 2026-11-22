@@ -1,7 +1,7 @@
-import {historyComparison,historyCalculationMarkup} from './high-history.js?v=bounded-history-20261122-v2';
+import {MARKET_IDS,FUND_IDS,ETF_IDS,metricPage} from './asset-pages.js?v=us-etf-20261123-v1';
+import {historyComparison,historyCalculationMarkup} from './high-history.js?v=us-etf-20261123-v1';
 import {readSnapshot,updateSnapshot} from './shared-data.js?v=six-pages-20261119-v1';
 import {PAGES} from './page-registry.js?v=six-pages-20261119-v1';
-const fundIds=['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd','tqqq','soxl'];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const finite=v=>Number.isFinite(v);
 const iso=t=>Number.isFinite(Date.parse(t));
@@ -20,7 +20,7 @@ export function dataHealth(snapshots,calendar,now=Date.now(),states={}){
  const issues=[],pending=[],unpublished=[],expected=expectedDates(calendar,now);
  const add=(page,label,item,reason,record={},anchor='')=>issues.push({page,label,item,reason,asOf:record.asOf||record.sessionDate||record.asOfDate||null,lastSuccess:record.lastSuccess||null,source:record.source||record.sourceLabel||'',sourceUrl:record.sourceUrl||'',href:(PAGES.find(p=>p.key===page)?.url||'./')+anchor});
  if(!expected)add('market','全6ページ','更新確認','取引日カレンダーを取得できないか、有効期間を過ぎています。');
- for(const [name,page]of [['market','market'],['market','funds'],['drawdowns','funds'],['stocks','stocks'],['japan','japan'],['heatmap','heatmap'],['rsi','rsi']])if(snapshots[name]&&states[name]==='再確認が必要')add(page,PAGES.find(p=>p.key===page)?.label||page,'通信・更新確認','最新の保存データを読み直せません。保存値を参考表示しています。');
+ for(const [name,page]of [['market','market'],['market','funds'],['market','stocks'],['drawdowns','funds'],['drawdowns','stocks'],['stocks','stocks'],['japan','japan'],['heatmap','heatmap'],['rsi','rsi']])if(snapshots[name]&&states[name]==='再確認が必要')add(page,PAGES.find(p=>p.key===page)?.label||page,'通信・更新確認','最新の保存データを読み直せません。保存値を参考表示しています。');
  const check=(page,label,item,record,feed,anchor='',extra=[])=>{
   const r=record||{},reasons=[];
   if(r.status==='error'||r.error)reasons.push(r.error||'配信元から取得できませんでした');
@@ -33,9 +33,9 @@ export function dataHealth(snapshots,calendar,now=Date.now(),states={}){
   if(reasons.length)add(page,label,item,[...new Set(reasons)].join(' · '),r,anchor);
  };
  const missing=(name,page)=>{if(snapshots[name])return false;if(states[name]==='再確認が必要')add(page,PAGES.find(p=>p.key===page)?.label||page,'データファイル','通信できず、保存データも確認できません');else pending.push(page);return true;};
- for(const page of ['market','funds'])if(!missing('market',page)){
+ for(const page of ['market','funds','stocks'])if(!missing('market',page)){
   const ms=snapshots.market.metrics||[];
-  const ids=page==='funds'?fundIds:['usd','vix','fear','vi','brent'];
+  const ids=page==='funds'?FUND_IDS:page==='stocks'?ETF_IDS:MARKET_IDS;
   for(const id of ids){
    const m=ms.find(m=>m.id===id)||{},history=m.history||[],label=m.name||id,day=date(m.asOf,m.timeZone||(['tqqq','soxl'].includes(id)?'America/New_York':'UTC'));
    const extra=[];if(!finite(m.value))extra.push('価格・指数値が未取得です');
@@ -44,10 +44,11 @@ export function dataHealth(snapshots,calendar,now=Date.now(),states={}){
    check(page,label,'価格・グラフ',m,page==='funds'&&!['tqqq','soxl'].includes(id)?'jpFund':id==='vi'?'jpDaily':id==='vix'||id==='fear'?'usDaily':'usPrice','#metric-'+id,extra);
   }
  }
- if(!missing('drawdowns','funds'))for(const [key,label,target]of [['fang','FANG＋','fang'],['nasdaq','SBI／iFreeNEXT NASDAQ100','nasdaq'],['sp500_slim','S&P500','sp500_slim'],['allcountry_slim','オルカン','allcountry_slim'],['schd','SBI・SCHD','schd'],['tqqq','TQQQ','tqqq'],['soxl','SOXL','soxl']]){
+ for(const [key,label,target]of [['fang','FANG＋','fang'],['nasdaq','SBI／iFreeNEXT NASDAQ100','nasdaq'],['sp500_slim','S&P500','sp500_slim'],['allcountry_slim','オルカン','allcountry_slim'],['schd','SBI・SCHD','schd'],['tqqq','TQQQ','tqqq'],['soxl','SOXL','soxl']]){
+  const owner=metricPage(key);if(missing('drawdowns',owner))continue;
   const r=snapshots.drawdowns[key]||{},last=r.years?.[r.currentYear]?.at(-1),extra=[];
   if(!last||last.date!==r.asOf)extra.push('下落比較グラフが公表日まで揃っていません');
-  check('funds',label,'下落比較',{...r,status:r.error?'error':'ok'},['tqqq','soxl'].includes(key)?'usDaily':'jpFund','#metric-'+target,extra);
+  check(owner,label,'下落比較',{...r,status:r.error?'error':'ok'},['tqqq','soxl'].includes(key)?'usDaily':'jpFund','#metric-'+target,extra);
  }
  for(const [name,page]of [['stocks','stocks'],['japan','japan']])if(!missing(name,page)){
   if((snapshots[name].stocks||[]).length<(page==='japan'?4:13))add(page,PAGES.find(p=>p.key===page).label,'銘柄一覧','必要な銘柄のデータが揃っていません');

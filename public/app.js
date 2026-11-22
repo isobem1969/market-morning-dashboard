@@ -1,18 +1,18 @@
-import {fundsOverviewState,renderFundsOverview} from './funds-overview.js?v=bounded-history-20261122-v2';
+import {FUND_IDS,MARKET_IDS} from './asset-pages.js?v=us-etf-20261123-v1';
+import {fundsOverviewState,renderFundsOverview} from './funds-overview.js?v=us-etf-20261123-v1';
 import {signalMarkup} from './high-condition.js?v=selected-period-20261122-v2';
-import {updateHeaderDate,redirectingFundPanel} from './common-header.js?v=six-pages-20261119-v1';
+import {updateHeaderDate,redirectingFundPanel} from './common-header.js?v=us-etf-20261123-v1';
 import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=six-pages-20261119-v1';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {changePercent,percentLine} from './change-format.js?v=twoline-20261007';
 import {marketChart,marketHover,selectMarketHistory} from './market-panel.js?v=ranges-20261007';
-import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=bounded-history-20261122-v2';
+import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=us-etf-20261123-v1';
 import {viCard} from './vi-panel.js?v=selected-period-20261122-v2';
 import {fearCard} from './fear-panel.js?v=selected-period-20261122-v2';
 import {quality,signal,overall,VIX_BANDS,vixBand,selectVixHistory} from './logic.js?v=vix-20261006';
 if(!redirectingFundPanel){
 const $=s=>document.querySelector(s);
 const isFunds=document.body.dataset.dashboard==='funds',pageKey=isFunds?'funds':'market';
-const FUND_IDS=['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd','tqqq','soxl'];
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const icons={usd:'¥',vix:'V',fear:'FG',vi:'VI',brent:'B',sox:'S',fang:'F+',nasdaq:'N'};
 const descriptions={usd:'為替 · 1ドルあたりの円',vix:'米国株の予想変動幅',fear:'米国市場の恐怖・欲望',vi:'日経平均の予想変動幅',brent:'ブレント期近先物',sox:'29314233 · 米国半導体',fang:'04311181 · 米国大型成長株',nasdaq:'89311265 · NASDAQ100'};
@@ -87,7 +87,7 @@ function render(){
     el.textContent=conditionLabels[el.dataset.condition]+(reached?' · 到達':'');
   });
   }
-  const visible=ms.filter(m=>isFunds?FUND_IDS.includes(m.id):!FUND_IDS.includes(m.id));
+  const visible=ms.filter(m=>isFunds?FUND_IDS.includes(m.id):MARKET_IDS.includes(m.id));
   if(isFunds){visible.sort((a,b)=>FUND_IDS.indexOf(a.id)-FUND_IDS.indexOf(b.id));renderFundsOverview($('#funds-overview'),fundsOverviewState(visible,fundRanges,checkedQuality));}
   $('#cards').innerHTML=visible.map(m=>{
     const q=checkedQuality(m),sig=q.usable||['vix','fear','vi'].includes(m.id)?signal(m.id,m.value):{tone:'',text:'判定対象外'};
@@ -120,7 +120,7 @@ async function refresh(){
     const ddRequest=updateSnapshot('drawdowns').then(d=>{drawdowns=d;render();}).catch(()=>{});
     data=await updateSnapshot('market');offline=false;render();
     void ddRequest;
-    const shown=data.metrics.filter(m=>isFunds?FUND_IDS.includes(m.id):!FUND_IDS.includes(m.id));
+    const shown=data.metrics.filter(m=>isFunds?FUND_IDS.includes(m.id):MARKET_IDS.includes(m.id));
     const ok=shown.filter(m=>m.status==='ok').length;
     $('#status').textContent=`取得処理 ${datetime(data.generatedAt)} · 成功 ${ok}/${shown.length} · 画面確認 ${datetime(new Date().toISOString())}`;
   }catch(e){

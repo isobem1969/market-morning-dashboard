@@ -19,6 +19,9 @@ on:
       - 'public/stocks-reference.js'
       - 'tests/high-history*'
       - 'public/funds-overview.js'
+      - 'public/asset-pages.js'
+      - 'public/us-etfs.*'
+      - 'tests/us-etf*'
       - 'scripts/source_support.py'
       - 'scripts/update_health_calendar.py'
       - 'tests/resilient-browser.mjs'
@@ -33,7 +36,7 @@ permissions:
 jobs:
   browser:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
       TEST_BASE_URL: http://127.0.0.1:8773/
     steps:
@@ -52,7 +55,9 @@ jobs:
       - run: python -m pip install exchange-calendars==4.13.2
       - run: python -m unittest discover -s tests -p 'test_*.py'
       - run: python scripts/update_health_calendar.py
-      - run: node --test tests/data-health.test.mjs tests/high-history.test.mjs
+      - run: node --test tests/data-health.test.mjs tests/high-history.test.mjs tests/us-etf-move.test.mjs
+      - run: node tests/us-etf-browser.mjs
+      - run: BROWSER=webkit node tests/us-etf-browser.mjs
       - run: node tests/high-history-browser.mjs
       - run: BROWSER=webkit node tests/high-history-browser.mjs
       - run: node tests/resilient-browser.mjs
