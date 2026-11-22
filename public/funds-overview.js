@@ -1,4 +1,4 @@
-import {fundAlertState} from './fund-panel.js?v=resilient-20261122-v1';
+import {fundAlertState} from './fund-panel.js?v=history-range-20261122-v1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function fundsOverviewState(metrics,ranges,quality){
  const items=metrics.map(m=>{const period=ranges.get(m.id)||'6m',q=quality(m),state=fundAlertState(m,period,q);return {m,period,q,state};});
