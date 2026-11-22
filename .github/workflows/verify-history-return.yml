@@ -2,7 +2,7 @@ name: Verify restored history document
 on:
   push:
     branches: [fix/acquired-history-range-20261122]
-    paths: ['tests/navigation-live.mjs', '.github/workflows/verify-history-return.yml']
+    paths: ['tests/high-history-browser.mjs', 'tests/navigation-live.mjs', '.github/workflows/verify-history-return.yml']
 permissions:
   contents: read
 jobs:
