@@ -21,7 +21,7 @@ try{
     await page.waitForFunction(()=>document.querySelector('#page-ready-alert')?.dataset.phase==='complete',null,{timeout:60000});
     assert.equal(await page.locator('#ready-alert-progress').getAttribute('aria-valuenow'),'18');
    }else if(item.key==='funds'){
-    await page.locator('[data-fund=schd]').waitFor();assert.equal(await page.locator('.fund-card').count(),7);
+    await page.locator('[data-fund=schd]').waitFor();assert.equal(await page.locator('.fund-card').count(),9);
     assert.deepEqual(await page.locator('.fund-card').evaluateAll(a=>a.map(e=>e.dataset.fund)),['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd','au_nasdaq_leverage','au_nasdaq_triple']);
     for(const id of ['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd','au_nasdaq_leverage','au_nasdaq_triple']){
      const tile=page.locator('[data-fund="'+id+'"]');await tile.locator('[data-fund-period="1m"]').click();
