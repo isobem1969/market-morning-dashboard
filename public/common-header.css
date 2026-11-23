@@ -53,7 +53,7 @@ body>main>.morning-pages a.heatmap-tab:not([aria-current]),body>main>.morning-pa
 body>main>.morning-pages{grid-template-columns:repeat(6,minmax(0,1fr))}
 body>main>.morning-pages a{font-size:24px;line-height:1.25;min-height:72px;padding:10px 6px;white-space:normal;min-width:0}
 body>main>.morning-pages .page-tab-label{min-width:0;max-width:100%;white-space:normal}
-body>main>.morning-pages .page-tab-label>span{display:inline-block}
+body>main>.morning-pages .page-tab-label>span{display:inline-block;max-width:100%;overflow-wrap:anywhere}
 @media(max-width:1200px){body>main>.morning-pages{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:650px){body>main>.morning-pages{grid-template-columns:repeat(2,minmax(0,1fr))}body>main>.morning-pages a{font-size:22px;min-height:68px}}
 @media(max-width:360px){body>main>.morning-pages a{font-size:20px}}

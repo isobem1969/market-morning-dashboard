@@ -29,7 +29,7 @@ try{
    for(const link of result.links){
     const label=`${engine} ${item.key} ${width} ${link.text}`;
     assert.ok(link.font>=(width<=360?20:width<=650?22:24),label+' font too small');
-    assert.ok(!link.overflow&&link.textFits&&link.inViewport,label+' clipped text');
+    assert.ok(!link.overflow&&link.textFits&&link.inViewport,label+' clipped text '+JSON.stringify(link));
    }
    const geometry=result.links.map(({box,font})=>({box,font}));
    if(reference)geometry.forEach((link,i)=>{
