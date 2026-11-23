@@ -1,0 +1,41 @@
+name: Verify all page condition summaries
+on:
+  push:
+    paths:
+      - '.github/workflows/verify-overview-sync.yml'
+      - 'tests/overview-sync*'
+      - 'public/overview-summary.js'
+      - 'public/funds-overview.js'
+      - 'public/stocks-reference.js'
+      - 'public/us-etfs.js'
+      - 'public/nasdaq-rsi.js'
+      - 'public/heatmap.js'
+      - 'public/logic.js'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  overview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, webkit]
+    env:
+      BROWSER: ${{ matrix.browser }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/*.test.js tests/*.test.mjs
+      - run: npm install --no-save --ignore-scripts playwright@1.62.1
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: python3 -m http.server 8773 --bind 127.0.0.1 --directory public > /tmp/overview-http.log 2>&1 &
+      - run: node tests/overview-sync-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: overview-sync-${{ matrix.browser }}
+          path: screenshots/overview*

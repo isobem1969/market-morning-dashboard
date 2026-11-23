@@ -1,15 +1,15 @@
-import {FUND_IDS,MARKET_IDS} from './asset-pages.js?v=au-funds-20261123-v1';
-import {fundsOverviewState,renderFundsOverview} from './funds-overview.js?v=au-funds-20261123-v1';
+import {FUND_IDS,MARKET_IDS} from './asset-pages.js?v=overview-sync-20261124-v1';
+import {fundsOverviewState,renderFundsOverview} from './funds-overview.js?v=overview-sync-20261124-v1';
 import {signalMarkup} from './high-condition.js?v=selected-period-20261122-v2';
-import {updateHeaderDate,redirectingFundPanel} from './common-header.js?v=au-funds-20261123-v1';
+import {updateHeaderDate,redirectingFundPanel} from './common-header.js?v=overview-sync-20261124-v1';
 import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=six-pages-20261119-v1';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {changePercent,percentLine} from './change-format.js?v=twoline-20261007';
 import {marketChart,marketHover,selectMarketHistory} from './market-panel.js?v=ranges-20261007';
-import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=au-funds-20261123-v1';
+import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=overview-sync-20261124-v1';
 import {viCard} from './vi-panel.js?v=selected-period-20261122-v2';
 import {fearCard} from './fear-panel.js?v=selected-period-20261122-v2';
-import {quality,signal,overall,VIX_BANDS,vixBand,selectVixHistory} from './logic.js?v=vix-20261006';
+import {quality,signal,overall,VIX_BANDS,vixBand,selectVixHistory} from './logic.js?v=overview-sync-20261124-v1';
 if(!redirectingFundPanel){
 const $=s=>document.querySelector(s);
 const isFunds=document.body.dataset.dashboard==='funds',pageKey=isFunds?'funds':'market';
@@ -73,8 +73,9 @@ function render(){
   if(!data)return;
   const reading=scrollY>0?[...document.querySelectorAll('#cards>.card')].find(el=>{const r=el.getBoundingClientRect();return el.id&&r.bottom>0&&r.top<innerHeight;}):null;
   const readingId=reading?.id,readingTop=reading?.getBoundingClientRect().top;
-  const ms=metrics(),now=Date.now(),ov=overall(ms,now,data.generatedAt,offline);
-  const checkedQuality=m=>{const q=quality(m,now,data.generatedAt,offline);const issue=window.__morningHealthState?.issues?.find(i=>i.page==='funds'&&i.label===m.name&&i.item==='価格・グラフ');return issue?{usable:false,label:issue.reason}:q;};
+  const ms=metrics(),now=Date.now();
+  const checkedQuality=m=>{const q=quality(m,now,data.generatedAt,offline);const issue=window.__morningHealthState?.issues?.find(i=>i.page===pageKey&&i.label===m.name&&i.item==='価格・グラフ');return issue?{usable:false,label:issue.reason}:q;};
+  const ov=overall(ms,now,data.generatedAt,offline,checkedQuality);
   if(!isFunds){
   $('.overview').className='overview '+ov.tone;
   $('#summary').textContent=ov.title;$('#summary-detail').textContent=ov.detail;
@@ -82,9 +83,10 @@ function render(){
   const conditionLabels={vix:'VIX ≥ 30',fear:'Fear & Greed < 20',vi:'日経VI ≥ 50'};
   document.querySelectorAll('.conditions [data-condition]').forEach(el=>{
     const m=ms.find(m=>m.id===el.dataset.condition);
-    const reached=!!m&&quality(m,now,data.generatedAt,offline).usable&&signal(m.id,m.value).tone==='alert';
+    const saved=ov.referenceIds?.includes(el.dataset.condition);
+    const reached=!!m&&(checkedQuality(m).usable||saved)&&signal(m.id,m.value).tone==='alert';
     el.classList.toggle('condition-reached',reached);
-    el.textContent=conditionLabels[el.dataset.condition]+(reached?' · 到達':'');
+    el.textContent=conditionLabels[el.dataset.condition]+(reached?(saved?' · 保存値で該当':' · 到達'):'');
   });
   }
   const visible=ms.filter(m=>isFunds?FUND_IDS.includes(m.id):MARKET_IDS.includes(m.id));
