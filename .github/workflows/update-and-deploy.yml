@@ -84,3 +84,9 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - name: Verify published application assets
+        run: python scripts/verify_public_release.py
