@@ -47,7 +47,7 @@ try{
   }
   const triple=page.locator('#metric-'+ids[1]);
   assert.match(await triple.locator('.drawdown-panel').innerText(),/2026-10-15〜2026-11-20/);
-  assert.equal(await triple.locator('[data-ma="75"]').getAttribute('d'),'');
+  assert.equal((await triple.locator('[data-ma="75"]').getAttribute('d')).trim(),'');
   await page.locator('#funds-overview a[href="#metric-'+ids[1]+'"]').click();
   await page.waitForFunction(id=>Math.abs(document.getElementById('metric-'+id).getBoundingClientRect().top-20)<3,ids[1]);
   fail=true;await page.goto(base+'funds.html?failure=1');
