@@ -104,7 +104,7 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
 <link rel="modulepreload" href="./stocks-logic.js?v=six-pages-20261119-v1">
 <script type="module" src="./page-warm.js?v=us-etf-20261123-v1"></script>
 <link rel="apple-touch-icon" href="./icon-192.png">
-<meta name="apple-mobile-web-app-title" content="株式指標"><link rel="stylesheet" href="./common-header.css?v=header-analyst-20261119-v2">
+<meta name="apple-mobile-web-app-title" content="株式指標"><link rel="stylesheet" href="./common-header.css?v=nav-font-20261123-v1">
 <link rel="stylesheet" href="./high-condition.css?v=selected-period-20261122-v2">
 <link rel="stylesheet" href="./data-health.css?v=us-etf-20261123-v1">
 <script type="module" src="./data-health.js?v=us-etf-20261123-v1"></script>
@@ -112,7 +112,7 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
 <body>
   <main>
     <header class="morning-header unified-header"><div class="header-brand"><p class="eyebrow">MARKET MORNING / US STOCKS</p><h1>米国株</h1></div><div class="header-tools"><time id="today" class="header-date"></time><button id="refresh" class="header-refresh" type="button" aria-label="ページを更新" title="最新の保存データを再読み込み"><span class="refresh-icon" aria-hidden="true">↻</span><span>更新</span></button></div></header>
-<nav class="morning-pages" aria-label="株式指標・ページ切り替え"><a href="./">株式指標</a><a href="./funds.html">投資信託</a><a href="./stocks-reference.html" aria-current="page">米国株</a><a href="./japan-stocks.html">日本株</a><a href="./heatmap.html">ヒートマップ</a><a href="./nasdaq-rsi.html">NASDAQ100・RSI</a></nav>
+<nav class="morning-pages" aria-label="株式指標・ページ切り替え"><a href="./"><span class="page-tab-label">株式指標</span></a><a href="./funds.html"><span class="page-tab-label">投資信託</span></a><a href="./stocks-reference.html" aria-current="page"><span class="page-tab-label">米国株</span></a><a href="./japan-stocks.html"><span class="page-tab-label">日本株</span></a><a href="./heatmap.html"><span class="page-tab-label">ヒートマップ</span></a><a href="./nasdaq-rsi.html"><span class="page-tab-label"><span>NASDAQ100</span><wbr><span>・RSI</span></span></a></nav>
     <p id="status" class="status" role="status" aria-live="polite">米国株13銘柄と米国ETF2銘柄を読み込んでいます…</p>
     <section class="intro stock-overview" id="stock-overview" aria-labelledby="watchlist-title">
       <div><span class="eyebrow">YOUR WATCHLIST</span><h2 id="watchlist-title">いつもの13銘柄・米国ETF2銘柄</h2><p id="stock-alert-title" role="status" aria-live="polite">最高値からの条件を確認しています…</p><p id="stock-alert-detail">上場来と6つの期間の最高値を確認します。</p></div>

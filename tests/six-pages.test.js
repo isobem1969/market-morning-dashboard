@@ -11,7 +11,7 @@ test('all six pages have matching ordered navigation and exactly one selected pa
   const html=await readFile(new URL('../public/'+(page.url==='./'?'index.html':page.url.slice(2)),import.meta.url),'utf8');
   const nav=html.match(/<nav class="morning-pages"[\s\S]*?<\/nav>/)[0];
   assert.equal((nav.match(/aria-current="page"/g)||[]).length,1);
-  assert.deepEqual([...nav.matchAll(/<a href="([^"]+)"[^>]*>([^<]+)<\/a>/g)].map(m=>[m[1],m[2]]),PAGES.map(p=>[p.url,p.label]));
+  assert.deepEqual([...nav.matchAll(/<a href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map(m=>[m[1],m[2].replace(/<[^>]*>/g,'')]),PAGES.map(p=>[p.url,p.label]));
   assert.ok(nav.includes('href="'+page.url+'" aria-current="page"'));
  }
 });
