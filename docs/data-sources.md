@@ -2,7 +2,7 @@
 
 | Data | Preferred source | Verified alternate path |
 | --- | --- | --- |
-| Seven Japanese mutual funds | Issuer/NAM/MUFG/Wealth Advisor published price history | SBI Securities public historical-NAV CSV, identified by fund code and fund name |
+| Nine Japanese mutual funds | Issuer/NAM/MUFG/Wealth Advisor published price history | SBI Securities public historical-NAV CSV, identified by fund code and fund name |
 | VIX | Cboe daily CSV | Yahoo Finance `^VIX` daily chart |
 | Fear & Greed | CNN public feed | Fear & Greed Graph public feed |
 | Equity, ETF, FX and Brent histories | Yahoo chart `query1` | Yahoo chart `query2`, preserving symbol and query |
@@ -25,4 +25,6 @@ The pre-change branch is `backup/before-resilient-data-health-20261122` (commit 
 
 Unknown original listing coverage alone is accepted as an acquired-period maximum when the displayed start/end dates, peak record date, peak and comparison price are valid. It does not make the global health banner red or create an unchecked all-time error. Collection errors and stale timestamps still do. The original listing-complete flag is retained, and the UI uses the acquired-period label.
 
-TQQQ and SOXL belong to the US stocks page, after the 13 equities. Their existing market and drawdown snapshots remain shared; no parallel quote collector is introduced. The funds page and its condition list contain seven mutual funds. ETF condition summaries, acquisition failures and drawdown failures belong to US stocks. Old root/funds anchors redirect to the moved panels, and NASDAQ100/RSI links use the same page ownership registry.
+TQQQ and SOXL belong to the US stocks page, after the 13 equities. Their existing market and drawdown snapshots remain shared; no parallel quote collector is introduced. The funds page and its condition list contain nine mutual funds. ETF condition summaries, acquisition failures and drawdown failures belong to US stocks. Old root/funds anchors redirect to the moved panels, and NASDAQ100/RSI links use the same page ownership registry.
+
+The last two funds are auAMレバレッジNASDAQ100為替ヘッジ無し (`AY311247`, issuer fund 4005, inception 2024-07-26) and auAMトリプル・NASDAQ100為替ヘッジ無し (`AY31226A`, issuer fund 4011, inception 2026-10-15). Both use the issuer NAV CSV first and name-validated SBI NAV CSV second. NAV, not the separate reinvestment column, feeds charts and rolling peaks; data-health and selected-period alerts belong to funds. Acquired dates remain visible. A new fund with no prior-year series shows only its available year; unavailable moving averages and earlier history are never synthesized.

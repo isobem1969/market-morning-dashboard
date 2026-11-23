@@ -1,5 +1,5 @@
-import {MARKET_IDS,FUND_IDS,ETF_IDS,metricPage} from './asset-pages.js?v=us-etf-20261123-v1';
-import {historyComparison,historyCalculationMarkup} from './high-history.js?v=us-etf-20261123-v1';
+import {MARKET_IDS,FUND_IDS,ETF_IDS,metricPage} from './asset-pages.js?v=au-funds-20261123-v1';
+import {historyComparison,historyCalculationMarkup} from './high-history.js?v=au-funds-20261123-v1';
 import {readSnapshot,updateSnapshot} from './shared-data.js?v=six-pages-20261119-v1';
 import {PAGES} from './page-registry.js?v=six-pages-20261119-v1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -44,7 +44,7 @@ export function dataHealth(snapshots,calendar,now=Date.now(),states={}){
    check(page,label,'価格・グラフ',m,page==='funds'&&!['tqqq','soxl'].includes(id)?'jpFund':id==='vi'?'jpDaily':id==='vix'||id==='fear'?'usDaily':'usPrice','#metric-'+id,extra);
   }
  }
- for(const [key,label,target]of [['fang','FANG＋','fang'],['nasdaq','SBI／iFreeNEXT NASDAQ100','nasdaq'],['sp500_slim','S&P500','sp500_slim'],['allcountry_slim','オルカン','allcountry_slim'],['schd','SBI・SCHD','schd'],['tqqq','TQQQ','tqqq'],['soxl','SOXL','soxl']]){
+ for(const [key,label,target]of [['fang','FANG＋','fang'],['nasdaq','SBI／iFreeNEXT NASDAQ100','nasdaq'],['sp500_slim','S&P500','sp500_slim'],['allcountry_slim','オルカン','allcountry_slim'],['schd','SBI・SCHD','schd'],['au_nasdaq_leverage','auAMレバレッジNASDAQ100為替ヘッジ無し','au_nasdaq_leverage'],['au_nasdaq_triple','auAMトリプル・NASDAQ100為替ヘッジ無し','au_nasdaq_triple'],['tqqq','TQQQ','tqqq'],['soxl','SOXL','soxl']]){
   const owner=metricPage(key);if(missing('drawdowns',owner))continue;
   const r=snapshots.drawdowns[key]||{},last=r.years?.[r.currentYear]?.at(-1),extra=[];
   if(!last||last.date!==r.asOf)extra.push('下落比較グラフが公表日まで揃っていません');

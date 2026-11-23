@@ -19,7 +19,7 @@ try{
   assert.equal(await page.locator('#ready-alert-progress').getAttribute('aria-valuenow'),'18');
   assert.equal(await page.locator('[data-fund]').count(),0);
   await page.goto(base+'funds.html');await page.waitForFunction(()=>window.__morningHealthState?.kind==='ready');
-  assert.deepEqual(await page.locator('#cards>.fund-card').evaluateAll(a=>a.map(e=>e.dataset.fund)),['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd']);
+  assert.deepEqual(await page.locator('#cards>.fund-card').evaluateAll(a=>a.map(e=>e.dataset.fund)),['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd','au_nasdaq_leverage','au_nasdaq_triple']);
   assert.doesNotMatch(await page.locator('#funds-overview').innerText(),/TQQQ|SOXL/);
   await page.goto(base+'stocks-reference.html');await page.waitForFunction(()=>window.__morningRenderState?.stocks?.etfsReady&&window.__morningHealthState?.kind==='ready');
   assert.equal(await page.locator('#stocks>.stock-tile').count(),13);assert.deepEqual(await page.locator('#us-etfs>.fund-card').evaluateAll(a=>a.map(e=>e.dataset.fund)),['tqqq','soxl']);

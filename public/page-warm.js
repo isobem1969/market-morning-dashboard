@@ -1,4 +1,4 @@
-import {redirectingFundPanel} from './common-header.js?v=us-etf-20261123-v1';
+import {redirectingFundPanel} from './common-header.js?v=au-funds-20261123-v1';
 // Prepare snapshots and page structure off screen. Open links as real documents.
 // A hidden, fixed iframe must never become the visible page or intercept its scroll.
 import {PAGES} from './page-registry.js?v=six-pages-20261119-v1';

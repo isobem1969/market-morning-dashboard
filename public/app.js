@@ -1,12 +1,12 @@
-import {FUND_IDS,MARKET_IDS} from './asset-pages.js?v=us-etf-20261123-v1';
-import {fundsOverviewState,renderFundsOverview} from './funds-overview.js?v=us-etf-20261123-v1';
+import {FUND_IDS,MARKET_IDS} from './asset-pages.js?v=au-funds-20261123-v1';
+import {fundsOverviewState,renderFundsOverview} from './funds-overview.js?v=au-funds-20261123-v1';
 import {signalMarkup} from './high-condition.js?v=selected-period-20261122-v2';
-import {updateHeaderDate,redirectingFundPanel} from './common-header.js?v=us-etf-20261123-v1';
+import {updateHeaderDate,redirectingFundPanel} from './common-header.js?v=au-funds-20261123-v1';
 import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=six-pages-20261119-v1';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {changePercent,percentLine} from './change-format.js?v=twoline-20261007';
 import {marketChart,marketHover,selectMarketHistory} from './market-panel.js?v=ranges-20261007';
-import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=us-etf-20261123-v1';
+import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=au-funds-20261123-v1';
 import {viCard} from './vi-panel.js?v=selected-period-20261122-v2';
 import {fearCard} from './fear-panel.js?v=selected-period-20261122-v2';
 import {quality,signal,overall,VIX_BANDS,vixBand,selectVixHistory} from './logic.js?v=vix-20261006';
@@ -19,7 +19,7 @@ const descriptions={usd:'為替 · 1ドルあたりの円',vix:'米国株の予�
 const store={get(k){try{return JSON.parse(localStorage.getItem(k));}catch{return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}},remove(k){try{localStorage.removeItem(k);}catch{}}};
 const fundRanges=new Map(),marketRanges=new Map();
 let drawdowns=store.get('market-morning-drawdowns')||{},data=null,vixMonths=12,fearMonths=12,viMonths=12,offline=false,loading=false;
-function format(value,id){return Number.isFinite(value)?value.toLocaleString('ja-JP',{minimumFractionDigits:['usd','vix','vi','brent'].includes(id)?2:0,maximumFractionDigits:['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd'].includes(id)?0:2}):'—';}
+function format(value,id){return Number.isFinite(value)?value.toLocaleString('ja-JP',{minimumFractionDigits:['usd','vix','vi','brent'].includes(id)?2:0,maximumFractionDigits:['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd','au_nasdaq_leverage','au_nasdaq_triple'].includes(id)?0:2}):'—';}
 function datetime(value){if(!value)return'未取得';const d=new Date(value.length===10?value+'T00:00:00+09:00':value);return Number.isFinite(d.getTime())?new Intl.DateTimeFormat('ja-JP',{month:'2-digit',day:'2-digit',...(value.length>10?{hour:'2-digit',minute:'2-digit'}:{}),timeZone:'Asia/Tokyo'}).format(d)+(value.length>10?' JST':''): '日時不明';}
 function metrics(){
   if(!data)return [];
@@ -91,7 +91,7 @@ function render(){
   if(isFunds){visible.sort((a,b)=>FUND_IDS.indexOf(a.id)-FUND_IDS.indexOf(b.id));renderFundsOverview($('#funds-overview'),fundsOverviewState(visible,fundRanges,checkedQuality));}
   $('#cards').innerHTML=visible.map(m=>{
     const q=checkedQuality(m),sig=q.usable||['vix','fear','vi'].includes(m.id)?signal(m.id,m.value):{tone:'',text:'判定対象外'};
-    const isFund=['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd','tqqq','soxl'].includes(m.id);
+    const isFund=['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd','au_nasdaq_leverage','au_nasdaq_triple','tqqq','soxl'].includes(m.id);
     if(isFund)return fundCard(m,q,fundRanges.get(m.id)||'6m',{datetime});
     const amount=Number.isFinite(m.change)?`${m.change>0?'↑ +':m.change<0?'↓ −':'→ '}${format(Math.abs(m.change),m.id)}`:'前日比 —';
     const percent=percentLine(changePercent(m));

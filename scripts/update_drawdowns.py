@@ -4,7 +4,7 @@ import datetime as dt
 import io
 import json
 from pathlib import Path
-from update_data import fetch, iso_date, parse_mufg_csv, parse_wealthadvisor_xml, nasdaq_page, tqqq_history, soxl_history, fund_history
+from update_data import fetch, iso_date, parse_mufg_csv, parse_wealthadvisor_xml, nasdaq_page, tqqq_history, soxl_history, fund_history, AU_FUNDS, SOURCES
 
 ROOT = Path(__file__).resolve().parents[1]
 FUNDS = {
@@ -68,7 +68,7 @@ def extra_comparison(key):
 def main():
     path = ROOT / 'public/data/fund-drawdowns.json'
     output = json.loads(path.read_text()) if path.exists() else {}
-    for key in [*FUNDS, *EXTRA_FUNDS, 'schd', 'tqqq', 'soxl']:
+    for key in [*FUNDS, *EXTRA_FUNDS, 'schd', *AU_FUNDS, 'tqqq', 'soxl']:
         try:
             if key in FUNDS:
                 code, name = FUNDS[key]
@@ -76,12 +76,14 @@ def main():
                 result = comparison_points([(p['date'],p['value']) for p in nav['history']], name,
                                            nav['sourceUrl'], nav['source'])
                 result['sourceAttempts'] = nav.get('sourceAttempts', [])
-            elif key in (*EXTRA_FUNDS, 'schd'):
+            elif key in (*EXTRA_FUNDS, 'schd', *AU_FUNDS):
                 nav = fund_history(key, history_limit=100000)
-                name = 'SBI・SCHD（年4回決算型）' if key=='schd' else EXTRA_FUNDS[key][0]
+                name = SOURCES[key][0]
                 result = comparison_points([(p['date'],p['value']) for p in nav['history']], name,
                                            nav['sourceUrl'], nav['source'])
                 result['sourceAttempts'] = nav.get('sourceAttempts', [])
+                if key in AU_FUNDS:
+                    result['distributionNote'] = nav['historyNote']
                 if key=='schd':
                     result['distributionNote'] = '年4回決算型の公表基準価額。分配金再投資・受取分配金込みの損益ではありません。'
             else:
