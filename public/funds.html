@@ -40,7 +40,7 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
 <link rel="stylesheet" href="./page-ready-alert.css?v=selected-period-20261122-v2">
 <script type="module" src="./page-ready-alert.js?v=us-etf-20261123-v1"></script>
 <style>.fund-card:target{outline:3px solid #205da2;outline-offset:4px}.fund-card[id^="metric-"]:focus{outline:3px solid #205da2;outline-offset:4px}</style>
-<link rel="stylesheet" href="./common-header.css?v=header-analyst-20261119-v2">
+<link rel="stylesheet" href="./common-header.css?v=nav-font-20261123-v1">
 <link rel="stylesheet" href="./high-condition.css?v=selected-period-20261122-v2">
 <link rel="stylesheet" href="./data-health.css?v=us-etf-20261123-v1">
 <script type="module" src="./data-health.js?v=us-etf-20261123-v1"></script>
@@ -48,7 +48,7 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
 <body data-dashboard="funds">
   <main>
     <header class="morning-header unified-header"><div class="header-brand"><p class="eyebrow">MARKET MORNING / FUNDS</p><h1>投資信託</h1></div><div class="header-tools"><time id="today" class="header-date"></time><button id="refresh" class="header-refresh" type="button" aria-label="ページを更新" title="最新の保存データを再読み込み"><span class="refresh-icon" aria-hidden="true">↻</span><span>更新</span></button></div></header>
-<nav class="morning-pages" aria-label="株式指標・ページ切り替え"><a href="./">株式指標</a><a href="./funds.html" aria-current="page">投資信託</a><a href="./stocks-reference.html">米国株</a><a href="./japan-stocks.html">日本株</a><a href="./heatmap.html">ヒートマップ</a><a href="./nasdaq-rsi.html">NASDAQ100・RSI</a></nav>
+<nav class="morning-pages" aria-label="株式指標・ページ切り替え"><a href="./"><span class="page-tab-label">株式指標</span></a><a href="./funds.html" aria-current="page"><span class="page-tab-label">投資信託</span></a><a href="./stocks-reference.html"><span class="page-tab-label">米国株</span></a><a href="./japan-stocks.html"><span class="page-tab-label">日本株</span></a><a href="./heatmap.html"><span class="page-tab-label">ヒートマップ</span></a><a href="./nasdaq-rsi.html"><span class="page-tab-label"><span>NASDAQ100</span><wbr><span>・RSI</span></span></a></nav>
 
     <div class="status-line" role="status" aria-live="polite" id="status">データを読み込んでいます…</div>
     <p id="page-preload-status" hidden>米国株：先読み中 ／ ヒートマップ：先読み中</p>

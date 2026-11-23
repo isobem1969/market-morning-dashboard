@@ -1,0 +1,37 @@
+name: Verify navigation font sizes
+on:
+  push:
+    paths:
+      - 'public/common-header.css'
+      - 'public/*.html'
+      - 'tests/nav-font-browser.mjs'
+      - '.github/workflows/verify-nav-fonts.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  navigation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, webkit]
+    env:
+      BROWSER: ${{ matrix.browser }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --ignore-scripts playwright@1.62.1
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: python3 -m http.server 8773 --bind 127.0.0.1 --directory public > /tmp/market-nav-http.log 2>&1 &
+      - run: node --test tests/six-pages.test.js
+      - run: node tests/nav-font-browser.mjs
+      - run: node tests/header-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nav-font-${{ matrix.browser }}
+          path: screenshots/

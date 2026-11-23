@@ -49,11 +49,14 @@ body>main>.morning-pages a.heatmap-tab:not([aria-current]),body>main>.morning-pa
  body>main>header.unified-header :is(#refresh,#refresh-heatmap).header-refresh{font-weight:750}
 }
 
-/* Six pages: one desktop row, two tablet rows, three phone rows. */
+/* Keep navigation readable when the grid changes columns. */
 body>main>.morning-pages{grid-template-columns:repeat(6,minmax(0,1fr))}
-body>main>.morning-pages a{font-size:clamp(15px,1.5vw,22px);padding:10px 4px}
-@media(max-width:1000px){body>main>.morning-pages{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:650px){body>main>.morning-pages{grid-template-columns:repeat(2,minmax(0,1fr))}body>main>.morning-pages a{font-size:clamp(14px,4.1vw,20px)}}
+body>main>.morning-pages a{font-size:24px;line-height:1.25;min-height:72px;padding:10px 6px;white-space:normal;min-width:0}
+body>main>.morning-pages .page-tab-label{min-width:0;max-width:100%;white-space:normal}
+body>main>.morning-pages .page-tab-label>span{display:inline-block;max-width:100%;overflow-wrap:anywhere}
+@media(max-width:1200px){body>main>.morning-pages{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:650px){body>main>.morning-pages{grid-template-columns:repeat(2,minmax(0,1fr))}body>main>.morning-pages a{font-size:22px;min-height:68px}}
+@media(max-width:360px){body>main>.morning-pages a{font-size:20px}}
 
 /* Keep long page names on one line at tablet widths. */
 @media(min-width:651px) and (max-width:800px){body>main>header.unified-header h1{font-size:34px}}
