@@ -1,11 +1,11 @@
-import {mountUsEtfs} from './us-etfs.js?v=us-etf-20261123-v1';
-import {historyComparison,historyCoverageMarkup} from './high-history.js?v=us-etf-20261123-v1';
+import {mountUsEtfs} from './us-etfs.js?v=au-funds-20261123-v1';
+import {historyComparison,historyCoverageMarkup} from './high-history.js?v=au-funds-20261123-v1';
 import {highCondition,conditionMarkup} from './high-condition.js?v=selected-period-20261122-v2';
-import {updateHeaderDate} from './common-header.js?v=us-etf-20261123-v1';
+import {updateHeaderDate} from './common-header.js?v=au-funds-20261123-v1';
 import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=six-pages-20261119-v1';
 import {stockGraph as graph} from './stock-chart.js?v=six-pages-20261119-v1';
-import {analystPanel} from './analyst-panel.js?v=us-etf-20261123-v1';
-import {stockAlerts} from './stock-alerts.js?v=us-etf-20261123-v1';
+import {analystPanel} from './analyst-panel.js?v=au-funds-20261123-v1';
+import {stockAlerts} from './stock-alerts.js?v=au-funds-20261123-v1';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {PERIODS,chartPoints,nyDate,sectionOld,periodHigh} from './stocks-logic.js?v=six-pages-20261119-v1';
 const japanese=document.body.dataset.stockMarket==='japan',snapshotName=japanese?'japan':'stocks',moneyUnit=japanese?'円':'USD',exchangeTimeZone=japanese?'Asia/Tokyo':'America/New_York';

@@ -25,6 +25,8 @@ SOURCES = {
     'sp500_slim': ('eMAXIS Slim 米国株式（S&P500）', '円 / 1万口', '三菱UFJ銀行公表CSV', 'https://fs.bk.mufg.jp/webasp/mufg/fund/detail/m00355320.html'),
     'allcountry_slim': ('eMAXIS Slim 全世界株式（オルカン）', '円 / 1万口', '三菱UFJ銀行公表CSV', 'https://fs.bk.mufg.jp/webasp/mufg/fund/detail/m00355920.html'),
     'schd': ('SBI・SCHD（年4回決算型）', '円 / 1万口', 'SBI運用会社案内・Wealth Advisor', 'https://apl.wealthadvisor.jp/webasp/sbi_am/pc/basic/sa_2024122003.html'),
+    'au_nasdaq_leverage': ('auAMレバレッジNASDAQ100為替ヘッジ無し', '円 / 1万口', 'auアセットマネジメント公式CSV', 'https://www.kddi-am.com/funds/4005/'),
+    'au_nasdaq_triple': ('auAMトリプル・NASDAQ100為替ヘッジ無し', '円 / 1万口', 'auアセットマネジメント公式CSV', 'https://www.kddi-am.com/funds/4011/'),
     'tqqq': ('TQQQ / プロシェアーズ・ウルトラプロQQQ', 'USD / 1口', 'Yahoo Finance', 'https://finance.yahoo.com/quote/TQQQ/'),
     'soxl': ('SOXL / Direxion デイリー半導体株ブル3倍ETF', 'USD / 1口', 'Yahoo Finance', 'https://finance.yahoo.com/quote/SOXL/'),
 }
@@ -75,7 +77,32 @@ FUND_BACKUPS = {
     'schd': ('8931224C', ('SBI', 'S・米国高配当株式ファンド', '年4回決算型'), '2024-12-20'),
     'sp500_slim': ('03311187', ('eMAXIS', 'S&P500'), '2018-07-03'),
     'allcountry_slim': ('0331418A', ('eMAXIS', 'オール・カントリー'), '2018-10-31'),
+    'au_nasdaq_leverage': ('AY311247', ('auAMレバレッジNASDAQ100為替ヘッジ無し',), '2024-07-26'),
+    'au_nasdaq_triple': ('AY31226A', ('auAMトリプル・NASDAQ100為替ヘッジ無し',), '2026-10-15'),
 }
+
+
+AU_FUNDS = {'au_nasdaq_leverage': '4005', 'au_nasdaq_triple': '4011'}
+
+
+def parse_au_history(text, key, history_limit=800):
+    rows = csv.DictReader(io.StringIO(text.lstrip('\ufeff')))
+    if rows.fieldnames != ['基準日', '基準価額', '分配金', '分配金再投資基準価額', '純資産総額']:
+        raise ValueError('auAM CSV NAV header mismatch')
+    points, seen = [], set()
+    start = FUND_BACKUPS[key][2]
+    for row in rows:
+        raw = row['基準日'].strip()
+        if not re.fullmatch(r'\d{8}', raw):
+            raise ValueError('Invalid auAM NAV date')
+        date = iso_date(raw)
+        value = float(row['基準価額'].replace(',', ''))
+        if date < start or date in seen or not math.isfinite(value) or value <= 0:
+            raise ValueError('Duplicate, pre-inception or invalid auAM NAV')
+        seen.add(date); points.append((date, value))
+    result = series_result(points, '基準価額', True, history_limit)
+    result['historyStart'] = min(seen)
+    return result
 
 
 def parse_sbi_history(text, key, history_limit=800):
@@ -120,6 +147,8 @@ def sbi_history(key, history_limit=800):
 def fund_history(key, history_limit=800):
     """The same complete price series feeds the chart and the drawdown comparison."""
     def official():
+        if key in AU_FUNDS:
+            return parse_au_history(fetch(f'https://www.kddi-am.com/wp-content/themes/aufunds/csv/fund_nav_{AU_FUNDS[key]}.csv', 'cp932'),key,history_limit)
         if key in ('fang', 'nasdaq_ifree'):
             code = '3346' if key=='fang' else '3373'
             return parse_fund_csv(fetch(f'https://www.daiwa-am.co.jp/funds/detail/csv_out.php?code={code}&type=1','cp932'),key,history_limit)
@@ -136,10 +165,14 @@ def fund_history(key, history_limit=800):
             points[latest['asOf']] = latest['value']
         return series_result(list(points.items()),'基準価額',True,history_limit)
     code = FUND_BACKUPS[key][0]
-    return choose_sources([
+    result = choose_sources([
         (SOURCES[key][2], SOURCES[key][3], official),
         ('SBI証券・公表基準価額CSV',f'https://site0.sbisec.co.jp/marble/fund/history/standardprice.do?fund_sec_code={code}',lambda:sbi_history(key,history_limit))
     ], minimum_date=expected_date())
+    if key in AU_FUNDS:
+        start = result.get('historyStart') or result['history'][0]['date']
+        result['historyNote'] = f"設定日 {FUND_BACKUPS[key][2]} ／ 取得済み期間 {start}〜{result['asOf']}。基準価額（1万口あたり）で計算。分配金再投資・受取分配金込みの損益ではありません。"
+    return result
 
 
 def parse_mufg_csv(text, history_limit=800):
@@ -380,7 +413,7 @@ def merge_observation(key, observation, previous, now):
         raise ValueError('Source returned an older observation')
     points = {p['date']: p['value'] for p in previous.get('history', [])}
     points.update({p['date']: p['value'] for p in observation['history']})
-    history_limit = 800 if key in ('sox', 'fang', 'nasdaq', 'nasdaq_ifree', 'sp500_slim', 'allcountry_slim', 'schd', 'tqqq', 'soxl', 'usd', 'brent') else 400 if key == 'vix' else 90
+    history_limit = 800 if key in ('sox', 'fang', 'nasdaq', 'nasdaq_ifree', 'sp500_slim', 'allcountry_slim', 'schd', *AU_FUNDS, 'tqqq', 'soxl', 'usd', 'brent') else 400 if key == 'vix' else 90
     observation['history'] = [{'date': d, 'value': v} for d, v in sorted(points.items())[-history_limit:]]
     return {**observation, 'status': 'ok', 'lastSuccess': now.isoformat(), 'attemptedAt': now.isoformat(), 'error': None}
 

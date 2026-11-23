@@ -1,5 +1,5 @@
 import {highCondition,conditionMarkup} from './high-condition.js?v=selected-period-20261122-v2';
-import {drawdownPanel} from './drawdown-panel.js?v=soxl-20261113';
+import {drawdownPanel} from './drawdown-panel.js?v=au-funds-20261123-v1';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 export const FUND_META={
  sox:{name:'ニッセイSOX',code:'29314233'},
@@ -9,6 +9,8 @@ export const FUND_META={
  sp500_slim:{name:'eMAXIS Slim 米国株式（S&P500）',code:'03311187',sourceLabel:'三菱UFJ銀行の公表値'},
  allcountry_slim:{name:'eMAXIS Slim 全世界株式（オルカン）',code:'0331418A',sourceLabel:'三菱UFJ銀行の公表値'},
  schd:{name:'SBI・SCHD（年4回決算型）',code:'8931224C'},
+ au_nasdaq_leverage:{name:'auAMレバレッジNASDAQ100為替ヘッジ無し',code:'AY311247',sourceLabel:'auアセットマネジメントの公表値'},
+ au_nasdaq_triple:{name:'auAMトリプル・NASDAQ100為替ヘッジ無し',code:'AY31226A',sourceLabel:'auアセットマネジメントの公表値'},
  tqqq:{name:'TQQQ / プロシェアーズ・ウルトラプロQQQ',code:'TQQQ',currency:'USD',sourceLabel:'Yahoo Finance',referenceUrl:'https://us.minkabu.jp/stocks/TQQQ'},
  soxl:{name:'SOXL / Direxion デイリー半導体株ブル3倍ETF',code:'SOXL',currency:'USD',sourceLabel:'Yahoo Finance',referenceUrl:'https://us.minkabu.jp/stocks/SOXL'}
 };
@@ -56,6 +58,8 @@ function graph(m,period){
 /* Keep the index/ticker prominent while retaining each fund's full name. */
 export function fundTitle(id){
  const stacked={
+  au_nasdaq_leverage:['auAMレバレッジNASDAQ100','為替ヘッジ無し'],
+  au_nasdaq_triple:['auAMトリプル・NASDAQ100','為替ヘッジ無し'],
   schd:['SBI・SCHD','（年4回決算型）'],
   allcountry_slim:['オルカン','eMAXIS Slim 全世界株式'],
   sp500_slim:['S&P500','eMAXIS Slim 米国株式'],

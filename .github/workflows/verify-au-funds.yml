@@ -1,0 +1,45 @@
+name: Verify auAM fund panels
+on:
+  push:
+    paths:
+      - '.github/workflows/verify-au-funds.yml'
+      - 'tests/au-funds*'
+      - 'tests/test_au_funds.py'
+      - 'scripts/update_data.py'
+      - 'scripts/update_drawdowns.py'
+      - 'public/asset-pages.js'
+      - 'public/fund-panel.js'
+      - 'public/drawdown-panel.js'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  funds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, webkit]
+    env:
+      BROWSER: ${{ matrix.browser }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install exchange-calendars==4.13.2
+      - run: python -m unittest discover -s tests -p 'test_*.py'
+      - run: node --test tests/*.test.js tests/*.test.mjs
+      - run: npm install --no-save --ignore-scripts playwright@1.62.1
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: python3 -m http.server 8773 --bind 127.0.0.1 --directory public > /tmp/au-funds-http.log 2>&1 &
+      - run: node tests/au-funds-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: au-funds-${{ matrix.browser }}
+          path: screenshots/au-funds*

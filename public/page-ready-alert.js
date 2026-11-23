@@ -1,6 +1,6 @@
-import {redirectingFundPanel} from './common-header.js?v=us-etf-20261123-v1';
+import {redirectingFundPanel} from './common-header.js?v=au-funds-20261123-v1';
 import {PAGES} from './page-registry.js?v=six-pages-20261119-v1';
-import {healthMarkup} from './data-health.js?v=us-etf-20261123-v1';
+import {healthMarkup} from './data-health.js?v=au-funds-20261123-v1';
 const names=Object.fromEntries(PAGES.map(p=>[p.key,p.label])),links=Object.fromEntries(PAGES.map(p=>[p.key,p.url]));
 export function readiness(pages,elapsed=0){
  const items=Object.keys(names).map(key=>{
