@@ -56,7 +56,7 @@ try{
   assert.ok(fault.every(i=>i.page==='funds'));
   assert.equal(await page.locator('#data-health-alert').getAttribute('data-state'),'error');
   assert.match(await page.locator('#funds-overview .funds-pending').innerText(),/auAMトリプル/);
-  assert.equal(await page.locator('#funds-overview>.funds-alert-list a[href="#metric-'+ids[1]+'"]').count(),0);
+  assert.equal(await page.locator('#funds-overview>.funds-alert-list a[href="#metric-'+ids[1]+'"]').count(),1);
   assert.match(await page.locator('#metric-'+ids[1]).innerText(),/保存値の判定/);
   await context.close();console.log('AU_FUNDS_ORDER_SIX_RANGES_ALERTS_CURRENT_NAV_FAILURE_AND_LAYOUT_OK',engine,width);
  }

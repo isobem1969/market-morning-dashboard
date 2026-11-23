@@ -17,10 +17,12 @@ export function signal(id,value) {
   if (id==='brent') return value>=100?{tone:'watch',text:'原油 ≥ 100ドル'}:{tone:'',text:'ブレント期近先物'};
   return {tone:'',text:id==='usd'?'円換算への影響を確認':'投資信託の公表価格'};
 }
-export function overall(metrics, now, pipeline, offline=false) {
+export function overall(metrics, now, pipeline, offline=false, assess=m=>quality(m,now,pipeline,offline)) {
   const keys=['vix','fear','vi'];
-  const usable=metrics.filter(m=>keys.includes(m.id)&&quality(m,now,pipeline,offline).usable);
+  const usable=metrics.filter(m=>keys.includes(m.id)&&assess(m).usable);
   const alerts=usable.filter(m=>signal(m.id,m.value).tone==='alert');
+  const references=metrics.filter(m=>keys.includes(m.id)&&!assess(m).usable&&Number.isFinite(Date.parse(m.lastSuccess))&&Date.parse(m.lastSuccess)<=now+60000&&Number.isFinite(Date.parse(m.asOf))&&Date.parse(m.asOf)<=now+86400000&&signal(m.id,m.value).tone==='alert');
+  if(references.length)return {tone:'alert',title:'保存値を含む条件到達 · 現在未確認',detail:[...alerts,...references].map(m=>m.name).join('・')+' が表示値で条件に該当します。'+references.map(m=>m.name+'：公表 '+m.asOf+'（保存値）').join(' ／ ')+'。最新値の確認が必要です。',count:usable.length,referenceIds:references.map(m=>m.id)};
   if(alerts.length) return {tone:'alert',title:'🔴 指定条件に到達',detail:alerts.map(m=>m.name).join('・')+' が条件に達しています。'+(usable.length<3?'未確認の指標もあります。':''),count:usable.length};
   if(usable.length<3) return {tone:'',title:'判定保留 · データ不足',detail:'未取得・取得失敗・古いデータがあります。取得できた指標の値と公表日を確認してください。',count:usable.length};
   if(usable.some(m=>signal(m.id,m.value).tone==='watch'))return {tone:'watch',title:'🟡 VIXが警戒域',detail:'VIXは20以上30未満。赤色の指定条件には達していません。',count:usable.length};

@@ -26,7 +26,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test tests/logic.test.js tests/stocks.test.js tests/research-import.test.js tests/analyst-panel.test.mjs tests/high-condition.test.mjs tests/data-health.test.mjs tests/high-history.test.mjs tests/us-etf-move.test.mjs tests/au-funds.test.mjs tests/shared-data.test.js tests/six-pages.test.js
+      - run: node --test tests/logic.test.js tests/stocks.test.js tests/research-import.test.js tests/analyst-panel.test.mjs tests/high-condition.test.mjs tests/data-health.test.mjs tests/high-history.test.mjs tests/us-etf-move.test.mjs tests/au-funds.test.mjs tests/overview-sync.test.mjs tests/shared-data.test.js tests/six-pages.test.js
       - run: python -m pip install exchange-calendars==4.13.2
       - run: node --test tests/ready-alert.test.js
       - run: python -m unittest discover -s tests -p 'test_*.py'

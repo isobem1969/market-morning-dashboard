@@ -42,7 +42,7 @@ test('fund overview follows each selected range and separates unconfirmed saved-
  const m={id:'fang',name:'FANG＋',value:60,peak:1000,asOf:day,lastSuccess:stamp,history:[{date:'2026-06-01',value:100},{date:day,value:60}]};
  const ranges=new Map([['fang','6m']]);let state=fundsOverviewState([m],ranges,()=>({usable:true}));assert.equal(state.reached.length,1);
  ranges.set('fang','1d');state=fundsOverviewState([m],ranges,()=>({usable:true}));assert.equal(state.reached.length,0);
- ranges.set('fang','6m');state=fundsOverviewState([m],ranges,()=>({usable:false}));assert.equal(state.reached.length,0);assert.equal(state.pending.length,1);assert.equal(state.references.length,1);
+ ranges.set('fang','6m');state=fundsOverviewState([m],ranges,()=>({usable:false}));assert.equal(state.reached.length,1);assert.equal(state.pending.length,1);assert.equal(state.references.length,1);
 });
 
 test('bounded histories are healthy while real failures, stale data and missing peaks remain red',()=>{

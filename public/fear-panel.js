@@ -1,7 +1,7 @@
 import {signalMarkup} from './high-condition.js?v=selected-period-20261122-v2';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {changePercent,percentLine} from './change-format.js?v=twoline-20261007';
-import {selectVixHistory} from './logic.js?v=vix-20261006';
+import {selectVixHistory} from './logic.js?v=overview-sync-20261124-v1';
 
 export const FEAR_BANDS=[
  {key:'extreme-fear',max:25,range:'0〜24',label:'極度の恐怖',color:'#bc303c',meaning:'市場全体の不安が非常に強い状態。',reading:'売られ過ぎの可能性を調べる目安。ただし、底値とは限らず、さらに下がることもあります。'},

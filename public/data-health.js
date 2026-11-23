@@ -1,5 +1,5 @@
-import {MARKET_IDS,FUND_IDS,ETF_IDS,metricPage} from './asset-pages.js?v=au-funds-20261123-v1';
-import {historyComparison,historyCalculationMarkup} from './high-history.js?v=au-funds-20261123-v1';
+import {MARKET_IDS,FUND_IDS,ETF_IDS,metricPage} from './asset-pages.js?v=overview-sync-20261124-v1';
+import {historyComparison,historyCalculationMarkup} from './high-history.js?v=overview-sync-20261124-v1';
 import {readSnapshot,updateSnapshot} from './shared-data.js?v=six-pages-20261119-v1';
 import {PAGES} from './page-registry.js?v=six-pages-20261119-v1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

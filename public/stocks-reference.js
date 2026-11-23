@@ -1,11 +1,11 @@
-import {mountUsEtfs} from './us-etfs.js?v=au-funds-20261123-v1';
-import {historyComparison,historyCoverageMarkup} from './high-history.js?v=au-funds-20261123-v1';
+import {mountUsEtfs} from './us-etfs.js?v=overview-sync-20261124-v1';
+import {historyComparison,historyCoverageMarkup} from './high-history.js?v=overview-sync-20261124-v1';
 import {highCondition,conditionMarkup} from './high-condition.js?v=selected-period-20261122-v2';
-import {updateHeaderDate} from './common-header.js?v=au-funds-20261123-v1';
+import {updateHeaderDate} from './common-header.js?v=overview-sync-20261124-v1';
 import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=six-pages-20261119-v1';
 import {stockGraph as graph} from './stock-chart.js?v=six-pages-20261119-v1';
-import {analystPanel} from './analyst-panel.js?v=au-funds-20261123-v1';
-import {stockAlerts} from './stock-alerts.js?v=au-funds-20261123-v1';
+import {analystPanel} from './analyst-panel.js?v=overview-sync-20261124-v1';
+import {stockAlerts} from './stock-alerts.js?v=overview-sync-20261124-v1';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {PERIODS,chartPoints,nyDate,sectionOld,periodHigh} from './stocks-logic.js?v=six-pages-20261119-v1';
 const japanese=document.body.dataset.stockMarket==='japan',snapshotName=japanese?'japan':'stocks',moneyUnit=japanese?'円':'USD',exchangeTimeZone=japanese?'Asia/Tokyo':'America/New_York';
@@ -15,6 +15,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const num=(v,d=2)=>Number.isFinite(v)?v.toLocaleString('ja-JP',{minimumFractionDigits:d,maximumFractionDigits:d}):'—';
 const signed=v=>Number.isFinite(v)?`${v>0?'+':v<0?'−':''}${num(Math.abs(v))}`:'—';
 const stamp=t=>Number.isFinite(Date.parse(t))?new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(t))+' JST':'日時不明';
+function priceIssue(s){return window.__morningHealthState?.issues?.find(i=>i.page===snapshotName&&i.item==='株価・グラフ'&&i.href.endsWith('#stock-'+s.symbol));}
 function stale(p){return offline||sectionOld(p,data.generatedAt);}
 function popupFeatures(screenInfo){
  const aw=Number(screenInfo.availWidth)||1280,ah=Number(screenInfo.availHeight)||800;
@@ -29,7 +30,7 @@ function highPanels(s,period){
  return '<div class="stock-highs">'+[['period',label+'最高値'],['allTime',h.allTime?.complete?'上場来最高値':'取得期間内最高値']].map(([key,title])=>{
   const item=key==='period'?selected:h[key]||{},source=key==='period'?p:h;
   const validDate=[p,source].every(s=>Number.isFinite(Date.parse(s.lastSuccess))&&Date.parse(s.lastSuccess)<=Date.now()+60000);
-  const condition=highCondition(price,item.value,{reference:stale(p)||stale(source),label:title,available:validDate&&(key==='period'||history.valid)});
+  const condition=highCondition(price,item.value,{reference:stale(p)||!!priceIssue(s)||stale(source),label:title,available:validDate&&(key==='period'||history.valid)});
   const ratio=key==='allTime'?history.ratio:Number.isFinite(price)&&Number.isFinite(item.value)&&item.value>0?price/item.value*100:null,drop=ratio===null?null:ratio-100;
   const basis=key==='period'?(item.value==null?'期間内の高値データを取得待ち':(['1d','1w'].includes(period)?'通常取引の5分足高値':'通常取引の日足高値')+'<br>表示期間 '+esc(item.start)+'〜'+esc(item.end)):'通常取引の日足高値'+(!item.complete?'<br>取得済み期間内で比較':'');
   return `<section class="stock-high ${condition.hit?'high-reached':''}" data-high-kind="${key}" ${key==='period'?`data-high-period="${period}"`:''}><h3>${title}</h3>${key==='allTime'?historyCoverageMarkup(history):''}${conditionMarkup(condition)}<p class="high-caption">現在株価 / 最高値</p><p class="high-percent">${num(ratio,1)}<small>%</small></p><div class="high-meter" aria-hidden="true"><span style="width:${ratio===null?0:Math.max(0,Math.min(100,ratio))}%"></span></div><p class="high-price">最高値 <strong>${num(item.value)}</strong> ${moneyUnit}</p><p class="high-drop">最高値から ${signed(drop)}%</p><p class="source-note">記録日 ${esc(item.date||'—')}<br>${item.value==null?'':stale(source)?'前回保存値 · ':''}${item.value!=null?'取得 '+stamp(source.lastSuccess)+'<br>':''}${basis}</p></section>`;
@@ -37,7 +38,7 @@ function highPanels(s,period){
 }
 
 function alertState(s,period=ranges.get(s.symbol)||'6m'){
- return stockAlerts(s,period,{generatedAt:data.generatedAt,offline});
+ return stockAlerts(s,period,{generatedAt:data.generatedAt,offline:offline||!!priceIssue(s)});
 }
 function hitText(hit){return (hit.reference?'保存値 · ':'')+hit.label+'最高値の'+hit.threshold+'％未満（表示値'+num(hit.ratio,1)+'％）';}
 function alertNotice(s,state){
@@ -49,14 +50,14 @@ function alertNotice(s,state){
 }
 function renderStockOverview(){
  const overview=document.querySelector('#stock-overview');
- const states=data.stocks.map(s=>({s,state:alertState(s)}));
+ const states=(data?.stocks||[]).map(s=>({s,state:alertState(s)}));
  const reached=states.filter(({state})=>state.active),etf=etfs?.overview()||{items:[],reached:[],pending:[],references:[]},totalReached=reached.length+etf.reached.length;
- const pending=states.filter(({state})=>state.unchecked.includes(state.period)).length+etf.pending.length;
- const saved=states.filter(({state})=>state.reference).length;
+ const pending=(data?states.filter(({state})=>state.unchecked.includes(state.period)).length:(japanese?4:13))+etf.pending.length;
+ const saved=reached.filter(({state})=>state.reference).length+etf.references.length;
  overview.classList.toggle('is-alert',totalReached>0);
- document.querySelector('#stock-alert-title').textContent=totalReached?(saved?'保存値を含む条件到達 · ':'🔴 指定条件に到達 · ')+totalReached+'銘柄':pending?'判定できた範囲では指定条件への到達なし':'指定条件への到達なし';
- document.querySelector('#stock-alert-detail').textContent='各銘柄で選択中の期間の最高値を基準に、80％・70％・60％・50％未満（同値は含まない）を判定。パネル全体の黄色とこの一覧は選択期間だけに連動します。上場来・別期間の条件は個別の参考表示です。'+(saved?' '+saved+'銘柄は保存値の日時で比較。':'')+(pending?' '+pending+'銘柄は選択期間の履歴が未確認です。理由は各パネルに表示。':'');
- document.querySelector('#stock-alert-list').innerHTML=reached.map(({s,state})=>'<a class="stock-alert-summary" href="#stock-'+esc(s.symbol)+'"><strong>'+esc(s.name)+'（'+esc(s.symbol)+'）</strong><span>'+state.hits.filter(hit=>hit.key===state.period).map(hit=>esc(hitText(hit))).join(' ／ ')+'</span></a>').join('')+etf.reached.map(({m,state})=>'<a class="stock-alert-summary" href="#metric-'+esc(m.id)+'"><strong>'+esc(m.name)+'（米国ETF）</strong><span>'+esc(state.selected.text)+' ／ 下落率 '+num(state.selected.hit.ratio-100)+'％</span></a>').join('')+(etf.references.length?'<details><summary>保存値による米国ETFの比較（'+etf.references.length+'銘柄・参考）</summary>'+etf.references.map(({m,state})=>'<a class="stock-alert-summary" href="#metric-'+esc(m.id)+'">'+esc(m.name)+' · '+esc(state.selected.text)+'</a>').join('')+'</details>':'');
+ document.querySelector('#stock-alert-title').textContent=totalReached?(saved?'保存値を含む条件到達 · ':'🔴 指定条件に到達 · ')+totalReached+'銘柄':pending?'最新値・履歴が未確認 · 判定保留':'指定条件への到達なし';
+ document.querySelector('#stock-alert-detail').textContent='各銘柄で選択中の期間の最高値を基準に、80％・70％・60％・50％未満（同値は含まない）を判定。パネル全体の黄色とこの一覧は選択期間だけに連動します。上場来・別期間の条件は個別の参考表示です。'+(saved?' '+saved+'銘柄は保存値の日時で比較。':'')+(pending?' '+pending+'銘柄は最新値または選択期間の履歴が未確認です。保存値の比較は日時を併記しています。':'');
+ document.querySelector('#stock-alert-list').innerHTML=reached.map(({s,state})=>'<a class="stock-alert-summary" href="#stock-'+esc(s.symbol)+'"><strong>'+esc(s.name)+'（'+esc(s.symbol)+'）</strong><span>'+state.hits.filter(hit=>hit.key===state.period).map(hit=>esc(hitText(hit))).join(' ／ ')+'</span></a>').join('')+etf.reached.map(({m,state,q})=>'<a class="stock-alert-summary" href="#metric-'+esc(m.id)+'" data-reference="'+!q.usable+'"><strong>'+esc(m.name)+'（米国ETF）</strong><span>'+esc(state.selected.text)+' ／ 下落率 '+num(state.selected.hit.ratio-100)+'％</span><small>公表 '+esc(m.asOf||'日時未確認')+(!q.usable?' ／ 保存値・現在未確認：'+esc(q.label||'最新値を確認できません'):'')+'</small></a>').join('')+(etf.references.length?'<p>'+etf.references.length+'銘柄の米国ETFは保存値の比較です。現在の価格は未確認です。</p>':'');
 }
 
 function tile(s){
@@ -77,7 +78,7 @@ async function load(){
 container.addEventListener('click',e=>{const reference=e.target.closest('[data-minkabu]');if(reference){e.preventDefault();const note=reference.parentElement.querySelector('.popup-note');try{window.open(reference.href,'_blank',popupFeatures(window.screen));note.textContent='開かない場合は、通常リンクを使用してください。';const fallback=document.createElement('a');fallback.href=reference.href;fallback.target='_blank';fallback.rel='noopener noreferrer';fallback.textContent='通常リンク ↗';note.append(' ',fallback);}catch{note.textContent='小窓を開けませんでした。';const fallback=document.createElement('a');fallback.href=reference.href;fallback.target='_blank';fallback.rel='noopener noreferrer';fallback.textContent='通常リンク ↗';note.append(' ',fallback);}return;}const button=e.target.closest('[data-period],[data-alert-period]');if(!button)return;const period=button.dataset.period||button.dataset.alertPeriod;ranges.set(button.dataset.symbol,period);const stock=data.stocks.find(s=>s.symbol===button.dataset.symbol);button.closest('.stock-tile').outerHTML=tile(stock);renderStockOverview();container.querySelector(`[data-symbol="${stock.symbol}"][data-period="${period}"]`)?.focus({preventScroll:true});});
 container.addEventListener('pointermove',e=>{const svg=e.target.closest('svg[data-chart]');if(!svg||!data)return;const stock=data.stocks.find(s=>s.symbol===svg.dataset.chart);const pts=chartPoints(stock.price,ranges.get(stock.symbol)||'6m');const rect=svg.getBoundingClientRect();const pos=(e.clientX-rect.left)/rect.width*720;const index=Math.max(0,Math.min(pts.length-1,Math.round((pos-84)/(704-84)*(pts.length-1))));const point=pts[index];if(!point)return;const time=new Intl.DateTimeFormat('ja-JP',{timeZone:exchangeTimeZone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(point.time*1000));svg.closest('.chart-section').querySelector('.chart-hover').textContent=`${time} ${japanese?'日本時間':'米国東部時間'} · ${num(point.value)} ${moneyUnit} · 25日線 ${num(point.ma25)} · 75日線 ${num(point.ma75)} · 出来高 ${Number.isFinite(point.volume)?num(point.volume,0)+'株':'未取得'}`;});
 refresh.addEventListener('click',load);document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});setInterval(()=>{if(!document.hidden)load();},5*60e3);
-if(!japanese&&document.getElementById('us-etfs'))etfs=mountUsEtfs(document.getElementById('us-etfs'),{datetime:stamp,onChange:()=>{if(data)renderStockOverview();}});
+if(!japanese&&document.getElementById('us-etfs')){etfs=mountUsEtfs(document.getElementById('us-etfs'),{datetime:stamp,onChange:renderStockOverview});renderStockOverview();}
 data=readSnapshot(snapshotName);if(data)render();
 void restoreSnapshot(snapshotName).then(saved=>{if(!data&&saved){data=saved;render();}});
 load();
@@ -92,3 +93,5 @@ setInterval(()=>{if(!document.hidden)updateToday();},60000);
 
 
 window.addEventListener('morning-refresh',load);window.__morningRefreshReady=true;
+
+window.addEventListener('morning-data-health',()=>{if(data)render();else renderStockOverview();});

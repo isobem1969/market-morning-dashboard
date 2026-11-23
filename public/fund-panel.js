@@ -1,5 +1,5 @@
 import {highCondition,conditionMarkup} from './high-condition.js?v=selected-period-20261122-v2';
-import {drawdownPanel} from './drawdown-panel.js?v=au-funds-20261123-v1';
+import {drawdownPanel} from './drawdown-panel.js?v=overview-sync-20261124-v1';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 export const FUND_META={
  sox:{name:'ニッセイSOX',code:'29314233'},
@@ -86,7 +86,7 @@ export function fundTitle(id){
 }
 
 export function fundAlertState(m,period,q){
- const available=Number.isFinite(Date.parse(m.lastSuccess))&&Number.isFinite(Date.parse(m.asOf)),reference=!q.usable;
+ const available=Number.isFinite(Date.parse(m.lastSuccess))&&Date.parse(m.lastSuccess)<=Date.now()+60000&&Number.isFinite(Date.parse(m.asOf))&&Date.parse(m.asOf)<=Date.now()+86400000,reference=!q.usable;
  const check=(high,label)=>highCondition(m.value,high,{available,reference,label});
  const states=FUND_PERIODS.map(([key,label])=>{const points=fundPoints(m.history,key);return {key,label,state:check(points.length?Math.max(...points.map(p=>p.value)):null,label+'最高値')};});
  const all=check(m.peak,'取得履歴最高値'),selected=states.find(s=>s.key===period)?.state;
