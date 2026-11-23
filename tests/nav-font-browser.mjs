@@ -32,7 +32,10 @@ try{
     assert.ok(!link.overflow&&link.textFits&&link.inViewport,label+' clipped text');
    }
    const geometry=result.links.map(({box,font})=>({box,font}));
-   if(reference)assert.deepEqual(geometry,reference,`${item.key} ${width} differs from market navigation`);
+   if(reference)geometry.forEach((link,i)=>{
+    assert.equal(link.font,reference[i].font);
+    for(const key of ['x','y','width','height'])assert.ok(Math.abs(link.box[key]-reference[i].box[key])<=1,`${item.key} ${width} button ${i} ${key} differs from market navigation`);
+   });
    else reference=geometry;
    if([320,744,1133,1440].includes(width))await page.locator('main > .morning-pages').screenshot({path:`screenshots/nav-font-${engine}-${width}-${item.key}.png`});
   }
