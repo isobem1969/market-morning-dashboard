@@ -34,7 +34,7 @@ try{
     const etf=id.startsWith('metric-')&&path==='stocks-reference.html',selector=etf?'[data-fund-period]':selectors;
     for(const p of (width===744?['1d','1w','1m','6m','1y','2y']:['1d','6m'])){
      const attr=etf||kind==='fund'?'data-fund-period':kind==='stock'?'data-period':'data-price-period';
-     await page.locator('#'+id+' '+selector+'['+attr+'="'+p+'"]').evaluate(e=>e.click());
+     await page.locator('[id="'+id+'"] '+selector+'['+attr+'="'+p+'"]').evaluate(e=>e.click());
      await sync(page,etf?'#us-etfs>.fund-card':panel,top,etf?'fund':kind);
     }
    }
@@ -50,5 +50,29 @@ try{
   }
   await page.goto(base);await page.locator('.conditions .condition-reached').first().waitFor();await page.waitForFunction(()=>!!window.__morningHealthState?.checkedAt);assert.equal(await page.locator('.conditions .condition-reached').count(),3);if(saved)assert.match(await page.locator('#summary').innerText(),/保存値/);
   await context.close();console.log('ALL_SIX_PAGE_OVERVIEWS_MATCH_PANELS',engine,width,saved?'SAVED':'CURRENT');
+ }
+ // ETF summaries must not depend on the individual-stock snapshot succeeding.
+ {
+  const files=fixture(false),context=await browser.newContext({viewport:{width:744,height:1133},serviceWorkers:'block'}),page=await context.newPage();
+  await page.route('**/data/*.json*',route=>{const k=new URL(route.request().url()).pathname.split('/').at(-1).replace('.json','');return k==='stocks'?route.abort():files[k]?route.fulfill({json:files[k]}):route.continue();});
+  await page.goto(base+'stocks-reference.html');await page.locator('#metric-soxl').waitFor();
+  await page.waitForFunction(()=>document.querySelectorAll('#stock-alert-list a[href="#metric-tqqq"],#stock-alert-list a[href="#metric-soxl"]').length===2);
+  assert.match(await page.locator('#stock-alert-detail').innerText(),/13銘柄は最新値または/);
+  await context.close();console.log('ETFS_REMAIN_IN_OVERVIEW_WHEN_EQUITY_SNAPSHOT_FAILS',engine);
+ }
+ // Missing numeric values must never become a hit or an all-clear on any page.
+ {
+  const files=fixture(false);
+  for(const m of files.market.metrics){m.value=null;m.lastSuccess=null;}
+  for(const k of ['stocks','japan-stocks'])for(const s of files[k].stocks){s.price.value=null;s.price.lastSuccess=null;}
+  for(const p of Object.values(files['nasdaq-rsi'].prices))p.value=null;
+  for(const s of files.heatmap.stocks)for(const p of Object.values(s.periods))p.changePct=null;
+  const context=await browser.newContext({viewport:{width:744,height:1133},serviceWorkers:'block'}),page=await context.newPage();
+  await page.route('**/data/*.json*',route=>{const k=new URL(route.request().url()).pathname.split('/').at(-1).replace('.json','');return files[k]?route.fulfill({json:files[k]}):route.continue();});
+  for(const [path,top]of [['funds.html','#funds-overview'],['stocks-reference.html','#stock-overview'],['japan-stocks.html','#stock-overview'],['nasdaq-rsi.html','#rsi-price-overview'],['heatmap.html','#heatmap-overview'],['','#summary']]){
+   await page.goto(base+path);await page.locator(top).waitFor();await page.waitForFunction(()=>!!window.__morningHealthState?.checkedAt);
+   assert.match(await page.locator(top).innerText(),/判定保留/);assert.equal(await page.locator(top+' a[href^="#metric-"],'+top+' a[href^="#stock-"],'+top+' [data-overview-item]').count(),0);
+  }
+  await context.close();console.log('ALL_SIX_PAGES_HOLD_MISSING_VALUES',engine);
  }
 }finally{await browser.close();}
