@@ -4,6 +4,9 @@ on:
     paths:
       - '.github/workflows/verify-brka.yml'
       - 'scripts/update_stocks.py'
+      - 'public/stocks-reference.*'
+      - 'public/data-health.js'
+      - 'public/page-ready-alert.js'
       - 'scripts/seed_brka_verification.py'
       - 'tests/brka-browser.mjs'
       - 'tests/test_brka.py'
