@@ -20,8 +20,8 @@ try{
   assert.equal(await card.locator('.current-value').innerText(),brka.price.value.toLocaleString('ja-JP',{minimumFractionDigits:2,maximumFractionDigits:2}));
   assert.equal(await card.locator('.tile-links a').getAttribute('href'),'https://finance.yahoo.co.jp/quote/BRK-A');assert.equal(await card.locator('.ratios>div').count(),2);assert.equal(await card.locator('.analyst-panel').count(),1);assert.equal(await card.locator('.stock-highs .stock-high').count(),2);
   for(const period of ['1d','1w','1m','6m','1y','2y']){
-   await card.locator('[data-period="'+period+'"]').evaluate(el=>el.click());
-   assert.equal(await card.locator('[data-period="'+period+'"]').getAttribute('aria-pressed'),'true');assert.equal(await card.locator('svg[data-chart="BRK-A"]').count(),1);
+   await card.locator('button[data-period="'+period+'"]').evaluate(el=>el.click());
+   assert.equal(await card.locator('button[data-period="'+period+'"]').getAttribute('aria-pressed'),'true');assert.equal(await card.locator('svg[data-chart="BRK-A"]').count(),1);
    const hit=await card.locator('.stock-high[data-high-kind="period"] .high-condition').evaluate(el=>el.classList.contains('is-hit'));
    assert.equal(await page.locator('#stock-alert-list a[href="#stock-BRK-A"]').count(),hit?1:0);
   }
@@ -32,8 +32,8 @@ try{
   await page.screenshot({path:`screenshots/brka-${engine}-${width}.png`});
   const popupPromise=page.waitForEvent('popup');await card.locator('[data-minkabu="BRK-A"]').click();const popup=await popupPromise;await popup.waitForURL('**/stocks/BRK-A/researches*');await popup.close();
   synthetic=true;await page.goto(base+'stocks-reference.html?condition-test=1');await page.locator('#stock-alert-list a[href="#stock-BRK-A"]').waitFor();
-  await card.locator('[data-period="1d"]').evaluate(el=>el.click());assert.equal(await page.locator('#stock-alert-list a[href="#stock-BRK-A"]').count(),0);
-  await card.locator('[data-period="6m"]').evaluate(el=>el.click());assert.equal(await page.locator('#stock-alert-list a[href="#stock-BRK-A"]').count(),1);
+  await card.locator('button[data-period="1d"]').evaluate(el=>el.click());assert.equal(await page.locator('#stock-alert-list a[href="#stock-BRK-A"]').count(),0);
+  await card.locator('button[data-period="6m"]').evaluate(el=>el.click());assert.equal(await page.locator('#stock-alert-list a[href="#stock-BRK-A"]').count(),1);
   failed=true;await page.goto(base+'stocks-reference.html?condition-test=2');await page.waitForFunction(()=>document.querySelector('#stock-alert-list a[href="#stock-BRK-A"]')?.dataset.reference==='true');
   assert.match(await page.locator('#stock-alert-list a[href="#stock-BRK-A"]').innerText(),/保存値/);
   await context.close();console.log('BRKA_AFTER_ABBV_SAME_PANELS_PERIODS_ALERTS_AND_REFERENCE_OK',engine,width);
