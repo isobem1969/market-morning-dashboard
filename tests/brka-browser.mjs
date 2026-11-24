@@ -25,7 +25,7 @@ try{
    const hit=await card.locator('.stock-high[data-high-kind="period"] .high-condition').evaluate(el=>el.classList.contains('is-hit'));
    assert.equal(await page.locator('#stock-alert-list a[href="#stock-BRK-A"]').count(),hit?1:0);
   }
-  await card.scrollIntoViewIfNeeded();await page.evaluate(()=>new Promise(requestAnimationFrame));
+  await card.evaluate(el=>el.scrollIntoView({block:"start",behavior:"instant"}));await page.evaluate(()=>new Promise(requestAnimationFrame));
   const display=await card.locator('.current-value').evaluate(el=>({font:parseFloat(getComputedStyle(el).fontSize),width:el.getBoundingClientRect().width}));console.log('BRKA_PRICE_LAYOUT',engine,width,display);
   assert.ok(display.font>=18,'Class A quote shrank too small '+width+' '+JSON.stringify(display));assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,'Class A page overflow '+width);
   const next=await page.evaluate(()=>document.getElementById('stocks').getBoundingClientRect().bottom<=document.getElementById('us-etfs').getBoundingClientRect().top);assert.ok(next,'ETFs remain after Class A');
