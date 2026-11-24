@@ -89,6 +89,9 @@ requests[name]=fetch('./data/'+file,{cache:'no-cache',signal:controller.signal})
 .periods button.period-hit small{display:block;font-size:11px;color:#704400}
 @media(max-width:650px){#stock-alert-title{font-size:22px}.stock-alert-summary strong{font-size:19px}.stock-alert-summary{padding:10px 12px}.stock-alert-notice{padding:12px}.stock-alert-chips button,.stock-alert-chip{font-size:13px}}
 
+
+/* Class A quotes need room for six-digit dollar amounts. */
+.stock-tile[data-symbol="BRK-A"] .value-pair{flex-wrap:wrap;row-gap:.15em}
 </style><link rel="stylesheet" href="./value-pair.css?v=stock-centered-20261008">
 <link rel="stylesheet" href="./header-controls.css?v=links-date-20261008">
 <link rel="stylesheet" href="./float-controls.css?v=rsi-links-scroll-20261114">
