@@ -57,7 +57,7 @@ try{
   await page.route('**/data/*.json*',route=>{const k=new URL(route.request().url()).pathname.split('/').at(-1).replace('.json','');return k==='stocks'?route.abort():files[k]?route.fulfill({json:files[k]}):route.continue();});
   await page.goto(base+'stocks-reference.html');await page.locator('#metric-soxl').waitFor();
   await page.waitForFunction(()=>document.querySelectorAll('#stock-alert-list a[href="#metric-tqqq"],#stock-alert-list a[href="#metric-soxl"]').length===2);
-  assert.match(await page.locator('#stock-alert-detail').innerText(),/13銘柄は最新値または/);
+  assert.match(await page.locator('#stock-alert-detail').innerText(),/14銘柄は最新値または/);
   await context.close();console.log('ETFS_REMAIN_IN_OVERVIEW_WHEN_EQUITY_SNAPSHOT_FAILS',engine);
  }
  // Missing numeric values must never become a hit or an all-clear on any page.

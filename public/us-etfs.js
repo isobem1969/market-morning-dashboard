@@ -1,7 +1,7 @@
-import {ETF_IDS} from './asset-pages.js?v=overview-sync-20261124-v1';
-import {FUND_META,fundCard,fundHover,openFundReference} from './fund-panel.js?v=overview-sync-20261124-v1';
-import {rangeOverviewState} from './funds-overview.js?v=overview-sync-20261124-v1';
-import {quality} from './logic.js?v=overview-sync-20261124-v1';
+import {ETF_IDS} from './asset-pages.js?v=brka-20261124-v1';
+import {FUND_META,fundCard,fundHover,openFundReference} from './fund-panel.js?v=brka-20261124-v1';
+import {rangeOverviewState} from './funds-overview.js?v=brka-20261124-v1';
+import {quality} from './logic.js?v=brka-20261124-v1';
 import {readSnapshot,updateSnapshot} from './shared-data.js?v=six-pages-20261119-v1';
 import {watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 export function etfMetrics(market,drawdowns={}){

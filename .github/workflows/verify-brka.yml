@@ -1,0 +1,43 @@
+name: Verify Berkshire Class A panel
+on:
+  push:
+    paths:
+      - '.github/workflows/verify-brka.yml'
+      - 'scripts/update_stocks.py'
+      - 'scripts/seed_brka_verification.py'
+      - 'tests/brka-browser.mjs'
+      - 'tests/test_brka.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  brka:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, webkit]
+    env:
+      BROWSER: ${{ matrix.browser }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install exchange-calendars==4.13.2
+      - run: python -m unittest discover -s tests -p 'test_*.py'
+      - run: node --test tests/*.test.js tests/*.test.mjs
+      - run: python scripts/seed_brka_verification.py
+      - run: npm install --no-save --ignore-scripts playwright@1.62.1
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: python3 -m http.server 8773 --bind 127.0.0.1 --directory public > /tmp/brka-http.log 2>&1 &
+      - run: node tests/brka-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: brka-${{ matrix.browser }}
+          path: screenshots/brka*

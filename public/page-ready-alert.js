@@ -1,6 +1,6 @@
-import {redirectingFundPanel} from './common-header.js?v=overview-sync-20261124-v1';
+import {redirectingFundPanel} from './common-header.js?v=brka-20261124-v1';
 import {PAGES} from './page-registry.js?v=six-pages-20261119-v1';
-import {healthMarkup} from './data-health.js?v=overview-sync-20261124-v1';
+import {healthMarkup} from './data-health.js?v=brka-20261124-v1';
 const names=Object.fromEntries(PAGES.map(p=>[p.key,p.label])),links=Object.fromEntries(PAGES.map(p=>[p.key,p.url]));
 export function readiness(pages,elapsed=0){
  const items=Object.keys(names).map(key=>{
@@ -29,7 +29,7 @@ export function mountReadyAlert(win=window,doc=document){
   try{
    const dataKey=PAGES.find(p=>p.key===key).dataKey;
    const status=t.__morningPreloadState?.[dataKey],checked=t.__morningDataState?.[dataKey],render=t.__morningRenderState?.[key],d=t.document;
-   const rendered=['market','funds'].includes(key)?!!d.querySelector('#cards')?.childElementCount:['stocks','japan'].includes(key)?d.querySelectorAll('.stock-tile').length>=(key==='japan'?4:13)&&(key!=='stocks'||d.querySelectorAll('#us-etfs .fund-card').length===2):key==='rsi'?!!d.querySelector('#rsi-chart svg'):d.querySelectorAll('.tile').length>0;
+   const rendered=['market','funds'].includes(key)?!!d.querySelector('#cards')?.childElementCount:['stocks','japan'].includes(key)?d.querySelectorAll('.stock-tile').length>=(key==='japan'?4:14)&&(key!=='stocks'||d.querySelectorAll('#us-etfs .fund-card').length===2):key==='rsi'?!!d.querySelector('#rsi-chart svg'):d.querySelectorAll('.tile').length>0;
    const fresh=status==='準備完了',token=checked&&render?String(checked.checkedAt)+':'+render.generatedAt:'';
    const etfReady=key!=='stocks'||render?.etfsReady&&['market','drawdowns'].every(k=>t.__morningPreloadState?.[k]==='準備完了');
    const charts=fresh&&rendered&&!!render&&!!checked&&render.generatedAt===checked.generatedAt&&etfReady;

@@ -1,7 +1,7 @@
 import {signalMarkup} from './high-condition.js?v=selected-period-20261122-v2';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {changePercent,percentLine} from './change-format.js?v=twoline-20261007';
-import {selectVixHistory} from './logic.js?v=overview-sync-20261124-v1';
+import {selectVixHistory} from './logic.js?v=brka-20261124-v1';
 
 export const VI_BANDS=[
  {key:'low',max:20,range:'20未満',label:'比較的穏やか',color:'#16886f',meaning:'予想される値動きが比較的小さい状態。',reading:'値動きへの警戒は比較的低い水準。ただし、急変が起きないことを保証する数値ではありません。'},

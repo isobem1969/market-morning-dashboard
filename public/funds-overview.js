@@ -1,5 +1,5 @@
-import {FUND_IDS} from './asset-pages.js?v=overview-sync-20261124-v1';
-import {fundAlertState} from './fund-panel.js?v=overview-sync-20261124-v1';
+import {FUND_IDS} from './asset-pages.js?v=brka-20261124-v1';
+import {fundAlertState} from './fund-panel.js?v=brka-20261124-v1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function rangeOverviewState(metrics,ranges,quality){
  const items=metrics.map(m=>{const period=ranges.get(m.id)||'6m',q=quality(m),state=fundAlertState(m,period,q);return {m,period,q,state};});

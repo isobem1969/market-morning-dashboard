@@ -1,4 +1,4 @@
-import {legacyPanelDestination} from './asset-pages.js?v=overview-sync-20261124-v1';
+import {legacyPanelDestination} from './asset-pages.js?v=brka-20261124-v1';
 const destination=typeof location!=='undefined'?legacyPanelDestination(location.pathname,location.hash):null;
 export const redirectingFundPanel=!!destination;
 if(destination)location.replace(destination);

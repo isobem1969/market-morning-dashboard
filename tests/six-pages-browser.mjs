@@ -28,7 +28,7 @@ try{
      assert.equal(await tile.locator('[data-fund-period="1m"]').getAttribute('aria-pressed'),'true');assert.equal(await tile.locator('.fund-chart').count(),1);
     }
    }else if(['japan','stocks'].includes(item.key)){
-    await page.locator('.stock-tile').first().waitFor();assert.equal(await page.locator('.stock-tile').count(),item.key==='japan'?4:13);
+    await page.locator('.stock-tile').first().waitFor();assert.equal(await page.locator('.stock-tile').count(),item.key==='japan'?4:14);
     if(item.key==='stocks'){await page.locator('#us-etfs [data-fund=soxl]').waitFor();assert.deepEqual(await page.locator('#us-etfs .fund-card').evaluateAll(a=>a.map(e=>e.dataset.fund)),['tqqq','soxl']);}
     if(item.key==='japan'){
      assert.deepEqual(await page.locator('.stock-tile h2').allTextContents(),['ソフトバンクグループ','楽天グループ','キオクシア','東京エレクトロン']);
