@@ -1,8 +1,8 @@
-import {conditionOverview,overviewMarkup} from './overview-summary.js?v=overview-sync-20261124-v1';
-import {panelHref} from './asset-pages.js?v=overview-sync-20261124-v1';
+import {conditionOverview,overviewMarkup} from './overview-summary.js?v=brka-20261124-v1';
+import {panelHref} from './asset-pages.js?v=brka-20261124-v1';
 import {PERIODS,periodHigh} from './stocks-logic.js?v=six-pages-20261119-v1';
 import {highCondition,conditionMarkup} from './high-condition.js?v=selected-period-20261122-v2';
-import {updateHeaderDate} from './common-header.js?v=overview-sync-20261124-v1';
+import {updateHeaderDate} from './common-header.js?v=brka-20261124-v1';
 import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=six-pages-20261119-v1';
 const $=id=>document.getElementById(id),fmt=(n,d=1)=>Number.isFinite(n)?n.toLocaleString('ja-JP',{minimumFractionDigits:d,maximumFractionDigits:d}):'—';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

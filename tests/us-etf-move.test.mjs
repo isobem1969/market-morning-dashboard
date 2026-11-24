@@ -7,7 +7,7 @@ import {etfMetrics} from '../public/us-etfs.js';
 import {dataHealth} from '../public/data-health.js';
 const day='2026-11-20',now=Date.parse('2026-11-23T00:00:00Z'),stamp=new Date(now).toISOString();
 const m=id=>({id,name:id,status:'ok',lastSuccess:stamp,asOf:day,value:60,peak:100,history:[{date:'2026-06-01',value:100},{date:day,value:60}]});
-test('each metric has exactly one owning page and ETF order follows all thirteen equities',()=>{
+test('each metric has exactly one owning page and ETF order follows all fourteen equities',()=>{
  assert.equal(new Set([...FUND_IDS,...ETF_IDS,...MARKET_IDS]).size,16);assert.equal(FUND_IDS.length,9);assert.deepEqual(ETF_IDS,['tqqq','soxl']);
  for(const id of ETF_IDS){assert.equal(metricPage(id),'stocks');assert.equal(panelHref(id),'./stocks-reference.html#metric-'+id);for(const path of ['/market/','/market/index.html','/market/funds.html'])assert.equal(legacyPanelDestination(path,'#metric-'+id),panelHref(id));assert.equal(legacyPanelDestination('/market/stocks-reference.html','#metric-'+id),null);}
  assert.equal(panelHref('nasdaq'),'./funds.html#metric-nasdaq');assert.equal(legacyPanelDestination('/market/','#metric-sox'),'./funds.html#metric-sox');

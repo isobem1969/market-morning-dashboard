@@ -1,5 +1,5 @@
-import {MARKET_IDS,FUND_IDS,ETF_IDS,metricPage} from './asset-pages.js?v=overview-sync-20261124-v1';
-import {historyComparison,historyCalculationMarkup} from './high-history.js?v=overview-sync-20261124-v1';
+import {MARKET_IDS,FUND_IDS,ETF_IDS,metricPage} from './asset-pages.js?v=brka-20261124-v1';
+import {historyComparison,historyCalculationMarkup} from './high-history.js?v=brka-20261124-v1';
 import {readSnapshot,updateSnapshot} from './shared-data.js?v=six-pages-20261119-v1';
 import {PAGES} from './page-registry.js?v=six-pages-20261119-v1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -51,7 +51,7 @@ export function dataHealth(snapshots,calendar,now=Date.now(),states={}){
   check(owner,label,'下落比較',{...r,status:r.error?'error':'ok'},['tqqq','soxl'].includes(key)?'usDaily':'jpFund','#metric-'+target,extra);
  }
  for(const [name,page]of [['stocks','stocks'],['japan','japan']])if(!missing(name,page)){
-  if((snapshots[name].stocks||[]).length<(page==='japan'?4:13))add(page,PAGES.find(p=>p.key===page).label,'銘柄一覧','必要な銘柄のデータが揃っていません');
+  if((snapshots[name].stocks||[]).length<(page==='japan'?4:14))add(page,PAGES.find(p=>p.key===page).label,'銘柄一覧','必要な銘柄のデータが揃っていません');
   for(const s of snapshots[name].stocks||[]){
    const p=s.price||{},label=s.name||s.symbol,anchor='#stock-'+s.symbol,extra=[],tz=p.timeZone||(page==='japan'?'Asia/Tokyo':'America/New_York');
    if(!finite(p.value))extra.push('株価が未取得です');

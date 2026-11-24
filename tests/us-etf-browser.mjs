@@ -22,7 +22,7 @@ try{
   assert.deepEqual(await page.locator('#cards>.fund-card').evaluateAll(a=>a.map(e=>e.dataset.fund)),['sox','fang','nasdaq','nasdaq_ifree','sp500_slim','allcountry_slim','schd','au_nasdaq_leverage','au_nasdaq_triple']);
   assert.doesNotMatch(await page.locator('#funds-overview').innerText(),/TQQQ|SOXL/);
   await page.goto(base+'stocks-reference.html');await page.waitForFunction(()=>window.__morningRenderState?.stocks?.etfsReady&&window.__morningHealthState?.kind==='ready');
-  assert.equal(await page.locator('#stocks>.stock-tile').count(),13);assert.deepEqual(await page.locator('#us-etfs>.fund-card').evaluateAll(a=>a.map(e=>e.dataset.fund)),['tqqq','soxl']);
+  assert.equal(await page.locator('#stocks>.stock-tile').count(),14);assert.deepEqual(await page.locator('#us-etfs>.fund-card').evaluateAll(a=>a.map(e=>e.dataset.fund)),['tqqq','soxl']);
   assert.ok(await page.evaluate(()=>document.querySelector('#stocks').getBoundingClientRect().bottom<=document.querySelector('#us-etfs').getBoundingClientRect().top));
   for(const id of ['tqqq','soxl']){assert.equal(await page.locator('#stock-alert-list a[href="#metric-'+id+'"]').count(),1);assert.equal(await page.locator('#metric-'+id+' .fund-chart').count(),1);assert.equal(await page.locator('#metric-'+id+' .drawdown-panel').count(),1);assert.equal(await page.locator('#metric-'+id+' .fund-rsi-link').getAttribute('href'),'./nasdaq-rsi.html#price-'+id);}
   const count=Number((await page.locator('#stock-alert-title').innerText()).match(/(\d+)銘柄/)[1]);

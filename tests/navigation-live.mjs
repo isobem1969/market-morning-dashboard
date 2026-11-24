@@ -76,7 +76,7 @@ try{
  await page.waitForURL('**/stocks-reference.html',{waitUntil:'domcontentloaded'});
  await page.locator('.stock-tile').first().waitFor({timeout:30000});
  assert.equal(await page.evaluate(()=>window===top&&location.pathname.endsWith('/stocks-reference.html')),true);
- assert.equal(await page.locator('.stock-tile').count(),13);
+ assert.equal(await page.locator('.stock-tile').count(),14);
  console.log('SAVED_CONTENT_WITH_NETWORK_UNAVAILABLE',engine,Date.now()-navigationStarted);
  await page.unroute('**/data/stocks.json*');
  const alerts=page.locator('#stock-alert-list a'),count=await alerts.count();

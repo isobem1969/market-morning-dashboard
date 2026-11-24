@@ -1,5 +1,5 @@
 import {highCondition,conditionMarkup} from './high-condition.js?v=selected-period-20261122-v2';
-import {drawdownPanel} from './drawdown-panel.js?v=overview-sync-20261124-v1';
+import {drawdownPanel} from './drawdown-panel.js?v=brka-20261124-v1';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 export const FUND_META={
  sox:{name:'ニッセイSOX',code:'29314233'},

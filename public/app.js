@@ -1,15 +1,15 @@
-import {FUND_IDS,MARKET_IDS} from './asset-pages.js?v=overview-sync-20261124-v1';
-import {fundsOverviewState,renderFundsOverview} from './funds-overview.js?v=overview-sync-20261124-v1';
+import {FUND_IDS,MARKET_IDS} from './asset-pages.js?v=brka-20261124-v1';
+import {fundsOverviewState,renderFundsOverview} from './funds-overview.js?v=brka-20261124-v1';
 import {signalMarkup} from './high-condition.js?v=selected-period-20261122-v2';
-import {updateHeaderDate,redirectingFundPanel} from './common-header.js?v=overview-sync-20261124-v1';
+import {updateHeaderDate,redirectingFundPanel} from './common-header.js?v=brka-20261124-v1';
 import {readSnapshot,restoreSnapshot,updateSnapshot,prefetchOtherPages} from './shared-data.js?v=six-pages-20261119-v1';
 import {valuePair,watchValuePairs} from './value-pair.js?v=green-arrow-20261008';
 import {changePercent,percentLine} from './change-format.js?v=twoline-20261007';
 import {marketChart,marketHover,selectMarketHistory} from './market-panel.js?v=ranges-20261007';
-import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=overview-sync-20261124-v1';
+import {fundCard,fundHover,openFundReference} from './fund-panel.js?v=brka-20261124-v1';
 import {viCard} from './vi-panel.js?v=selected-period-20261122-v2';
 import {fearCard} from './fear-panel.js?v=selected-period-20261122-v2';
-import {quality,signal,overall,VIX_BANDS,vixBand,selectVixHistory} from './logic.js?v=overview-sync-20261124-v1';
+import {quality,signal,overall,VIX_BANDS,vixBand,selectVixHistory} from './logic.js?v=brka-20261124-v1';
 if(!redirectingFundPanel){
 const $=s=>document.querySelector(s);
 const isFunds=document.body.dataset.dashboard==='funds',pageKey=isFunds?'funds':'market';

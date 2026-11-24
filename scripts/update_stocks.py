@@ -1,4 +1,4 @@
-"""Collect the user's 13 stocks; preserve dated values on source failures."""
+"""Collect the user's 14 stocks; preserve dated values on source failures."""
 import concurrent.futures
 import datetime as dt
 import json
@@ -18,7 +18,7 @@ STOCKS = [('AAPL', 'アップル'), ('GOOGL', 'アルファベットA'),
           ('TSLA', 'テスラ'),
           ('SPCX', 'スペースX'), ('NVDA', 'エヌビディア'),
           ('LLY', 'イーライリリー'), ('KO', 'コカ・コーラ'),
-          ('JNJ', 'ジョンソン・エンド・ジョンソン'), ('ABBV', 'アッヴィ')]
+          ('JNJ', 'ジョンソン・エンド・ジョンソン'), ('ABBV', 'アッヴィ'), ('BRK-A', 'バークシャー・ハサウェイA')]
 
 def number(value):
     try:
@@ -241,7 +241,7 @@ def high_observation(result, symbol, now, timezone=NY):
     complete = expected is not None and abs((rows[0][0] - expected).days) <= 7
     # For these older issuers, Yahoo's firstTradeDate can be the archive's
     # starting date rather than the original public listing date.
-    if symbol in ('KO', 'JNJ', 'LLY'):
+    if symbol in ('KO', 'JNJ', 'LLY', 'BRK-A'):
         complete = False
     return {'week52': peak([r for r in rows if r[0] >= start]),
             'allTime': {**peak(rows), 'complete': complete},
@@ -307,6 +307,8 @@ def collect(symbol, name, old, now):
     base = {'symbol': symbol, 'name': name,
             'quoteUrl': f'https://finance.yahoo.co.jp/quote/{symbol}',
             'forumUrl': f'https://finance.yahoo.co.jp/quote/{symbol}/forum'}
+    if symbol == 'BRK-A':
+        base.update(displaySymbol='BRK.A', exchange='NYSE')
     def prices():
         daily = chart(symbol, '1d', '5y')  # Warm-up history for the 2-year 75-session average.
         intraday = chart(symbol, '5m', '5d')

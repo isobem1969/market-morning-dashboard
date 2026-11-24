@@ -2,7 +2,7 @@ import {chromium,webkit} from 'playwright';
 import {spawn} from 'node:child_process';
 import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
-const symbols=['AAPL','GOOGL','MSFT','AMZN','META','TSLA','SPCX','NVDA','LLY','KO','JNJ','ABBV'];
+const symbols=['AAPL','GOOGL','MSFT','AMZN','META','NFLX','TSLA','SPCX','NVDA','LLY','KO','JNJ','ABBV','BRK-A'];
 const server=spawn('python',['-m','http.server','8771','--directory','public'],{stdio:'ignore'});
 try{
  for(let i=0;i<50;i++){try{if((await fetch('http://127.0.0.1:8771')).ok)break;}catch{}await new Promise(r=>setTimeout(r,100));}
@@ -15,7 +15,7 @@ try{
    await context.route('https://us.minkabu.jp/**',r=>r.fulfill({contentType:'text/html; charset=utf-8',body:'<meta charset="utf-8"><title>Reference navigation test fixture</title><p>Navigation and text-fragment scroll test only</p><div style="height:2000px"></div><p style="font-size:24px">目標株価</p><div style="height:2000px"></div>'}));
    const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.goto('http://127.0.0.1:8771/stocks-reference.html');await page.waitForSelector('.stock-tile');
-   assert.equal(await page.locator('.stock-tile').count(),13);assert.equal(await page.locator('.minkabu-small').count(),13);assert.equal(await page.locator('iframe').count(),0);
+   assert.equal(await page.locator('.stock-tile').count(),14);assert.equal(await page.locator('.minkabu-small').count(),14);assert.equal(await page.locator('iframe').count(),0);
    for(const symbol of symbols){
     const tile=page.locator(`.stock-tile[data-symbol="${symbol}"]`),button=tile.locator('.minkabu-small');
     assert.equal(await button.innerText(),'みんかぶ');assert.equal(await button.getAttribute('href'),`https://us.minkabu.jp/stocks/${symbol}/researches#:~:text=${encodeURIComponent('目標株価')}`);
@@ -24,7 +24,7 @@ try{
    }
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1));assert.deepEqual(errors,[]);
    await page.locator('.stock-tile').first().scrollIntoViewIfNeeded();await page.screenshot({path:`screenshots/reference-${engine}-${device}.png`});
-   console.log(`PASS ${engine} ${device}: 13 double-size orange right-aligned buttons and 13 matching reference popup URLs; Chromium target scroll (fixture)`);await context.close();
+   console.log(`PASS ${engine} ${device}: 14 double-size orange right-aligned buttons and 14 matching reference popup URLs; Chromium target scroll (fixture)`);await context.close();
   }}finally{await browser.close();}
  }
 }finally{server.kill();}
