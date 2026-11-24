@@ -8,6 +8,14 @@ from update_stocks import parse_japan, price_observation, section, high_observat
 from unittest.mock import patch
 
 class StockTests(unittest.TestCase):
+    def test_tokyo_close_uses_tokyo_session_date(self):
+        from zoneinfo import ZoneInfo
+        def stamp(s): return int(dt.datetime.fromisoformat(s).timestamp())
+        daily = {'timestamp': [stamp('2026-11-20T00:00:00+00:00'), stamp('2026-11-24T00:00:00+00:00')], 'indicators': {'quote': [{'close': [3025, 3166]}]}}
+        intraday = {'meta': {'currentTradingPeriod': {'regular': {'start': stamp('2026-11-24T00:00:00+00:00'), 'end': stamp('2026-11-24T06:30:00+00:00')}}}}
+        result = price_observation(daily, intraday, dt.datetime.fromisoformat('2026-11-24T10:41:00+00:00'), ZoneInfo('Asia/Tokyo'))
+        self.assertEqual((result['sessionDate'], result['value'], result['change']), ('2026-11-24', 3166, 141))
+
     def test_highs_separate_52_weeks_and_full_history(self):
         dates=['2020-01-02T14:30:00+00:00','2025-10-07T13:30:00+00:00','2026-10-07T13:30:00+00:00','2026-10-08T13:30:00+00:00']
         stamps=[int(dt.datetime.fromisoformat(d).timestamp()) for d in dates]

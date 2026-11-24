@@ -182,7 +182,7 @@ def price_observation(daily, intraday, now, timezone=NY):
     today = now.astimezone(timezone).date()
     completed = [p for p in daily_points
                  if dt.datetime.fromtimestamp(p['time'], timezone).date() < today
-                 or (dt.datetime.fromtimestamp(p['time'], NY).date() == today and epoch >= period['end'])]
+                 or (dt.datetime.fromtimestamp(p['time'], timezone).date() == today and epoch >= period['end'])]
     if active:
         value = number(meta.get('regularMarketPrice'))
         stamp = int(meta['regularMarketTime'])
